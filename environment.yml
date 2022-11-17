@@ -17,6 +17,9 @@ dependencies:
       - pylab-sdk
       - selenium
       - pandas_profiling
+      - adjusttext
+      - statsmodels
+      - scikit-learn
       - git+https://github.com/Tax-Justice-Network/tjn_tools
       - git+https://github.com/Tax-Justice-Network/tjn_internal.git
       
