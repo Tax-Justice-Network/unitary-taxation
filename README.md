@@ -1,9 +1,9 @@
 <!-- TITLE AND SUBTITLE -->
 <br />
 <p align="center">
-  <h1 align="center">IBFD Scraper</h1>
+  <h1 align="center">SOTJ Profit Shifting Estimates</h1>
 </p>
-<p align="center">Collecting Tax Treaty data from the International Bureau of Fiscal Documentation </p>
+<p align="center">Calculation of SOTJ Profit Shifting Estimates </p>
 
 <br />
 
@@ -23,7 +23,10 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-To do.
+The aim of this code is to produce the shifting profits estimates using the data from the corporate tax statistic database of the [OCDE](https://www.oecd.org/tax/tax-policy/corporate-tax-statistics-database.htm).
+
+
+This code has been recycled from the repository `202107_SoTJ2021` from Share Point `Shared Documents > Data > Code > Code_projects`.
 
 <br />
 
@@ -37,11 +40,11 @@ To get a local copy up and running follow these simple steps.
 ```
 conda env create -f environment.yml
 
-conda activate ibfd_scraper
+conda activate sotj_profit_shifting_estimates
 ```
 ### Visual Studio Code
 
-After running the code above in Terminal, you still have to select the environment in VSCode. Click `F1`, select `Python: Select Interpreter`, click `Enter` and select the one that has `ibfd_scraper` in brackets. If you don't see the environment in the list, reload VS Code.
+After running the code above in Terminal, you still have to select the environment in VSCode. Click `F1`, select `Python: Select Interpreter`, click `Enter` and select the one that has `sotj_profit_shifting_estimates` in brackets. If you don't see the environment in the list, reload VS Code.
 
 <br />
 
@@ -52,10 +55,9 @@ First you need to log in to ibfd.org website with an subscribed account. Details
 
 In order to generate the report run the following jupyter notebook in the following order:
    ```sh
-   1a_download_snapshot_current.ipynb
-   1b_download_country_surveys.ipynb
-   2_clean_snapshot.ipynb
-   3_extract_capital_gains.ipynb
+   1.clean_data.ipynb
+   2.create_mislalignment.ipynb
+   3.study_mislalignment.ipynb
    ```
 
 The output will be stored in the `final` folder.
@@ -65,13 +67,7 @@ The output will be stored in the `final` folder.
 <!-- PROJECT ORGANIZATION -->
 ## Project Organization
 
-The project is composed of 4 main notebooks
-
-* 1a_download_snapshot_current.ipynb produces the folders `wht` and `kf`
-* 1b_download_country_surveys.ipynb produces the folders `cta` and `gtha`
-* 2_clean_snapshot.ipynb produces `treaty_wht_step1` and `treaty_wht_step2` excel files
-* 3_extract_capital_gains.ipynb produces `all_kf` excel file
-
+The project is composed of 3 main notebooks.
 
 Other files such as helper.py are used as auxiliary code to assist these main notebooks.
 
