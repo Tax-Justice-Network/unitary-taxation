@@ -53,6 +53,8 @@ After running the code above in Terminal, you still have to select the environme
 
 First you need to log in to ibfd.org website with an subscribed account. Details can be found in the notebooks comments.
 
+Paths to input dataset must be set and can be found in `src/config.py` file.
+
 In order to generate the report run the following jupyter notebook in the following order:
    ```sh
    1.clean_data.ipynb
@@ -60,7 +62,7 @@ In order to generate the report run the following jupyter notebook in the follow
    3.study_mislalignment.ipynb
    ```
 
-The output will be stored in the `final` folder.
+The output will be stored in the `final` folder and `TJN - Shared Documents/Workstreams/Scale of Tax Injustice/State of Tax Justice report/{YEAR_SOTJ} Report/Tax avoidance/` in Share Point.
 
 <br />
 
@@ -77,17 +79,17 @@ This is the structured followed by this project
 <pre><code>
 
 ├── LICENSE 
-    ├── README.md          <- The top-level README for developers using this project
-    ├── data
-    │   ├── final          <- Final results and datasets
-    │   ├── intermediary   <- Intermediate datasets
-    │   └── raw            <- The original, immutable data dump
-    │
-    ├── docs               <- Documents of interest for this project
-    │
-    ├── src          <- Source code as Jupyter notebooks
-    │
-    ├── environment.yml           <- YAML file to create conda environment to run the project
+├── README.md          <- The top-level README for developers using this project
+├── data
+│   ├── final          <- Final results and datasets
+│   ├── intermediary   <- Intermediate datasets
+│   └── raw            <- The original, immutable data dump
+│
+├── docs               <- Documents of interest for this project
+│
+├── src          <- Source code as Jupyter notebooks
+│
+├── environment.yml           <- YAML file to create conda environment to run the project
    
 </code></pre>
 
