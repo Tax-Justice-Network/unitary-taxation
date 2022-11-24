@@ -28,6 +28,8 @@ The aim of this code is to produce the shifting profits estimates using the data
 
 This code has been recycled from the repository `202107_SoTJ2021` from Share Point `Shared Documents > Data > Code > Code_projects`.
 
+*Note:* Adding a new corporate tax rate dataset might produce running issues.
+
 <br />
 
 <!-- INSTALLATION -->
@@ -87,9 +89,9 @@ This is the structured followed by this project
 │
 ├── docs               <- Documents of interest for this project
 │
-├── src          <- Source code as Jupyter notebooks
+├── src                <- Source code as Jupyter notebooks
 │
-├── environment.yml           <- YAML file to create conda environment to run the project
+├── environment.yml    <- YAML file to create conda environment to run the project
    
 </code></pre>
 
