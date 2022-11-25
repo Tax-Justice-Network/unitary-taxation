@@ -8,7 +8,7 @@ YEAR_SOTJ = 2023
 # Input datasets - Notebook 1 - Section 1
 CBCR_FILE = f"../data/raw/CBCR_TABLEI_17112022170811646.csv"
 ORBIS_FILE = f"../data/raw/orbis.xlsx"
-CORPORATE_TAX_RATE_PATH = f"../data/raw/221112 Corporate tax rates.csv"
+CORPORATE_TAX_RATE_PATH = f"../data/raw/221124 Corporate tax rates.csv"
 # Input datasets - Notebook 1 - Section 2
 UNILATERAL_CROSS = f"{tjn_internal.paths.final_data}/20210810_country-level-data.csv"  # TODO Take most up-to-date version
 UNILATERAL_PANEL = f"{tjn_internal.paths.final_data}/20210810_country-year-level-data.csv"  # TODO Take most up-to-date version
