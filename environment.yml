@@ -20,6 +20,9 @@ dependencies:
       - adjusttext
       - statsmodels
       - scikit-learn
+      - plotly
+      - nbformat
+      - kaleido
       - git+https://github.com/Tax-Justice-Network/tjn_tools
       - git+https://github.com/Tax-Justice-Network/tjn_internal.git
       
