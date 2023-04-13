@@ -15,3 +15,5 @@ UNILATERAL_PANEL = f"{tjn_internal.paths.final_data}/20210810_country-year-level
 BILATERAL_CROSS = f"{tjn_internal.paths.final_data}/20210810_bilateral-year-level-data.csv"  # TODO Take most up-to-date version
 GRAV_FILE = f"{tjn_internal.paths.source_data}/022 CEPII/other/Gravity_V202102.dta"
 LINK_FILE = f"{tjn_internal.paths.source_data}/016 Papers/garcia-stausholm2020/combined_data_imputed copy.tsv"
+# Path for METR analysis - [I will adapt the structure of my notebook to also include every single input file here based on tjn_internal in the next days]
+path = "C:/Users/AlisonSchultz/Tax Justice Network Ltd/TJN - Shared Documents/Workstreams/Scale of Tax Injustice/METR/2023"
