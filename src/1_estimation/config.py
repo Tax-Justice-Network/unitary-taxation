@@ -17,3 +17,7 @@ GRAV_FILE = f"{tjn_internal.paths.source_data}/022 CEPII/other/Gravity_V202102.d
 LINK_FILE = f"{tjn_internal.paths.source_data}/016 Papers/garcia-stausholm2020/combined_data_imputed copy.tsv"
 # Path for METR analysis - [I will adapt the structure of my notebook to also include every single input file here based on tjn_internal in the next days]
 path = "C:/Users/AlisonSchultz/Tax Justice Network Ltd/TJN - Shared Documents/Workstreams/Scale of Tax Injustice/METR/2023"
+# Path for wealth tax estimates
+WEALTH_TAX = f"{tjn_internal.paths.sharepoint_root}/TJN - Shared Documents/Workstreams/Scale of Tax Injustice/Wealth tax/2_data"
+WEALTH_TAX_INPUT = f"{WEALTH_TAX}/1_input"
+WEALTH_TAX_OUTPUT = f"{WEALTH_TAX}/2_output"
