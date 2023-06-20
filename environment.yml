@@ -23,6 +23,7 @@ dependencies:
       - plotly
       - nbformat
       - kaleido
+      - xlsxwriter
+      - squarify
       - git+https://github.com/Tax-Justice-Network/tjn_tools
       - git+https://github.com/Tax-Justice-Network/tjn_internal.git
-      
