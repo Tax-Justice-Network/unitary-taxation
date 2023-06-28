@@ -10,7 +10,9 @@ CBCR_FILE = "../../data/raw/estimations/CBCR_TABLEI_12062023113505025.csv"
 ORBIS_FILE = "../../data/raw/estimations/orbis.xlsx"
 CORPORATE_TAX_RATE_PATH = "../../data/raw/estimations/221124 Corporate tax rates.csv"
 # Input datasets - Notebook 1 - Section 2
-UNILATERAL_CROSS = f"{tjn_internal.paths.final_data}/20210810_country-level-data.csv"
+UNILATERAL_CROSS = (
+    f"{tjn_internal.paths.final_data}/20210810_country-level-data-FSI2022.csv"
+)
 UNILATERAL_PANEL = (
     f"{tjn_internal.paths.final_data}/20210810_country-year-level-data.csv"
 )
