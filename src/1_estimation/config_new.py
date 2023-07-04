@@ -8,9 +8,7 @@ YEAR_SOTJ = 2023
 
 DATA_PATH = "../../data"
 
-pd.options.mode.chained_assignment = (
-    None  # default='warn', supress warnings for chained assignments
-)
+pd.options.mode.chained_assignment = None  # default='warn', supress warnings for chained assignments
 sns.set(font_scale=1.2, style="whitegrid")  # adjust settings for figures...
 
 pd.set_option("display.max_columns", 100)  # ...and tables
