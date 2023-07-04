@@ -4,7 +4,6 @@ import tjn_tools
 YEAR_CBCR = 2018
 YEAR_SOTJ = 2023
 
-
 # Input datasets - Notebook 1 - Section 1
 CBCR_FILE = "../../data/raw/estimations/CBCR_TABLEI_20062023110215400.csv"
 ORBIS_FILE = "../../data/raw/estimations/orbis.xlsx"
