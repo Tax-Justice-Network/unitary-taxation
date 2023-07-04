@@ -1,6 +1,5 @@
 name: sotj_profit_shifting_estimates
-channels:
-  - conda-forge
+
 dependencies:
   - python>=3.11
   - pip

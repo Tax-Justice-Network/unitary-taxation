@@ -1,8 +1,17 @@
 import tjn_tools
+import pandas as pd
+import seaborn as sns
 
 # Set most recent cbcr year and its dataset here https://stats.oecd.org/Index.aspx?DataSetCode=CBCR_TABLEI
 YEAR_CBCR = 2018
 YEAR_SOTJ = 2023
+
+DATA_PATH = "../../data"
+
+pd.options.mode.chained_assignment = None  # default='warn', supress warnings for chained assignments
+sns.set(font_scale=1.2, style="whitegrid")  # adjust settings for figures...
+
+pd.set_option("display.max_columns", 100)  # ...and tables
 
 
 # Input datasets - Notebook 1 - Section 1
