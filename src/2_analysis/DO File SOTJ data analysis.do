@@ -34,6 +34,7 @@ replace diff_old2017=ProfitlossM_2017 if ProfitlossM_old==.
 gen diff_new2017 = ProfitlossM_new - ProfitlossM_2017
 replace diff_new2017=ProfitlossM_2017 if ProfitlossM_new==.
 
+sort diff_new2017
 br country MNCs diff* ProfitlossM* 
 
 if diff_old2017>diff_new2017
