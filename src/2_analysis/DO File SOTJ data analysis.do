@@ -3,7 +3,7 @@
 import excel using "C:\Users\15671304\Tax Justice Network Ltd\TJN - Shared Documents\Workstreams\Scale of Tax Injustice\State of Tax Justice report\2023 Report\Tax avoidance\2017_tax_avoidance_sotj_table.xlsx", first clear
 rename * *_2017
 rename Name_2017 country
-drop if MNCs_2017=="0"
+drop if MNCs_2017==""
 rename MNCs_2017 MNCs
 save "2017_tax_avoidance_sotj_table.dta", replace
 
@@ -13,7 +13,6 @@ rename Name_old country
 drop if MNCs_old=="0"
 rename MNCs_old MNCs
 save "2018_tax_avoidance_sotj_table_DaniNov.dta", replace
-
 
 import excel using "C:\Users\15671304\Github repositories\sotj_profit_shifting_estimates\data\final\analysis\2018_tax_avoidance_sotj_table_new.xlsx", first clear
 rename * *_new
@@ -31,9 +30,9 @@ joinby country MNCs using "2017_tax_avoidance_sotj_table.dta", unmatched(both)
 
 
 gen diff_old2017 = ProfitlossM_old - ProfitlossM_2017
-replace diff_old2017=ProfitlossM_old if ProfitlossM_2017==.
+replace diff_old2017=ProfitlossM_2017 if ProfitlossM_old==.
 gen diff_new2017 = ProfitlossM_new - ProfitlossM_2017
-replace diff_new2017=ProfitlossM_old if ProfitlossM_new==.
+replace diff_new2017=ProfitlossM_2017 if ProfitlossM_new==.
 
 br country MNCs diff* ProfitlossM* 
 
