@@ -1,4 +1,4 @@
-import tjn_internal
+import tjn_tools
 
 # Years to compare with - A > B
 YEAR_A = 2018
@@ -6,11 +6,11 @@ YEAR_B = 2017
 
 # External paths for years A and B
 SHAREPOINT_RAW_DATA_PATH = (
-    tjn_internal.paths.sharepoint_root
+    tjn_tools.paths.sharepoint_root
     + r"/TJN - Shared Documents/Workstreams/Scale of Tax Injustice/State of Tax Justice report/Analysis/Corporate tax abuse/data/"
 )
 PATH_PSO_A = (
-    SHAREPOINT_RAW_DATA_PATH + f"{YEAR_A}_tax_avoidance_sotj_table.xlsx"
+    SHAREPOINT_RAW_DATA_PATH + f"{YEAR_A}_tax_avoidance_sotj_table_new.xlsx"
 )  # PSO stand for profit shifting outward
 PATH_PSO_B = (
     SHAREPOINT_RAW_DATA_PATH + f"{YEAR_B}_tax_avoidance_sotj_table.xlsx"
