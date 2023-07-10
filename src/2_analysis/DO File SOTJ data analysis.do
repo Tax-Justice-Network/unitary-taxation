@@ -37,6 +37,12 @@ replace diff_new2017=ProfitlossM_2017 if ProfitlossM_new==.
 sort diff_new2017
 br country MNCs diff* ProfitlossM* 
 
+
+bys country: egen sum_c_profit=sum(ProfitlossM_new)
+duplicates drop country, force
+gsort -sum_c_profit
+br country sum_c_profit
+
 if diff_old2017>diff_new2017
 
 
