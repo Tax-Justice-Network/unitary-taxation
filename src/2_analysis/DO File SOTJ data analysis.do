@@ -47,3 +47,17 @@ if diff_old2017>diff_new2017
 
 
 br 
+
+
+
+***Country-level analysis
+use "C:\Users\15671304\Tax Justice Network Ltd\TJN - Shared Documents\Data\Projects\2305 Australia public CbCR\oecd_agg_cbcr_data final.dta", clear
+global country "Cayman Islands"
+keep if partnerjurisdiction=="$country" & cbc=="PROFIT" & grouping=="Sub-Groups with positive profits"
+keep ultimateparentjurisdiction value year
+replace value=value/1000000000
+reshape wide value, i(ultimateparentjurisdiction) j(year)
+rename ultimateparentjurisdiction country
+graph bar (asis) value2016 value2017 value2018, over(country, label(angle(45))) ytitle("Reported profits (USD billion)") title("MNEs' reported profits in: $country") subtitle("Source: Aggregate CbCR data from OECD") legend(order (1 "2016" 2 "2017" 3 "2018") cols(3))
+
+
