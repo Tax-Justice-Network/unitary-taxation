@@ -1,6 +1,7 @@
 __pycache__
 /data/final
 /data/intermediate
+/data/raw
 !.gitkeep
 
 
