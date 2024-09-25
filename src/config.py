@@ -76,6 +76,10 @@ cpis_data = "../data/raw/2024/portfolio_investment.dta"
 ## It is cleaned to include mirrored statistics where missings occur in the IFF Tracker Github folder: "GitHub\iff_tracker\data"
 bis_data = "../data/raw/2024/20240630_bis_lbs_tablea6_2.csv"
 
+# Consolidated banking claims per country
+## Please copy the most recent version of the total consolidated banking claims from the BIS (Table B4) that can be downloaded here: https://data.bis.org/static/bulk/WS_CBS_PUB_csv_col.zip
+bis_consolidated_data = "../data/raw/2024/WS_CBS_PUB_csv_col.csv"
+
 # Number of firms
 ## Orbis data on number of firms above USD 750mn revenue headquartered in a country, from Orbis flatfiles (to be obtained externally).
 ## Please store the data in the folder data/raw/{sotj_year} and adjust the path below accordingly.
@@ -110,8 +114,7 @@ tax_havens = {
 }
 ## Country groups
 aggregated_country_groups = {"W", "A", "E", "F", "S"}
-country_groups = {"AFRIC", "AMER", "ASIAT", "EUROP", "FJT", "GRPS", "OAF", "OAM", "OAS", "OTE"}
 ## Country groups "other"
 other_country_groups = {"WXD", "A_O", "E_O", "F_O", "S_O", "W_O"}
 ## Non-countries
-non_countries = aggregated_country_groups | other_country_groups | country_groups
+non_countries = aggregated_country_groups | other_country_groups
