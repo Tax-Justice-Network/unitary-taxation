@@ -28,19 +28,19 @@ cit_data_taxfoundation = "../data/raw/2024/1980_2023_Corporate_Tax_Rates_Around_
 
 # Wage data
 ## Please give the path to the most recent ILO wage data "Wages and Working Time Statistics (COND)" here. The data be downloaded here: https://www.ilo.org/ilostat-files/WEB_bulk_download/indicator/EAR_4MTH_SEX_ECO_CUR_NB_A.csv.gz (see notebook "1_clean").
-wage_data = "../data/raw/2024/EAR_4MTH_SEX_ECO_CUR_NB_A.csv"
+wage_data = "../data/raw/2024/Wages and Working Time Statistics (COND).csv"
 
 # GDP and population data
 ## Please give the path to the most recent GDP and population data from the World Bank here. The data be downloaded here: https://databank.worldbank.org/source/world-development-indicators/preview/on, selecting the series "GDP (current US$)" and "Population, total" (see notebook "1_clean").
-gdp_population_data = "../data/raw/2024/e1345356-4d09-4026-a69b-adacf3d70354_Data.csv"
+gdp_population_data = "../data/raw/2024/gdp_population_world_bank.csv"
 
 # Health expenditure data
 ## Please give the path to the most recent WHO health expenditure data here. The data be downloaded here: https://apps.who.int/nha/database/Select/Indicators/en selecting "Domestic General Government Health Expenditure" and "million current US$" as a unit (see notebook "1_clean").
-health_expenditure_data = "../data/raw/2024/NHA indicators.xlsx"
+health_expenditure_data = "../data/raw/2024/WHO health expenditure.xlsx"
 
 # Tax revenue data
 ## Please give the path to the most recent tax revenue data here. The data be downloaded here: https://api.worldbank.org/v2/en/indicator/GC.TAX.TOTL.GD.ZS?downloadformat=csv
-tax_revenue_data = "../data/raw/2024/API_GC.TAX.TOTL.GD.ZS_DS2_en_csv_v2_2788687.csv"
+tax_revenue_data = "../data/raw/2024/Tax Revenue Data World Bank.csv"
 
 # Data on regions and membership in regional or international organizations
 ## Please copy the most recent version of TJN's unilateral cross data from the TJN sharepoint: "...\Tax Justice Network Ltd\TJN - Shared Documents\Research team\Data\Final data\{date}_unilateral_cross.csv"
