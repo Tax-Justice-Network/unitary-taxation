@@ -4,24 +4,22 @@ __pycache__
 /data/raw
 !.gitkeep
 
-##
-data/output/tables/2024/EU_analyses/*.csv
-data/output/tables/2024/Global_sample_with_imputed_data/Bootstrapped/*.csv
-data/output/tables/2024/Global_sample_with_imputed_data/One_sample/*.csv
-data/output/tables/2024/Sample_of_original_reporters_filled_missings/*.csv
-data/output/tables/2024/Sample_with_origina_data_only_fp_scaled/*.csv
-data/output/tables/2024/Sample_with_original_data_only/*.csv
-data/output/tables/2024/Sample_with_original_data_only_foreign_profits/*.csv
-data/output/tables/2024/Final_Full_CBCR_Datasets/*.csv
-data/output/tables/2024/Datasets_to_Perform_Analysis/*.csv
-data/output/tables/2024/Australia/*.csv
+/output/tables/2024/EU_analyses/*.csv
+/output/tables/2024/Global_sample_with_imputed_data/Bootstrapped/*.csv
+/output/tables/2024/Global_sample_with_imputed_data/One_sample/*.csv
+/output/tables/2024/Sample_of_original_reporters_filled_missings/*.csv
+/output/tables/2024/Sample_with_origina_data_only_fp_scaled/*.csv
+/output/tables/2024/Sample_with_original_data_only/*.csv
+/output/tables/2024/Sample_with_original_data_only_foreign_profits/*.csv
+/output/tables/2024/Final_Full_CBCR_Datasets/*.csv
+/output/tables/2024/Datasets_to_Perform_Analysis/*.csv
+/output/tables/2024/Australia/*.csv
 
-
-
-
-
-
-
+#git check-ignore -v /output/tables/2024/Final_Full_CBCR_Datasets
+#git check-ignore -v /data/final
+#git rm --cached /output/tables/2024/Datasets_to_Perform_Analysis/*.csv
+# git rm --cached /output/tables/2024/Datasets_to_Perform_Analysis/\*.csv
+#git rm --cached /output/tables/2024/Final_Full_CBCR_Datasets/*.csv
 
 
 ## Core latex/pdflatex auxiliary files:
