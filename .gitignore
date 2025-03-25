@@ -14,6 +14,8 @@ __pycache__
 /output/tables/2024/Final_Full_CBCR_Datasets/*.csv
 /output/tables/2024/Datasets_to_Perform_Analysis/*.csv
 /output/tables/2024/Australia/*.csv
+/output/specific_country_requests/*.csv
+/output/specific_country_requests/*.xlsx
 
 #git check-ignore -v /output/tables/2024/Final_Full_CBCR_Datasets
 #git check-ignore -v /data/final
