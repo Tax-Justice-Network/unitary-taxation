@@ -5,6 +5,9 @@ __pycache__
 !/data/2024/final/.gitkeep
 !/data/2024/intermediate/.gitkeep
 !/data/2024/raw/.gitkeep
+/data/2024/final/analysis/*
+/data/2024/final/estimations/*
+/data/2024/final/figures/*
 !/data/2024/final/analysis/
 !/data/2024/final/estimations/
 !/data/2024/final/figures/
