@@ -7,11 +7,11 @@ first_year = 2016
 n_years = 6
 
 # Specify paths. The year given here relates to the year when the State of Tax Justice is published
-data_raw = "../data/raw/2024/"
-data_intermediate = "../data/intermediate/2024/"
-data_final = "../data/final/2024/"
-output_tables = "../output/tables/2024/"
-output_figures = "../output/figures/2024/"
+data_raw = "../data/2024/raw/"
+data_intermediate = "../data/2024/intermediate/"
+data_final = "../data/2024/final/"
+output_tables = "../output/2024/tables/"
+output_figures = "../output/2024/figures/"
 
 # Specify the most up-to-date file names for the raw files
 
