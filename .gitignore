@@ -1,8 +1,10 @@
 __pycache__
-/data/2024/final
-/data/2024/intermediate
-/data/2024/raw
-!.gitkeep
+/data/2024/final/*
+/data/2024/intermediate/*
+/data/2024/raw/*
+!/data/2024/final/.gitkeep
+!/data/2024/intermediate/.gitkeep
+!/data/2024/raw/.gitkeep
 
 /output/2024/tables/Australia/*.csv
 /output/2024/tables/BEFIT/*.csv
