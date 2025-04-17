@@ -1,16 +1,27 @@
 __pycache__
+# Ignore everything under final, intermediate, raw
 /data/2024/final/*
 /data/2024/intermediate/*
 /data/2024/raw/*
-!/data/2024/final/.gitkeep
-!/data/2024/intermediate/.gitkeep
-!/data/2024/raw/.gitkeep
-/data/2024/final/analysis/*
-/data/2024/final/estimations/*
-/data/2024/final/figures/*
+
+# But keep the subdirectories themselves
 !/data/2024/final/analysis/
 !/data/2024/final/estimations/
 !/data/2024/final/figures/
+!/data/2024/intermediate/
+!/data/2024/raw/
+
+/data/2024/final/analysis/*
+/data/2024/final/estimations/*
+/data/2024/final/figures/*
+
+# Except .gitkeep files
+!/data/2024/final/.gitkeep
+!/data/2024/intermediate/.gitkeep
+!/data/2024/raw/.gitkeep
+!/data/2024/final/analysis/.gitkeep
+!/data/2024/final/estimations/.gitkeep
+!/data/2024/final/figures/.gitkeep
 
 
 /output/2024/tables/Australia/*.csv
