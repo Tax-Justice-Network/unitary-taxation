@@ -1,3 +1,4 @@
+.env
 __pycache__
 # Ignore everything under final, intermediate, raw
 /data/2024/final/*
@@ -24,28 +25,17 @@ __pycache__
 !/data/2024/final/figures/.gitkeep
 
 
-/output/2024/tables/Australia/*.csv
-/output/2024/tables/BEFIT/*.csv
-/output/2024/tables/Datasets_to_Perform_Analysis/*.csv
-/output/2024/tables/ETR Analysis/*.csv
-/output/2024/tables/ETR Analysis/*.xlsx
-/output/2024/tables/ETR Analysis/*.png
-/output/2024/tables/EU_analyses/*.csv
-/output/2024/tables/Final_Full_CBCR_Datasets/*.csv
-/output/2024/tables/Global_sample_with_imputed_data/Bootstrapped/*.csv
-/output/2024/tables/Global_sample_with_imputed_data/One_sample/*.csv
-/output/2024/tables/Sample_of_original_reporters_filled_missings/*.csv
-/output/2024/tables/Sample_with_origina_data_only_fp_scaled/*.csv
-/output/2024/tables/Sample_with_original_data_only/*.csv
-/output/2024/tables/Sample_with_original_data_only_foreign_profits/*.csv
-/output/2024/tables/Datasets_to_Perform_Analysis/*.csv
-
-
 #git check-ignore -v /output/tables/2024/Final_Full_CBCR_Datasets
 #git check-ignore -v /data/final
 #git rm --cached /output/tables/2024/Datasets_to_Perform_Analysis/*.csv
 # git rm --cached /output/tables/2024/Datasets_to_Perform_Analysis/\*.csv
 #git rm --cached /output/tables/2024/Final_Full_CBCR_Datasets/*.csv
+
+
+# US-only sub-project: per-spec UT estimation outputs are large (~120MB) and
+# fully regenerable by src/us_only/estimate_us_multinationals.py. Keep the
+# figures and the small summary tables; ignore the heavy per-spec CSV dir.
+/output/us_multinationals/tables/disaggregated/
 
 
 ## Core latex/pdflatex auxiliary files:
