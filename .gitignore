@@ -32,10 +32,11 @@ __pycache__
 #git rm --cached /output/tables/2024/Final_Full_CBCR_Datasets/*.csv
 
 
-# US-only sub-project: per-spec UT estimation outputs are large (~120MB) and
-# fully regenerable by src/us_only/estimate_us_multinationals.py. Keep the
-# figures and the small summary tables; ignore the heavy per-spec CSV dir.
-/output/us_multinationals/tables/disaggregated/
+# Home-group sub-project (us_/eu_multinationals): per-spec UT estimation outputs
+# are large (~120MB each) and fully regenerable by
+# src/us_only/estimate_us_multinationals.py. Keep the figures and small summary
+# tables; ignore the heavy per-spec CSV dirs for any home group.
+/output/*/tables/disaggregated/
 
 
 ## Core latex/pdflatex auxiliary files:

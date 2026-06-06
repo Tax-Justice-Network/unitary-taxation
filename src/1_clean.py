@@ -1,18 +1,15 @@
 # %%
-# ## The State of Tax Justice: Data cleaning
-# TO DO: Get Orbis GUO information per year and adjust the code (of this notebook and the imputation notebook) accordingly.
+# ## OECD Country by Country Reports: Data cleaning for misalignment analyses
 #
 # - Author: Alison Schultz, based on Javier Garcia-Bernado's work
 # - Created: 4 August 2023
-# - Last updated: 19 September 2024
+# - Last updated: 19 May 2026
 #
 # **Description**
 # - This notebook is one out of three notebooks to estimate the tax losses caused by profit shifting by multinational enterprises (MNEs).
 # - The analysis uses the misalignment method based on the country-by-country reports (CbCR) published by the OECD.
 # - It produces:
 #     - '{data_final}/cbcr_main_allsubgroupsonly.csv'
-#     - '{data_final}/cbcr_main.csv'
-#     - "{data_intermediate}/cbcr_imputation_sample.csv"
 #
 # **Outline**
 # 1. Import and clean CbCR data
@@ -39,7 +36,10 @@ import statsmodels.formula.api as smf
 
 from config import *
 from tjn_tools import data_processing
-
+from _etr_construction import (
+    compute_partner_year_etrs,
+    safe_nonnegative_etr,
+)
 
 analysis_years = list(range(first_year, first_year + n_years))
 last_year = analysis_years[-1]
@@ -337,84 +337,182 @@ def fix_corrected_wxd(cbcr, rtol=1e-6, atol=1e-3):
     return cbcr
 
 
-def calculate_etr(df):
-    """
-    Calculate ETRs from a country-level aggregation.
-    """
-    d = df.groupby("iso_partner", as_index=False)[
-        [
-            "income_tax_paid_on_cash_basis",
-            "profit_loss_before_income_tax",
-            "profit_loss_before_income_tax_corrected",
-        ]
-    ].sum()
-
-    d["etr"] = d["income_tax_paid_on_cash_basis"] / d["profit_loss_before_income_tax"]
-    d["etr_corrected"] = (
-        d["income_tax_paid_on_cash_basis"]
-        / d["profit_loss_before_income_tax_corrected"]
-    )
-
-    d[["etr", "etr_corrected"]] = (
-        d[["etr", "etr_corrected"]]
-        .replace([np.inf, -np.inf], np.nan)
-        .clip(lower=0, upper=1)
-    )
-
-    return d[["iso_partner", "etr", "etr_corrected"]]
-
-
 def main_etrs(file, grouping_name="Sub-groups with positive profits"):
+    """Compute partner-year ETRs (domestic / foreign / average) over a rolling
+    5-year window, for both reported profit and corrected profit.
+
+    Thin wrapper around compute_partner_year_etrs in _etr_construction.py —
+    called twice (uncorrected, corrected) and merged so the output columns
+    match the canonical cleaning-stage names (etr_domestic, etr_foreign,
+    etr_average, etr_domestic_corrected, etr_foreign_corrected,
+    etr_average_corrected).
     """
-    Calculate rolling-window ETRs for each year.
+    partner_uncorrected, _ = compute_partner_year_etrs(
+        file,
+        profit_col="profit_loss_before_income_tax",
+        tax_col="income_tax_paid_on_cash_basis",
+        suffix=None,
+        grouping_col="grouping",
+        grouping_value=grouping_name,
+        window=2,
+        pair_stats=False,
+    )
+    partner_corrected, _ = compute_partner_year_etrs(
+        file,
+        profit_col="profit_loss_before_income_tax_corrected",
+        tax_col="income_tax_paid_on_cash_basis",
+        suffix="corrected",
+        grouping_col="grouping",
+        grouping_value=grouping_name,
+        window=2,
+        pair_stats=False,
+    )
+
+    merged = partner_uncorrected.merge(
+        partner_corrected, on=["iso_partner", "year"], how="outer"
+    )
+    return merged
+
+
+def alternative_corrected_etrs(file, grouping_name="Sub-groups with positive profits"):
+    """Pair-specific corrected ETR + partner-level median/p25/min over the
+    rolling window. Thin wrapper around compute_partner_year_etrs.
+
+    Returns (pair_year_df, partner_year_df) to preserve the original signature.
     """
-    df = file[
+    partner_year, pair_year = compute_partner_year_etrs(
+        file,
+        profit_col="profit_loss_before_income_tax_corrected",
+        tax_col="income_tax_paid_on_cash_basis",
+        suffix="corrected",
+        grouping_col="grouping",
+        grouping_value=grouping_name,
+        window=2,
+        pair_stats=True,
+    )
+
+    partner_stats_only = partner_year[
         [
-            "iso_parent",
             "iso_partner",
             "year",
-            "partner_jurisdiction",
-            "grouping",
-            "income_tax_paid_on_cash_basis",
-            "profit_loss_before_income_tax",
-            "profit_loss_before_income_tax_corrected",
+            "etr_partner_median_corrected",
+            "etr_partner_p25_corrected",
+            "etr_partner_min_corrected",
         ]
     ].copy()
 
-    df = df.loc[df["grouping"] == grouping_name].copy()
+    return pair_year, partner_stats_only
 
-    results = []
 
-    unique_years = sorted(df["year"].dropna().unique())
+def fill_missing_cit_and_corrected_etrs(df):
+    """
+    Final fallback step after CIT has been merged.
 
-    for year in unique_years:
-        start_year = year - 2
-        end_year = year + 2
+    Logic:
+    1. Complete CIT first:
+       - fill with country mean CIT across years
+       - then use corrected ETR columns as backup
+       - then use the global median CIT as final safeguard
 
-        df_window = df[(df["year"] >= start_year) & (df["year"] <= end_year)].copy()
-        df_window = df_window.dropna(subset=["income_tax_paid_on_cash_basis"])
+    2. Complete corrected ETRs:
+       - partner-year ETRs: fill with country mean over years, then CIT
+       - pair-specific ETR: fill with pair mean over years, then partner mean,
+         then CIT
 
-        df_foreign = df_window[df_window["iso_parent"] != df_window["iso_partner"]]
-        df_domestic = df_window[df_window["iso_parent"] == df_window["iso_partner"]]
-        df_average = df_window
+    Aggregate partner rows remain untouched.
+    """
+    df = df.copy()
 
-        df_etr_domestic = calculate_etr(df_domestic).rename(
-            columns={"etr": "etr_domestic", "etr_corrected": "etr_domestic_corrected"}
+    corrected_partner_cols = [
+        "etr_domestic_corrected",
+        "etr_foreign_corrected",
+        "etr_average_corrected",
+        "etr_partner_median_corrected",
+        "etr_partner_p25_corrected",
+        "etr_partner_min_corrected",
+    ]
+    pair_specific_col = "etr_parent_partner_corrected"
+
+    real_mask = ~df["iso_partner"].isin(non_countries)
+    real = df.loc[real_mask].copy()
+
+    # Complete CIT first
+    real["cit"] = pd.to_numeric(real["cit"], errors="coerce").clip(lower=0, upper=1)
+
+    cit_missing_before = real["cit"].isna().sum()
+
+    mean_cit_by_country = real.groupby("iso_partner")["cit"].transform("mean")
+    real["cit"] = real["cit"].fillna(mean_cit_by_country)
+
+    cit_backup_cols = [
+        "etr_average_corrected",
+        "etr_partner_median_corrected",
+        "etr_partner_p25_corrected",
+        "etr_partner_min_corrected",
+        "etr_parent_partner_corrected",
+    ]
+
+    for col in cit_backup_cols:
+        if col in real.columns:
+            real["cit"] = real["cit"].fillna(real[col])
+
+    global_median_cit = real["cit"].median(skipna=True)
+    real["cit"] = real["cit"].fillna(global_median_cit).clip(lower=0, upper=1)
+
+    cit_missing_after = real["cit"].isna().sum()
+
+    print(f"CIT missing before fallback: {cit_missing_before}")
+    print(f"CIT missing after fallback: {cit_missing_after}")
+
+    # Fill pair-specific corrected ETR
+    if pair_specific_col in real.columns:
+        real[pair_specific_col] = pd.to_numeric(
+            real[pair_specific_col], errors="coerce"
         )
-        df_etr_foreign = calculate_etr(df_foreign).rename(
-            columns={"etr": "etr_foreign", "etr_corrected": "etr_foreign_corrected"}
+
+        missing_before = real[pair_specific_col].isna().sum()
+
+        pair_mean = real.groupby(["iso_parent", "iso_partner"])[
+            pair_specific_col
+        ].transform("mean")
+        partner_mean = real.groupby("iso_partner")[pair_specific_col].transform("mean")
+
+        real[pair_specific_col] = real[pair_specific_col].fillna(pair_mean)
+        real[pair_specific_col] = real[pair_specific_col].fillna(partner_mean)
+        real[pair_specific_col] = real[pair_specific_col].fillna(real["cit"])
+        real[pair_specific_col] = real[pair_specific_col].clip(lower=0, upper=1)
+
+        missing_after = real[pair_specific_col].isna().sum()
+        print(
+            f"{pair_specific_col}: filled {missing_before - missing_after} missing values; remaining missing {missing_after}"
         )
-        df_etr_average = calculate_etr(df_average).rename(
-            columns={"etr": "etr_average", "etr_corrected": "etr_average_corrected"}
+
+    # Fill partner-level corrected ETRs
+    for col in corrected_partner_cols:
+        if col not in real.columns:
+            continue
+
+        real[col] = pd.to_numeric(real[col], errors="coerce")
+        missing_before = real[col].isna().sum()
+
+        partner_mean = real.groupby("iso_partner")[col].transform("mean")
+
+        real[col] = real[col].fillna(partner_mean)
+        real[col] = real[col].fillna(real["cit"])
+        real[col] = real[col].clip(lower=0, upper=1)
+
+        missing_after = real[col].isna().sum()
+        print(
+            f"{col}: filled {missing_before - missing_after} missing values; remaining missing {missing_after}"
         )
 
-        df_etr = df_etr_domestic.merge(df_etr_foreign, on="iso_partner", how="outer")
-        df_etr = df_etr.merge(df_etr_average, on="iso_partner", how="outer")
-        df_etr["year"] = year
+    fill_cols = ["cit"] + [c for c in corrected_partner_cols if c in real.columns]
+    if pair_specific_col in real.columns:
+        fill_cols.append(pair_specific_col)
 
-        results.append(df_etr)
+    df.loc[real_mask, fill_cols] = real[fill_cols]
 
-    return pd.concat(results, ignore_index=True)
+    return df
 
 
 # %%
@@ -477,6 +575,16 @@ cbcr = cbcr[
         & (cbcr["TIME_PERIOD"] == 2016)
         & (cbcr["COUNTERPART_AREA"] == "F")
     )
+].copy()
+
+# Drop Romania's 2022 record entirely — it is corrupt at source. The OECD raw
+# data reports an impossible 492m employees for Romanian MNEs in 2022 (incl.
+# ~105m in the US and ~83m in Israel; vs ~0.98m in 2021), a ~1,600x inflated
+# payroll, and collapsed/negative tangible assets and revenues. The whole 2022
+# submission is internally inconsistent, so Romania is treated as a non-reporter
+# for 2022 (verified against the raw CbCR file; not a pipeline artefact).
+cbcr = cbcr[
+    ~((cbcr["REF_AREA"] == "ROU") & (cbcr["TIME_PERIOD"] == 2022))
 ].copy()
 
 cbcr.rename(
@@ -710,14 +818,17 @@ for col_name in variables_to_log:
 # %%
 # 1.3 Calculate ETRs
 
+# Main rolling-window ETRs
 etrs = main_etrs(cbcr, grouping_name="Sub-groups with positive profits")
 
 for year in etrs["year"].unique():
     num_partners = etrs[etrs["year"] == year].shape[0]
     print(
-        f"Calculated ETRs for year {year} (Sub-groups with positive profits). Number of partners: {num_partners}"
+        f"Calculated main rolling-window ETRs for year {year} "
+        f"(Sub-groups with positive profits). Number of partners: {num_partners}"
     )
 
+# Domestic fallback for reporting countries with no positive-profit subgroup entry
 reporting_countries_with_no_positive_profits = set(
     cbcr.loc[
         (cbcr["iso_parent"] == cbcr["iso_partner"])
@@ -747,7 +858,8 @@ for year in etrs_no_positive_profits["year"].unique():
         etrs_no_positive_profits["year"] == year
     ].shape[0]
     print(
-        f"Calculated ETRs for year {year} (Total - All sub-groups). Number of partners: {num_partners}"
+        f"Calculated domestic fallback ETRs for year {year} "
+        f"(Total - All sub-groups). Number of partners: {num_partners}"
     )
 
 merged_df = etrs.merge(
@@ -772,7 +884,19 @@ updated_entries = (
     merged_df[["etr_domestic", "etr_domestic_corrected"]].notna().sum().sum()
 )
 print(
-    f"Updated {updated_entries} entries for domestic ETRs based on 'Total (All sub-groups)' data."
+    f"Updated {updated_entries} entries for domestic ETRs based on "
+    f"'Total (All sub-groups)' data."
+)
+
+# Additional rolling-window corrected ETRs
+pair_etrs_corrected, partner_etrs_corrected = alternative_corrected_etrs(
+    cbcr,
+    grouping_name="Sub-groups with positive profits",
+)
+
+print(
+    "Calculated additional corrected rolling-window ETRs: "
+    "pair-specific, median, p25, and minimum."
 )
 
 check_duplicates(etrs, "ETRs", subset=["iso_partner", "year"])
@@ -791,9 +915,41 @@ check_missing_values(
 
 cbcr_etrs = cbcr.merge(etrs, on=["iso_partner", "year"], how="left")
 
+cbcr_etrs = cbcr_etrs.merge(
+    partner_etrs_corrected,
+    on=["iso_partner", "year"],
+    how="left",
+)
+
+cbcr_etrs = cbcr_etrs.merge(
+    pair_etrs_corrected,
+    on=["iso_parent", "iso_partner", "year"],
+    how="left",
+)
+
+alternative_etr_cols = [
+    "etr_parent_partner_corrected",
+    "etr_partner_median_corrected",
+    "etr_partner_p25_corrected",
+    "etr_partner_min_corrected",
+]
+
+for col in alternative_etr_cols:
+    if col in cbcr_etrs.columns:
+        cbcr_etrs[col] = cbcr_etrs[col].clip(lower=0, upper=1)
+
 check_missing_values(
     cbcr_etrs,
-    ["etr_domestic", "etr_foreign", "etr_average", "etr_average_corrected"],
+    [
+        "etr_domestic",
+        "etr_foreign",
+        "etr_average",
+        "etr_average_corrected",
+        "etr_parent_partner_corrected",
+        "etr_partner_median_corrected",
+        "etr_partner_p25_corrected",
+        "etr_partner_min_corrected",
+    ],
 )
 
 num_missing_domestic = cbcr_etrs["etr_domestic"].isna().sum()
@@ -820,7 +976,8 @@ print(
     f"Percentage of rows with missing average ETRs: {missing_percentage_average:.2f}%"
 )
 print(
-    f"Percentage of rows with missing average corrected ETRs: {missing_percentage_average_corrected:.2f}%"
+    f"Percentage of rows with missing average corrected ETRs before CIT fallback: "
+    f"{missing_percentage_average_corrected:.2f}%"
 )
 
 # %%
@@ -947,88 +1104,47 @@ if not missing_cit_rows.empty:
         ["iso_partner", "year"]
     ].drop_duplicates()
     print(
-        "Warning: CIT values are missing for the following iso_partner countries and years (excluding specified groups):"
+        "Warning: CIT values are missing for the following iso_partner countries and years "
+        "(excluding specified groups) before fallback:"
     )
     for _, row in missing_iso_partners_cit.iterrows():
         print(f"iso_partner: {row['iso_partner']}, year: {row['year']}")
 else:
-    print("No missing CIT values found.")
+    print("No missing CIT values found before fallback.")
 
-etr_missing_before = cbcr_etrs_cits[cbcr_etrs_cits["etr_average_corrected"].isna()][
-    "iso_partner"
-].unique()
+cbcr_etrs_cits = fill_missing_cit_and_corrected_etrs(cbcr_etrs_cits)
 
-mean_etr_by_country = cbcr_etrs_cits.groupby("iso_partner")[
-    "etr_average_corrected"
-].transform("mean")
-cbcr_etrs_cits["etr_average_corrected"] = cbcr_etrs_cits[
-    "etr_average_corrected"
-].fillna(mean_etr_by_country)
+missing_cit_rows_after = cbcr_etrs_cits[
+    (cbcr_etrs_cits["cit"].isnull())
+    & (~cbcr_etrs_cits["iso_partner"].isin(non_countries))
+]
 
-etr_still_missing = cbcr_etrs_cits[cbcr_etrs_cits["etr_average_corrected"].isna()][
-    "iso_partner"
-].unique()
+if not missing_cit_rows_after.empty:
+    missing_iso_partners_cit_after = missing_cit_rows_after[
+        ["iso_partner", "year"]
+    ].drop_duplicates()
+    print(
+        "Warning: CIT values are still missing after fallback for the following "
+        "iso_partner countries and years:"
+    )
+    for _, row in missing_iso_partners_cit_after.iterrows():
+        print(f"iso_partner: {row['iso_partner']}, year: {row['year']}")
+else:
+    print("No missing CIT values found after fallback.")
 
-cbcr_etrs_cits["etr_average_corrected"] = cbcr_etrs_cits[
-    "etr_average_corrected"
-].fillna(cbcr_etrs_cits["cit"])
-
-etr_missing_after = cbcr_etrs_cits[cbcr_etrs_cits["etr_average_corrected"].isna()][
-    "iso_partner"
-].unique()
-
-etr_filled_with_cit = set(etr_still_missing) - set(etr_missing_after)
-etr_filled_with_mean = (
-    set(etr_missing_before) - set(etr_still_missing) - etr_filled_with_cit
+check_missing_values(
+    cbcr_etrs_cits,
+    [
+        "cit",
+        "etr_domestic_corrected",
+        "etr_foreign_corrected",
+        "etr_average_corrected",
+        "etr_parent_partner_corrected",
+        "etr_partner_median_corrected",
+        "etr_partner_p25_corrected",
+        "etr_partner_min_corrected",
+    ],
 )
-
-if etr_filled_with_mean:
-    print(
-        f"ETR was filled using mean ETR from other years for iso_partner(s): {', '.join(sorted(etr_filled_with_mean))}"
-    )
-else:
-    print("No missing ETRs were filled with mean ETR from other years.")
-
-if etr_filled_with_cit:
-    print(
-        f"ETR was filled using CIT for iso_partner(s): {', '.join(sorted(etr_filled_with_cit))}"
-    )
-else:
-    print("No missing ETRs were filled with CIT.")
-
-cit_missing_before = cbcr_etrs_cits[cbcr_etrs_cits["cit"].isna()][
-    "iso_partner"
-].unique()
-
-mean_cit_by_country = cbcr_etrs_cits.groupby("iso_partner")["cit"].transform("mean")
-cbcr_etrs_cits["cit"] = cbcr_etrs_cits["cit"].fillna(mean_cit_by_country)
-
-cit_still_missing = cbcr_etrs_cits[cbcr_etrs_cits["cit"].isna()]["iso_partner"].unique()
-
-cbcr_etrs_cits["cit"] = cbcr_etrs_cits["cit"].fillna(
-    cbcr_etrs_cits["etr_average_corrected"]
-)
-
-cit_missing_after = cbcr_etrs_cits[cbcr_etrs_cits["cit"].isna()]["iso_partner"].unique()
-
-cit_filled_with_etr = set(cit_still_missing) - set(cit_missing_after)
-cit_filled_with_mean = (
-    set(cit_missing_before) - set(cit_still_missing) - cit_filled_with_etr
-)
-
-if cit_filled_with_mean:
-    print(
-        f"CIT was filled using mean CIT from other years for iso_partner(s): {', '.join(sorted(cit_filled_with_mean))}"
-    )
-else:
-    print("No missing CITs were filled with mean CIT from other years.")
-
-if cit_filled_with_etr:
-    print(
-        f"CIT was filled using ETR for iso_partner(s): {', '.join(sorted(cit_filled_with_etr))}"
-    )
-else:
-    print("No missing CITs were filled with ETR.")
 
 # %%
 # 2.3 Import and clean GDP and population data
@@ -1618,6 +1734,290 @@ for jur, year in sample_jur_year:
 
 wages = pd.concat([wages, pd.DataFrame(missing_wages)], ignore_index=True)
 
+# %%
+# 2.4a-pre Outlier filter on ILO USD observations.
+#
+# Some ILO survey years are wildly inconsistent with the rest of the
+# country's series. Liberia's 2017 LFS reports $1,309/month vs $95-$122 from
+# HIES surveys (real Liberian formal-sector wages are ~$100-200). The LFS
+# row also lists the "Local currency" value as the same 1,308.61 -- a
+# dual-currency artefact where Liberian respondents reported in USD but
+# were tagged as "Local currency". Without filtering, the outlier anchors
+# the CPI extrapolation and corrupts every subsequent year for that country.
+#
+# Filter rule: per country, drop observations whose USD value is >3x or
+# <1/3x the country's median USD value computed across ALL available ILO
+# years (not just panel range), so countries with only 1-2 panel-year
+# observations still get a robust median.
+if "country_name" in wages.columns or "iso_partner" in wages.columns:
+    # Compute the country median from the full ILO USD history (all years)
+    if "sex" in wages_fulltable.columns:
+        all_usd = wages_fulltable.loc[
+            both_sexes & all_occupations & in_usd, ["ref_area", "obs_value"]
+        ].rename(columns={"ref_area": "iso_partner", "obs_value": "w"})
+    else:
+        all_usd = wages_fulltable.loc[
+            (wages_fulltable["sex.label"] == "Total")
+            & (wages_fulltable["classif1.label"] == "Currency: U.S. dollars"),
+            ["ref_area.label", "obs_value"],
+        ].rename(columns={"ref_area.label": "country_name", "obs_value": "w"})
+        all_usd["iso_partner"] = all_usd["country_name"].map(name_to_iso3)
+        all_usd = all_usd.dropna(subset=["iso_partner"])[["iso_partner", "w"]]
+    country_med_full = all_usd.groupby("iso_partner")["w"].median()
+    country_med = wages["iso_partner"].map(country_med_full)
+    outliers = (
+        country_med.notna()
+        & (country_med > 0)
+        & wages["wage_monthly"].notna()
+        & (
+            (wages["wage_monthly"] > 3.0 * country_med)
+            | (wages["wage_monthly"] < (1.0 / 3.0) * country_med)
+        )
+    )
+    if outliers.any():
+        n_drops = int(outliers.sum())
+        countries_affected = wages.loc[outliers, "iso_partner"].unique().tolist()
+        print(
+            f"Wage outlier filter dropped {n_drops} observations "
+            f"in {len(countries_affected)} countries: {sorted(countries_affected)}"
+        )
+        wages.loc[outliers, "wage_monthly"] = np.nan
+        # Leave rows with wage_monthly=NaN so CPI extrapolation in 2.4a
+        # treats them as missing and re-imputes from clean LCY anchors.
+
+
+# %%
+# 2.4a CPI-based extrapolation of ILO observations across missing panel years.
+#
+# Many countries in the panel (especially LMI/L) have only 1-2 ILO survey
+# observations across 2016-2022. Filling missing years with the country mean
+# leaves wage_monthly constant across years for those cases, hiding wage
+# growth and high-inflation effects. We instead anchor on each country's
+# local-currency wage observation(s) from the ILO file, scale the LCY value
+# to other panel years using national CPI, and convert to USD using each
+# year's exchange rate.
+#
+#     wage_USD[year] = wage_LCY[obs_year]
+#                      × CPI[year] / CPI[obs_year]
+#                      / exchange_rate[year]
+#
+# When multiple LCY observations exist, we anchor on the closest year for
+# each target. Countries with no LCY observation skip this step and fall
+# through to the OLS-on-GDP-per-capita prediction in 2.4b.
+
+# Pull local-currency wage observations from the same ILO survey rows
+if "sex" in wages_fulltable.columns:
+    in_lcy = wages_fulltable["classif2"] == "CUR_TYPE_LCU"
+    lcy_relevant = (
+        both_sexes
+        & all_occupations
+        & in_lcy
+        & (
+            (wages_fulltable["time"] >= first_year)
+            & (wages_fulltable["time"] <= last_year)
+        )
+    )
+    wages_lcy = wages_fulltable.loc[
+        lcy_relevant, ["ref_area", "time", "obs_value"]
+    ].rename(
+        columns={
+            "ref_area": "iso_partner",
+            "time": "year",
+            "obs_value": "wage_monthly_lcy",
+        }
+    )
+else:
+    in_lcy = wages_fulltable["classif1.label"] == "Currency: Local currency"
+    lcy_relevant = (
+        both_sexes
+        & in_lcy
+        & (
+            (wages_fulltable["time"] >= first_year)
+            & (wages_fulltable["time"] <= last_year)
+        )
+    )
+    wages_lcy = wages_fulltable.loc[
+        lcy_relevant, ["ref_area.label", "time", "obs_value"]
+    ].rename(
+        columns={
+            "ref_area.label": "country_name",
+            "time": "year",
+            "obs_value": "wage_monthly_lcy",
+        }
+    )
+    wages_lcy["iso_partner"] = wages_lcy["country_name"].map(name_to_iso3)
+    wages_lcy = wages_lcy.dropna(subset=["iso_partner"])
+    wages_lcy = wages_lcy[["iso_partner", "year", "wage_monthly_lcy"]]
+
+# Apply the same per-country outlier filter to LCY observations. For
+# dual-currency countries (Liberia, Ecuador, Panama), some surveys report
+# wages in USD but tag them as "Local currency". Those values are far below
+# the proper LCY scale, get caught by the 1/3-median floor, and dropped.
+if not wages_lcy.empty:
+    lcy_med = wages_lcy.groupby("iso_partner")["wage_monthly_lcy"].transform("median")
+    lcy_outliers = (
+        lcy_med.notna()
+        & (lcy_med > 0)
+        & wages_lcy["wage_monthly_lcy"].notna()
+        & (
+            (wages_lcy["wage_monthly_lcy"] > 3.0 * lcy_med)
+            | (wages_lcy["wage_monthly_lcy"] < (1.0 / 3.0) * lcy_med)
+        )
+    )
+    if lcy_outliers.any():
+        print(
+            f"LCY-side outlier filter dropped {int(lcy_outliers.sum())} "
+            f"ILO LCY observations (countries: "
+            f"{sorted(wages_lcy.loc[lcy_outliers, 'iso_partner'].unique().tolist())})"
+        )
+        wages_lcy = wages_lcy[~lcy_outliers].reset_index(drop=True)
+
+
+def _load_wb_long(path, value_name):
+    """WB WDI CSVs have header rows + wide format with 1960..2025 columns."""
+    df = pd.read_csv(path, skiprows=4)
+    year_cols = [c for c in df.columns if str(c).isdigit()]
+    long = df.melt(
+        id_vars=["Country Code"],
+        value_vars=year_cols,
+        var_name="year",
+        value_name=value_name,
+    )
+    long["year"] = long["year"].astype(int)
+    long = long.rename(columns={"Country Code": "iso_partner"})
+    return long[["iso_partner", "year", value_name]].dropna(subset=[value_name])
+
+
+cpi_long = _load_wb_long(cpi_data, "cpi")
+fx_long = _load_wb_long(exchange_rates_wb, "fx_lcu_per_usd")
+
+# For each (iso_partner, target_year) needing a wage, find the nearest LCY
+# observation, scale by CPI, divide by FX to get USD.
+sample_target = (
+    wages[wages["wage_monthly"].isna()][["iso_partner", "year"]]
+    .drop_duplicates()
+    .reset_index(drop=True)
+)
+
+
+def _extrapolate_one(iso, target_year):
+    obs = wages_lcy[wages_lcy["iso_partner"] == iso]
+    if obs.empty:
+        return np.nan
+    # Pick the closest observation year
+    obs = obs.assign(distance=(obs["year"] - target_year).abs())
+    nearest = obs.loc[obs["distance"].idxmin()]
+    obs_year = int(nearest["year"])
+    lcy_obs = float(nearest["wage_monthly_lcy"])
+
+    cpi_target = cpi_long[
+        (cpi_long["iso_partner"] == iso) & (cpi_long["year"] == target_year)
+    ]
+    cpi_obs = cpi_long[
+        (cpi_long["iso_partner"] == iso) & (cpi_long["year"] == obs_year)
+    ]
+    fx_target = fx_long[
+        (fx_long["iso_partner"] == iso) & (fx_long["year"] == target_year)
+    ]
+    if cpi_target.empty or cpi_obs.empty or fx_target.empty:
+        return np.nan
+    cpi_t = float(cpi_target.iloc[0]["cpi"])
+    cpi_o = float(cpi_obs.iloc[0]["cpi"])
+    fx_t = float(fx_target.iloc[0]["fx_lcu_per_usd"])
+    if cpi_o <= 0 or fx_t <= 0:
+        return np.nan
+    return lcy_obs * (cpi_t / cpi_o) / fx_t
+
+
+sample_target["wage_extrapolated"] = sample_target.apply(
+    lambda r: _extrapolate_one(r["iso_partner"], int(r["year"])), axis=1
+)
+
+# Plausibility check on extrapolated values. The CPI/FX extrapolation
+# silently fails for countries with currency redenominations between the
+# ILO observation year and panel range -- e.g. Sierra Leone redenominated
+# 1:1000 in 2022, so an ILO observation in old leones combined with WB FX
+# in new leones produces a wage 1000x too high. Without country-by-country
+# overrides we can't detect the redenomination directly, but we can detect
+# implausible USD outputs by comparing to GDP per capita: a monthly wage
+# can't reasonably exceed annual GDP per capita.
+#
+# Filter rule: extrapolated wage > (GDP per capita) / 12 × 5  →  reject.
+# That allows up to 5x GDP/capita as the cap (very generous; most countries'
+# average wage falls far below GDP/capita on a monthly basis).
+
+# Pull GDP per capita for the plausibility check
+gdp_pc = cbcr_etrs_cits_gdp.drop_duplicates(["iso_partner", "year"])[
+    ["iso_partner", "year", "gdp_current_usd", "population"]
+].copy()
+gdp_pc["gdp_per_capita"] = gdp_pc["gdp_current_usd"] / gdp_pc["population"]
+sample_target = sample_target.merge(
+    gdp_pc[["iso_partner", "year", "gdp_per_capita"]],
+    on=["iso_partner", "year"],
+    how="left",
+)
+# Two-sided check:
+#  (a) Upper: extrapolated wage > 5x monthly GDP/capita → likely
+#      redenomination (SLE, BDI, etc.)
+#  (b) Lower: country has ILO USD observations and extrapolated wage is
+#      <1/5 of the country's median ILO USD wage → likely LCY-unit issue
+#      (Iceland's "Local currency" values are in unusual units)
+country_usd_median_map = (
+    all_usd.groupby("iso_partner")["w"].median() if "all_usd" in dir() else None
+)
+sample_target["country_usd_median"] = (
+    sample_target["iso_partner"].map(country_usd_median_map)
+    if country_usd_median_map is not None
+    else np.nan
+)
+implausible_high = (
+    sample_target["wage_extrapolated"].notna()
+    & sample_target["gdp_per_capita"].notna()
+    & (sample_target["gdp_per_capita"] > 0)
+    & (
+        sample_target["wage_extrapolated"]
+        > 5.0 * sample_target["gdp_per_capita"] / 12.0
+    )
+)
+implausible_low = (
+    sample_target["wage_extrapolated"].notna()
+    & sample_target["country_usd_median"].notna()
+    & (sample_target["country_usd_median"] > 0)
+    & (sample_target["wage_extrapolated"] < 0.2 * sample_target["country_usd_median"])
+)
+implausible = implausible_high | implausible_low
+if implausible.any():
+    rejected_iso = sample_target.loc[implausible, "iso_partner"].unique().tolist()
+    n_high = int(implausible_high.sum())
+    n_low = int(implausible_low.sum())
+    print(
+        f"Rejected {int(implausible.sum())} extrapolated wages "
+        f"({n_high} too high vs GDP/cap, {n_low} too low vs ILO USD median). "
+        f"Likely currency redenomination or LCY-unit mismatch. "
+        f"Countries: {sorted(rejected_iso)}"
+    )
+    sample_target.loc[implausible, "wage_extrapolated"] = np.nan
+sample_target = sample_target.drop(columns=["gdp_per_capita", "country_usd_median"])
+
+# Merge extrapolated values into wages
+wages = wages.merge(
+    sample_target.rename(columns={"wage_extrapolated": "_w_extrap"}),
+    on=["iso_partner", "year"],
+    how="left",
+)
+mask_fill = wages["wage_monthly"].isna() & wages["_w_extrap"].notna()
+wages.loc[mask_fill, "wage_monthly"] = wages.loc[mask_fill, "_w_extrap"]
+n_extrap = int(mask_fill.sum())
+n_extrap_countries = wages.loc[mask_fill, "iso_partner"].nunique()
+print(
+    f"CPI-extrapolated wages: {n_extrap} (iso, year) cells across "
+    f"{n_extrap_countries} countries."
+)
+wages = wages.drop(columns=["_w_extrap"])
+
+# Final fall-back to country mean for any remaining gaps (e.g. countries with
+# no LCY observation OR no CPI / FX coverage). The OLS imputation in 2.4b
+# kicks in for any rows still NaN here.
 avg_wage = wages.groupby("iso_partner")["wage_monthly"].transform("mean")
 wages["wage_monthly"] = wages["wage_monthly"].fillna(avg_wage)
 
@@ -1889,6 +2289,9 @@ for _, row in missing_tax_revenue_countries_years.iterrows():
 # %%
 # 2.7 Import region variables and World Bank income groups
 
+# %%
+# 2.7 Import region variables and World Bank income groups
+
 regions = pd.read_csv(
     unilateral_cross_data,
     usecols=[
@@ -1922,12 +2325,12 @@ except Exception as exc:
     print(f"Warning: could not download World Bank income groups. {exc}")
     wb_raw = []
 
-wb_income = pd.DataFrame(
+wb_income_base = pd.DataFrame(
     [
         {
             "iso_partner": c["id"],
-            "wb_income_group": c["incomeLevel"]["value"],
-            "wb_income_group_id": c["incomeLevel"]["id"],
+            "wb_income_group_official": c["incomeLevel"]["value"],
+            "wb_income_group_id_official": c["incomeLevel"]["id"],
         }
         for c in wb_raw
         if c.get("region", {}).get("value") != "Aggregates"
@@ -1936,19 +2339,146 @@ wb_income = pd.DataFrame(
     ]
 )
 
-if wb_income.empty:
-    wb_income = pd.DataFrame(
-        columns=["iso_partner", "wb_income_group", "wb_income_group_id"]
+if wb_income_base.empty:
+    wb_income_base = pd.DataFrame(
+        columns=[
+            "iso_partner",
+            "wb_income_group_official",
+            "wb_income_group_id_official",
+        ]
     )
 else:
-    wb_income["wb_income_group"] = wb_income["wb_income_group"].replace(
+    wb_income_base["wb_income_group_official"] = wb_income_base[
+        "wb_income_group_official"
+    ].replace(
         {
             "Low income": "low_income",
             "Lower middle income": "lower_middle_income",
             "Upper middle income": "upper_middle_income",
             "High income": "high_income",
+            "Not classified": pd.NA,
+            "": pd.NA,
         }
     )
+    wb_income_base["wb_income_group_id_official"] = wb_income_base[
+        "wb_income_group_id_official"
+    ].replace({"": pd.NA})
+
+# Expand to country-year
+wb_income = pd.DataFrame(
+    sample_jur_year, columns=["iso_partner", "year"]
+).drop_duplicates()
+
+wb_income = wb_income.merge(
+    wb_income_base,
+    on="iso_partner",
+    how="left",
+)
+
+# Start custom analytical income group from official WB group
+wb_income["wb_income_group"] = wb_income["wb_income_group_official"]
+wb_income["wb_income_group_id"] = wb_income["wb_income_group_id_official"]
+
+# -------------------------------------------------
+# 1. Overwrite investment hubs consistently
+# -------------------------------------------------
+# Use your existing tax_havens list as the analytical definition of investment hubs.
+# Add a few missing special cases explicitly if needed.
+investment_hub_codes = sorted(
+    # Liberia reclassified as investment hub (2026-05-14): flag-of-convenience
+    # shipping registry inflates LBR's CbCR profits to multiples of GDP without
+    # corresponding real-economy activity, so its "low_income" classification
+    # was misrepresenting it for cross-group comparisons.
+    set(tax_havens).union({"AIA", "COK", "GGY", "IOT", "JEY", "LBR"})
+)
+
+wb_income.loc[
+    wb_income["iso_partner"].isin(investment_hub_codes),
+    ["wb_income_group", "wb_income_group_id"],
+] = ["investment_hub", "HUB"]
+
+# -------------------------------------------------
+# 2. Manual fills for countries / territories not covered well by WB
+# -------------------------------------------------
+manual_income_map = {
+    # Countries you flagged earlier
+    "ETH": ("low_income", "LIC"),
+    "VEN": ("upper_middle_income", "UMC"),
+    # Missing country-years from your check
+    "TWN": ("high_income", "HIC"),
+    "XKV": ("lower_middle_income", "LMC"),
+    # French overseas departments / territories in your data
+    "GLP": ("high_income", "HIC"),
+    "GUF": ("high_income", "HIC"),
+    "MTQ": ("high_income", "HIC"),
+    "REU": ("high_income", "HIC"),
+    "WLF": ("high_income", "HIC"),
+    # Other territories in your missing list
+    "FLK": ("high_income", "HIC"),
+}
+
+for iso, (group, group_id) in manual_income_map.items():
+    wb_income.loc[wb_income["iso_partner"] == iso, "wb_income_group"] = group
+    wb_income.loc[wb_income["iso_partner"] == iso, "wb_income_group_id"] = group_id
+
+# Optional 3-group version plus investment hubs
+wb_income["wb_income_group_3"] = wb_income["wb_income_group"].replace(
+    {
+        "low_income": "low_income",
+        "lower_middle_income": "middle_income",
+        "upper_middle_income": "middle_income",
+        "high_income": "high_income",
+        "investment_hub": "investment_hub",
+    }
+)
+
+# Final check: remaining missing values among real countries only
+remaining_missing_wb = wb_income[
+    (~wb_income["iso_partner"].isin(non_countries))
+    & (wb_income["wb_income_group"].isna())
+][["iso_partner", "year"]].drop_duplicates()
+
+if not remaining_missing_wb.empty:
+    print("Warning: wb_income_group still missing for:")
+    print(
+        remaining_missing_wb.sort_values(["iso_partner", "year"]).to_string(index=False)
+    )
+else:
+    print("No missing wb_income_group values remain.")
+
+print(
+    wb_income.loc[
+        wb_income["iso_partner"].isin(
+            [
+                "ETH",
+                "VEN",
+                "AIA",
+                "COK",
+                "GGY",
+                "GLP",
+                "GUF",
+                "IOT",
+                "JEY",
+                "REU",
+                "TWN",
+                "WLF",
+                "XKV",
+                "MTQ",
+                "FLK",
+            ]
+        ),
+        [
+            "iso_partner",
+            "year",
+            "wb_income_group",
+            "wb_income_group_id",
+            "wb_income_group_3",
+        ],
+    ]
+    .drop_duplicates()
+    .sort_values(["iso_partner", "year"])
+    .to_string(index=False)
+)
 
 # %%
 # 3. Merge final datasets and save outputs
@@ -1961,7 +2491,7 @@ cbcr_main = cbcr_etrs_cits_gdp_wages_health_taxes.merge(
 
 cbcr_main = cbcr_main.merge(
     wb_income,
-    on="iso_partner",
+    on=["iso_partner", "year"],
     how="left",
 )
 
@@ -1981,7 +2511,13 @@ cbcr_main_allsubgroupsonly = cbcr_main[
 cbcr_main_allsubgroupsonly.drop(columns=["grouping"], inplace=True)
 
 # %%
-# 3.1 Save outputs
+# 3.1 Save outputs (canonical column order from _column_order.py)
+from _column_order import COLUMNS_STAGE_1, apply_canonical_order
+
+cbcr_main = apply_canonical_order(cbcr_main, COLUMNS_STAGE_1)
+cbcr_main_allsubgroupsonly = apply_canonical_order(
+    cbcr_main_allsubgroupsonly, COLUMNS_STAGE_1
+)
 
 cbcr_main.to_csv(f"{data_final}/cbcr_main.csv", index=False)
 cbcr_main_allsubgroupsonly.to_csv(
@@ -1999,5 +2535,19 @@ if inf_check:
     print("There were inf or -inf values in the DataFrame.")
 else:
     print("No inf or -inf values found in the DataFrame.")
+
+check_missing_values(
+    cbcr_main_allsubgroupsonly,
+    [
+        "cit",
+        "etr_domestic_corrected",
+        "etr_foreign_corrected",
+        "etr_average_corrected",
+        "etr_parent_partner_corrected",
+        "etr_partner_median_corrected",
+        "etr_partner_p25_corrected",
+        "etr_partner_min_corrected",
+    ],
+)
 
 print(cbcr_main_allsubgroupsonly.columns.tolist())
