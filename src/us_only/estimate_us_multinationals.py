@@ -102,11 +102,32 @@ RUN_DATASET = os.environ.get("RUN_DATASET", "disaggregated")
 # no-imputation sensitivity view (output goes to a `_reported` suffixed topic).
 REPORTED_ONLY = os.environ.get("REPORTED_ONLY", "0") not in ("0", "false", "False", "")
 
+# Minimum-ETR threshold for treating over-reporting as profit shifting. With
+# ETR_MAX=inf (default) ALL misalignment is captured regardless of the
+# destination's ETR and the balancing rescale is off. With ETR_MAX=0.15 only
+# profit shifted into sub-15%-ETR destinations counts (haven-only), and the
+# rescale is on. Set the env var ETR_MAX=inf or =0.15; each writes to its own
+# output topic / shared-folder prefix (etr15 tag) so both can coexist.
+_etr_max_env = os.environ.get("ETR_MAX", "inf").strip().lower()
+if _etr_max_env in ("inf", "infinity", "none", ""):
+    _ETR_MAX = np.inf
+    ETR_TAG = "inf"
+else:
+    _ETR_MAX = float(_etr_max_env)
+    ETR_TAG = f"etr{int(round(_ETR_MAX * 100))}"   # 0.15 -> 'etr15'
+
 _cfg = DATASET_CONFIGS[RUN_DATASET]
 PROFIT_VAR = _cfg["profit_var"]
 TAX_VAR = _cfg["tax_var"]
 ETR_SUFFIX = _cfg["etr_suffix"]
-_OUTPUT_TOPIC = _cfg["output_topic"] + ("_reported" if REPORTED_ONLY else "")
+# Topic suffix: inf is left untagged (the established us_/eu_multinationals
+# folders); a finite threshold gets an _etrNN suffix so the two configs don't
+# overwrite each other.
+_OUTPUT_TOPIC = (
+    _cfg["output_topic"]
+    + ("_reported" if REPORTED_ONLY else "")
+    + ("" if ETR_TAG == "inf" else f"_{ETR_TAG}")
+)
 
 # Partner-year ETR columns derived from the active suffix. The
 # parent-partner pair ETR is a diagnostic (never used in UT) — kept available
@@ -125,7 +146,7 @@ ETR_COL_MEDIAN = f"etr_partner_median_{ETR_SUFFIX}"
 ETR_COL_P25 = f"etr_partner_p25_{ETR_SUFFIX}"
 ETR_COL_MIN = f"etr_partner_min_{ETR_SUFFIX}"
 
-ETR_THRESHOLDS = [np.inf]
+ETR_THRESHOLDS = [_ETR_MAX]
 
 OUTPUT_TABLES, OUTPUT_FIGURES = output_dirs(_OUTPUT_TOPIC)
 # OUTPUT_ROOT keeps backward-compatible naming as the per-sample tables root.
@@ -1963,16 +1984,20 @@ def read_selected_runs_from_summary(run_summary_df):
     rs = run_summary_df.copy()
     rs["etr_threshold"] = pd.to_numeric(rs["etr_threshold"], errors="coerce")
 
+    _thr = ETR_THRESHOLDS[0]
+    _thr_mask = (np.isinf(rs["etr_threshold"]) if np.isinf(_thr)
+                 else np.isclose(rs["etr_threshold"], _thr))
     rs = rs.loc[
         (rs["sample_name"] == TARGET_SAMPLE)
         & (rs["rate_mode"] == TARGET_RATE_MODE)
         & (rs["etr_name"].isin(TARGET_ETR_NAMES))
-        & np.isinf(rs["etr_threshold"])
+        & _thr_mask
     ].copy()
 
     if rs.empty:
         raise ValueError(
-            "No matching runs found. Check TARGET_SAMPLE, TARGET_RATE_MODE, TARGET_ETR_NAMES and etr_threshold = inf."
+            f"No matching runs found. Check TARGET_SAMPLE, TARGET_RATE_MODE, "
+            f"TARGET_ETR_NAMES and etr_threshold = {_thr}."
         )
 
     return rs
@@ -3498,7 +3523,7 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
     summ.sort_values("net_tax_revenue_bn").to_csv(
         OUTPUT_TABLES / f"eu_tax_revenue_roles{file_suffix}.csv", index=False)
 
-    def _gap(df, suffix, extra):
+    def _gap(df, suffix, extra, cumulative=False):
         yrs = sorted(int(y) for y in df["year"].dropna().unique())
         haven_tot = df.groupby("iso_partner")["gained_bn"].sum().sort_values(ascending=False)
         top_h = [h for h in haven_tot.index if haven_tot[h] > 0][:5]
@@ -3511,6 +3536,11 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
         lost_tot = -df.groupby("year")["lost_bn"].sum().reindex(yrs).fillna(0.0)
         nh = df[df.gained_bn > 0].groupby("year")["iso_partner"].nunique().reindex(yrs).fillna(0)
         nl = df[df.lost_bn > 0].groupby("year")["iso_partner"].nunique().reindex(yrs).fillna(0)
+        if cumulative:                       # running total since the first year
+            up = up.cumsum()
+            other_up = other_up.cumsum()
+            gained_tot = gained_tot.cumsum()
+            lost_tot = lost_tot.cumsum()
         fig, ax = plt.subplots(figsize=(13.5, 8))
         cmap = plt.get_cmap("autumn")
         bottoms = np.zeros(len(yrs))
@@ -3525,11 +3555,18 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
                color="#3182bd", edgecolor="white", width=0.72)
         ax.axhline(0, color="black", linewidth=0.9)
         for j, y in enumerate(yrs):
-            ax.annotate(f"+{gained_tot.iloc[j]:,.0f}\n({int(nh.iloc[j])} havens)", (y, gained_tot.iloc[j]),
-                        textcoords="offset points", xytext=(0, 4), ha="center", fontsize=8,
-                        fontweight="bold", color="#b30000")
-            ax.annotate(f"{lost_tot.iloc[j]:,.0f}\n({int(nl.iloc[j])} countries)", (y, lost_tot.iloc[j]),
-                        textcoords="offset points", xytext=(0, -18), ha="center", fontsize=8, color="#08519c")
+            if cumulative:
+                ax.annotate(f"+{gained_tot.iloc[j]:,.0f}", (y, gained_tot.iloc[j]),
+                            textcoords="offset points", xytext=(0, 4), ha="center", fontsize=8,
+                            fontweight="bold", color="#b30000")
+                ax.annotate(f"{lost_tot.iloc[j]:,.0f}", (y, lost_tot.iloc[j]),
+                            textcoords="offset points", xytext=(0, -12), ha="center", fontsize=8, color="#08519c")
+            else:
+                ax.annotate(f"+{gained_tot.iloc[j]:,.0f}\n({int(nh.iloc[j])} havens)", (y, gained_tot.iloc[j]),
+                            textcoords="offset points", xytext=(0, 4), ha="center", fontsize=8,
+                            fontweight="bold", color="#b30000")
+                ax.annotate(f"{lost_tot.iloc[j]:,.0f}\n({int(nl.iloc[j])} countries)", (y, lost_tot.iloc[j]),
+                            textcoords="offset points", xytext=(0, -18), ha="center", fontsize=8, color="#08519c")
         ax.set_title("EU tax revenue: gained in a few low-tax havens (up) vs lost by the many (down)"
                      f"{title_suffix}{extra}\nLost = shifted-out base × losing-country CIT; "
                      f"gained = shifted-in base × ETR paid in the haven, {min(yrs)}–{max(yrs)}", fontsize=11)
@@ -3554,9 +3591,15 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
     g_all, gained_tot, lost_tot = _gap(tg, "", "")
     g_excl, _, _ = _gap(tg.loc[~tg["iso_partner"].isin({"LUX", "MLT"})],
                         "_excl_LUX_MLT", " (excl. Luxembourg & Malta)")
-    print(f"\n[tax-revenue gap{title_suffix}] saved:\n  {g_all}\n  {g_excl}\n"
-          f"  Tax gained in havens: {gained_tot.iloc[0]:,.0f} -> {gained_tot.iloc[-1]:,.0f} bn | "
-          f"Tax lost by the many: {-lost_tot.iloc[0]:,.0f} -> {-lost_tot.iloc[-1]:,.0f} bn")
+    # Cumulative (running total since the first year) — by the last year the bar
+    # shows the whole-period total lost and gained.
+    gc_all, cg, cl = _gap(tg, "_cumulative", " — cumulative since first year", cumulative=True)
+    _gap(tg.loc[~tg["iso_partner"].isin({"LUX", "MLT"})],
+         "_cumulative_excl_LUX_MLT", " — cumulative (excl. Luxembourg & Malta)", cumulative=True)
+    print(f"\n[tax-revenue gap{title_suffix}] saved:\n  {g_all}\n  {g_excl}\n  {gc_all}\n"
+          f"  Tax gained in havens: {gained_tot.iloc[0]:,.0f} -> {gained_tot.iloc[-1]:,.0f} bn/yr | "
+          f"Tax lost by the many: {-lost_tot.iloc[0]:,.0f} -> {-lost_tot.iloc[-1]:,.0f} bn/yr\n"
+          f"  CUMULATIVE by {tg['year'].max():.0f}: gained {cg.iloc[-1]:,.0f} bn | lost {-cl.iloc[-1]:,.0f} bn")
 
 
 build_tax_revenue_gap("employees_payroll", "", "")
@@ -3687,16 +3730,32 @@ else:
     plt.close()
 
     # ---- Germany: split across the three layers of government ----
-    # Approximation from the statutory make-up of Germany's ~30% combined
-    # corporate rate: Körperschaftsteuer 15% (split 50/50 Bund/Länder, Art.106
-    # GG) + Solidaritätszuschlag ~0.8% (federal) + Gewerbesteuer ~14% (municipal).
-    # → Federal ≈ (7.5+0.8)/29.8 ≈ 28%, Länder ≈ 7.5/29.8 ≈ 25%, Kommunen ≈
-    # 14/29.8 ≈ 47%. Ignores the Gewerbesteuerumlage (a few points from Kommunen
-    # to Bund/Länder); treat as an approximation (confidence: medium).
+    # Refined split: decompose Germany's ACTUAL combined corporate rate (from the
+    # data) into its statutory components and assign each to the level(s) that
+    # receive it. Because the modelled tax loss = base × combined rate, splitting
+    # by the rate's composition (not by aggregate revenue shares) is the
+    # internally consistent method.
+    #   • Körperschaftsteuer (KSt) 15% → 50% Bund / 50% Länder (Art.106(3) GG)
+    #   • Solidaritätszuschlag (SolZ) = 5.5% × KSt = 0.825pp → Bund
+    #   • Gewerbesteuer = combined rate − 15.825pp → Kommunen, NET of the
+    #     Gewerbesteuerumlage. At an average Hebesatz ~407% and Umlagesatz ~35%,
+    #     the umlage is ~Umlagesatz/Hebesatz ≈ 8.6% of trade tax, redistributed
+    #     to Bund/Länder ≈ 41%/59%.
+    # Confidence: medium — the Gewerbesteuerumlage and average Hebesatz are
+    # nationwide approximations; adjust the constants below for precision.
+    _KST, _SOLZ = 0.15, 0.055 * 0.15
+    _UMLAGE_FRAC, _UMLAGE_BUND = 0.086, 0.41
+    _de_cit = pd.to_numeric(tl.loc[tl["iso_partner"] == "DEU", "cit"], errors="coerce").dropna()
+    _r = float(_de_cit.median()) if not _de_cit.empty else 0.2982
+    _gewerbe = max(_r - _KST - _SOLZ, 0.0)
+    _bund = 0.5 * _KST + _SOLZ + _gewerbe * _UMLAGE_FRAC * _UMLAGE_BUND
+    _laender = 0.5 * _KST + _gewerbe * _UMLAGE_FRAC * (1.0 - _UMLAGE_BUND)
+    _kommunen = _gewerbe * (1.0 - _UMLAGE_FRAC)
+    _lvl_tot = _bund + _laender + _kommunen
     GERMANY_LEVEL_SHARES = {
-        "Federal (Bund)": 0.28,
-        "State (Länder)": 0.25,
-        "Municipal (Kommunen)": 0.47,
+        "Federal (Bund)": _bund / _lvl_tot,
+        "State (Länder)": _laender / _lvl_tot,
+        "Municipal (Kommunen)": _kommunen / _lvl_tot,
     }
     de_by_year = tl.loc[tl["iso_partner"] == "DEU"].groupby("year")["tax_loss_bn"].sum()
     de_years = sorted(int(y) for y in de_by_year.index)
@@ -3731,11 +3790,14 @@ else:
     ax.set_title(f"Germany's tax revenue lost to {HOME_LABEL} multinationals, by level of government\n"
                  f"Total {min(de_years)}–{max(de_years)}: ${de_total:,.0f}bn", fontsize=12)
     ax.legend(title="Government level (share of corporate tax)", fontsize=9)
+    _shares_txt = " / ".join(f"{lvl.split(' ')[0]} {sh*100:.0f}%"
+                             for lvl, sh in GERMANY_LEVEL_SHARES.items())
     fig.text(0.01, -0.02,
-             "Note: Germany's tax loss split by the statutory make-up of its combined corporate rate — "
-             "Körperschaftsteuer 15% (50/50 Bund/Länder) + Solidaritätszuschlag (federal) + Gewerbesteuer ~14% "
-             "(municipal) → Federal 28% / Länder 25% / Kommunen 47%. Approximation (ignores the Gewerbesteuerumlage). "
-             f"Baseline disaggregated CbCR; {HOME_LABEL} parents only.",
+             f"Note: Germany's loss split by the statutory make-up of its combined corporate rate "
+             f"({_r*100:.1f}%) — Körperschaftsteuer 15% (50/50 Bund/Länder) + Solidaritätszuschlag (federal) + "
+             f"Gewerbesteuer (municipal, net of the Gewerbesteuerumlage ≈8.6% redistributed to Bund/Länder) → "
+             f"{_shares_txt}. Per-year bars; title shows the cumulative total. Baseline disaggregated CbCR; "
+             f"{HOME_LABEL} parents only.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _de_path = OUTPUT_FIGURES / f"germany_tax_loss_by_level_{min(de_years)}_{max(de_years)}.png"
@@ -3778,7 +3840,8 @@ def _mirror_outputs_to_shared():
     # Mirror straight into 3_output/figures and 3_output/tables (no topic
     # subfolder). Prefix each file with the home group so US and EU runs don't
     # collide in the shared flat folder.
-    prefix = f"{HOME_GROUP.lower()}_"      # 'usa_' / 'eu27_'
+    prefix = f"{HOME_GROUP.lower()}_" + ("" if ETR_TAG == "inf" else f"{ETR_TAG}_")
+    # -> 'usa_' / 'eu27_' for inf; 'usa_etr15_' / 'eu27_etr15_' for the 0.15 run
     n = 0
     for p in base.rglob("*"):
         rel = p.relative_to(base)
