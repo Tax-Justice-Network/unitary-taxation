@@ -26,6 +26,15 @@ if sys.platform == "win32":
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import output_dirs, output_root  # noqa: E402
 
+# Figure house style — The Left palette (see 4_docs/figure_style_guide.md).
+PALETTE = {"red": "#e42728", "navy": "#2c324c", "teal": "#28a186",
+           "slate": "#5c7090", "amber": "#c29a11", "ink": "#1c1c1c", "grid": "#d1dae5"}
+plt.rcParams.update({
+    "grid.color": PALETTE["grid"], "grid.linewidth": 0.7,
+    "axes.edgecolor": PALETTE["ink"], "axes.labelcolor": PALETTE["ink"],
+    "text.color": PALETTE["ink"], "xtick.color": PALETTE["ink"], "ytick.color": PALETTE["ink"],
+})
+
 # Country-estimate file (positive_misalignment + reported_profit are
 # rate-independent; loss_cit_gain_etr is just a concrete spec that exists). The
 # etrmax tag in the filename matches the active ETR_MAX (inf or e.g. 0_15).
@@ -40,7 +49,7 @@ ETR_TAG = "inf" if _etr_env in ("inf", "infinity", "none", "") else f"etr{int(ro
 _TS = "" if ETR_TAG == "inf" else f"_{ETR_TAG}"
 GROUPS = {"US": "us_multinationals" + _TS, "EU": "eu_multinationals" + _TS,
           "All": "all_multinationals" + _TS}
-COLORS = {"US": "#b2182b", "EU": "#2166ac", "All": "#555555"}
+COLORS = {"US": "#e42728", "EU": "#2c324c", "All": "#5c7090"}
 
 # German municipal (Kommunen) core-budget debt, Destatis end-2023 (Kernhaushalte
 # der Gemeinden/Gv.): EUR 154.6bn. USD_PER_EUR converts the USD-denominated
@@ -226,7 +235,7 @@ def main():
         elif "US" in muni_eur and "EU" in muni_eur:
             bars["Lost to US+EU MNEs"] = muni_eur["US"] + muni_eur["EU"]
         labels, vals = list(bars.keys()), list(bars.values())
-        colors = ["#b2182b", "#2166ac", "#555555"][:len(vals)]
+        colors = ["#e42728", "#2c324c", "#5c7090"][:len(vals)]
         fig, ax = plt.subplots(figsize=(11, 6.5))
         b = ax.bar(labels, vals, color=colors, edgecolor="white", width=0.6, zorder=3)
         for bar, v in zip(b, vals):
@@ -234,7 +243,7 @@ def main():
                         (bar.get_x() + bar.get_width() / 2, v), textcoords="offset points",
                         xytext=(0, 3), ha="center", fontsize=9, fontweight="bold")
         for yv, lab, col in [
-            (DAYCARE_BACKLOG_EUR_BN, f"Daycare/Kita investment backlog (€{DAYCARE_BACKLOG_EUR_BN:.1f}bn, KfW)", "#1b7837"),
+            (DAYCARE_BACKLOG_EUR_BN, f"Daycare/Kita investment backlog (€{DAYCARE_BACKLOG_EUR_BN:.1f}bn, KfW)", "#28a186"),
             (SCHOOL_BACKLOG_EUR_BN, f"School investment backlog (€{SCHOOL_BACKLOG_EUR_BN:.0f}bn, KfW)", "#d95f02"),
         ]:
             ax.axhline(yv, color=col, linestyle="--", linewidth=1.4, zorder=2)
@@ -268,7 +277,7 @@ def main():
             fig, ax = plt.subplots(figsize=(8, 6.5))
             vv = [KOMMUNEN_DEBT_EUR_BN, all_loss]
             b = ax.bar(["Total Kommunen debt\n(Destatis end-2023)", "Lost to ALL multinationals\n(2016–2022)"],
-                       vv, color=["#525252", "#6a0f0f"], edgecolor="white", width=0.6)
+                       vv, color=["#5c7090", "#e42728"], edgecolor="white", width=0.6)
             for bar, v in zip(b, vv):
                 pct = "" if v == KOMMUNEN_DEBT_EUR_BN else f"\n({100 * v / KOMMUNEN_DEBT_EUR_BN:.0f}% of debt)"
                 ax.annotate(f"€{v:,.0f}bn{pct}", (bar.get_x() + bar.get_width() / 2, v),

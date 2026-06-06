@@ -44,6 +44,26 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from config import *
 
+# ── Figure house style ("The Quiet Tax War" / The Left palette). See
+# 4_docs/figure_style_guide.md. Red is the hero colour; the rest are the ordered
+# secondaries. PALETTE is referenced by the bespoke figures.
+PALETTE = {
+    "red": "#e42728",    # hero / headline series (the harm)
+    "navy": "#2c324c",   # secondary
+    "teal": "#28a186",   # tertiary
+    "slate": "#5c7090",  # 4th
+    "amber": "#c29a11",  # 5th
+    "ink": "#1c1c1c",    # totals / text
+    "grid": "#d1dae5",   # gridlines
+}
+PALETTE_SEQ = [PALETTE["red"], PALETTE["navy"], PALETTE["teal"], PALETTE["slate"], PALETTE["amber"]]
+plt.rcParams.update({
+    "grid.color": PALETTE["grid"], "grid.linewidth": 0.7,
+    "axes.edgecolor": PALETTE["ink"], "axes.labelcolor": PALETTE["ink"],
+    "text.color": PALETTE["ink"], "xtick.color": PALETTE["ink"], "ytick.color": PALETTE["ink"],
+    "axes.prop_cycle": plt.cycler(color=PALETTE_SEQ),
+})
+
 pd.set_option("display.max_columns", None)
 pd.options.display.float_format = "{:,.2f}".format
 
@@ -2533,8 +2553,8 @@ else:
     # group. Produced both for the full EU-27 and excluding Luxembourg (whose
     # −$87bn 2021 loss otherwise dominates the winners line).
     GROUP_META = {
-        "benefits_from_ut": ("Winners — benefit from UT (net negative)", "#1b7837"),
-        "loses_under_ut":   ("Losers — lose under UT (net positive)", "#b2182b"),
+        "benefits_from_ut": ("Winners — benefit from UT (net negative)", "#28a186"),
+        "loses_under_ut":   ("Losers — lose under UT (net positive)", "#e42728"),
     }
 
     def _make_eu_group_lines(exclude=frozenset(), suffix="", title_extra=""):
@@ -2651,8 +2671,8 @@ def _build_eu_lines_for_formula(formula_name, file_suffix, formula_desc, title_s
     )
     years = sorted(int(y) for y in panel["year"].dropna().unique())
     meta = {
-        "benefits_from_ut": ("Winners — benefit from UT (net negative)", "#1b7837"),
-        "loses_under_ut":   ("Losers — lose under UT (net positive)", "#b2182b"),
+        "benefits_from_ut": ("Winners — benefit from UT (net negative)", "#28a186"),
+        "loses_under_ut":   ("Losers — lose under UT (net positive)", "#e42728"),
     }
 
     def _plot(exclude=frozenset(), suffix="", extra=""):
@@ -3227,15 +3247,15 @@ else:
     ax.bar(ps_years, other_up.to_numpy(), bottom=bottoms, label="Other EU havens",
            color="#fdd0a2", edgecolor="white", width=0.72)
     ax.bar(ps_years, down_total.to_numpy(), label="Profit shifted OUT (the many EU countries)",
-           color="#3182bd", edgecolor="white", width=0.72)
+           color="#2c324c", edgecolor="white", width=0.72)
     ax.axhline(0, color="black", linewidth=0.9)
     for j, y in enumerate(ps_years):
         ax.annotate(f"+{over_tot.iloc[j]:,.0f}\n({int(n_win.iloc[j])} havens)",
                     (y, over_tot.iloc[j]), textcoords="offset points", xytext=(0, 4),
-                    ha="center", fontsize=8, fontweight="bold", color="#b30000")
+                    ha="center", fontsize=8, fontweight="bold", color="#e42728")
         ax.annotate(f"{down_total.iloc[j]:,.0f}\n({int(n_los.iloc[j])} countries)",
                     (y, down_total.iloc[j]), textcoords="offset points", xytext=(0, -18),
-                    ha="center", fontsize=8, color="#08519c")
+                    ha="center", fontsize=8, color="#2c324c")
     ax.set_title("" + HOME_LABEL + " multinationals drain EU countries into a few low-tax EU havens\n"
                  f"EU profit shifted INTO EU havens (up) vs shifted OUT of the EU (down), "
                  f"{min(ps_years)}–{max(ps_years)}", fontsize=13)
@@ -3261,7 +3281,7 @@ else:
     from matplotlib.lines import Line2D
     fig, ax = plt.subplots(figsize=(12, 8))
     for _, r in summ.iterrows():
-        color = "#b2182b" if r["net_bn"] > 0 else "#2166ac"
+        color = "#e42728" if r["net_bn"] > 0 else "#2c324c"
         size = 30 + 25 * np.sqrt(abs(r["net_bn"]))
         ax.scatter(r["net_bn"], r["etr_pct"], s=size, color=color, alpha=0.65,
                    edgecolor="white", zorder=3)
@@ -3280,9 +3300,9 @@ else:
                  fontsize=13)
     ax.grid(True, linewidth=0.3, alpha=0.5)
     ax.legend(handles=[
-        Line2D([0], [0], marker="o", color="w", markerfacecolor="#b2182b", markersize=11,
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="#e42728", markersize=11,
                label="Winner — receives shifted-in profit (haven)"),
-        Line2D([0], [0], marker="o", color="w", markerfacecolor="#2166ac", markersize=11,
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="#2c324c", markersize=11,
                label="Loser — profit generated here is shifted out"),
     ], loc="upper right", fontsize=9)
     fig.text(0.01, -0.02,
@@ -3341,15 +3361,15 @@ if "ps" in globals():
     ax.bar(yrs, other_up.to_numpy(), bottom=bottoms, label="Other EU havens",
            color="#fdd0a2", edgecolor="white", width=0.72)
     ax.bar(yrs, down_total.to_numpy(), label="Profit shifted OUT (the many EU countries)",
-           color="#3182bd", edgecolor="white", width=0.72)
+           color="#2c324c", edgecolor="white", width=0.72)
     ax.axhline(0, color="black", linewidth=0.9)
     for j, y in enumerate(yrs):
         ax.annotate(f"+{over_tot.iloc[j]:,.0f}\n({int(n_win.iloc[j])} havens)",
                     (y, over_tot.iloc[j]), textcoords="offset points", xytext=(0, 4),
-                    ha="center", fontsize=8, fontweight="bold", color="#b30000")
+                    ha="center", fontsize=8, fontweight="bold", color="#e42728")
         ax.annotate(f"{down_total.iloc[j]:,.0f}\n({int(n_los.iloc[j])} countries)",
                     (y, down_total.iloc[j]), textcoords="offset points", xytext=(0, -18),
-                    ha="center", fontsize=8, color="#08519c")
+                    ha="center", fontsize=8, color="#2c324c")
     ax.set_title("" + HOME_LABEL + " multinationals drain EU countries into a few low-tax EU havens "
                  "(excl. Luxembourg & Malta)\n"
                  f"EU profit shifted INTO EU havens (up) vs shifted OUT of the EU (down), "
@@ -3432,14 +3452,14 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
         ax.bar(yrs, other_up.to_numpy(), bottom=bottoms, label="Other EU havens",
                color="#fdd0a2", edgecolor="white", width=0.72)
         ax.bar(yrs, down_total.to_numpy(), label="Profit shifted OUT (the many EU countries)",
-               color="#3182bd", edgecolor="white", width=0.72)
+               color="#2c324c", edgecolor="white", width=0.72)
         ax.axhline(0, color="black", linewidth=0.9)
         for j, y in enumerate(yrs):
             ax.annotate(f"+{over_tot.iloc[j]:,.0f}\n({int(nw.iloc[j])} havens)", (y, over_tot.iloc[j]),
                         textcoords="offset points", xytext=(0, 4), ha="center", fontsize=8,
-                        fontweight="bold", color="#b30000")
+                        fontweight="bold", color="#e42728")
             ax.annotate(f"{down_total.iloc[j]:,.0f}\n({int(nl.iloc[j])} countries)", (y, down_total.iloc[j]),
-                        textcoords="offset points", xytext=(0, -18), ha="center", fontsize=8, color="#08519c")
+                        textcoords="offset points", xytext=(0, -18), ha="center", fontsize=8, color="#2c324c")
         ax.set_title("" + HOME_LABEL + " multinationals book EU profit in a few low-tax havens, not where it is earned"
                      f"{title_suffix}{extra}\nProfit over-reported (up) vs shifted out (down), "
                      f"{min(yrs)}–{max(yrs)}", fontsize=12)
@@ -3465,7 +3485,7 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
         from matplotlib.lines import Line2D
         fig, ax = plt.subplots(figsize=(12, 8))
         for _, r in summ_in.iterrows():
-            color = "#b2182b" if r["net_bn"] > 0 else "#2166ac"
+            color = "#e42728" if r["net_bn"] > 0 else "#2c324c"
             size = 30 + 25 * np.sqrt(abs(r["net_bn"]))
             ax.scatter(r["net_bn"], r["etr_pct"], s=size, color=color, alpha=0.65,
                        edgecolor="white", zorder=3)
@@ -3482,9 +3502,9 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
                      f"{min(years)}–{max(years)}", fontsize=12)
         ax.grid(True, linewidth=0.3, alpha=0.5)
         ax.legend(handles=[
-            Line2D([0], [0], marker="o", color="w", markerfacecolor="#b2182b", markersize=11,
+            Line2D([0], [0], marker="o", color="w", markerfacecolor="#e42728", markersize=11,
                    label="Winner — receives shifted-in profit (haven)"),
-            Line2D([0], [0], marker="o", color="w", markerfacecolor="#2166ac", markersize=11,
+            Line2D([0], [0], marker="o", color="w", markerfacecolor="#2c324c", markersize=11,
                    label="Loser — profit generated here is shifted out"),
         ], loc="upper right", fontsize=9)
         fig.text(0.01, -0.02,
@@ -3580,21 +3600,21 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
         ax.bar(yrs, other_up.to_numpy(), bottom=bottoms, label="Other EU havens",
                color="#fdd0a2", edgecolor="white", width=0.72)
         ax.bar(yrs, lost_tot.to_numpy(), label="Tax revenue LOST (the many EU countries)",
-               color="#3182bd", edgecolor="white", width=0.72)
+               color="#2c324c", edgecolor="white", width=0.72)
         ax.axhline(0, color="black", linewidth=0.9)
         for j, y in enumerate(yrs):
             if cumulative:
                 ax.annotate(f"+{gained_tot.iloc[j]:,.0f}", (y, gained_tot.iloc[j]),
                             textcoords="offset points", xytext=(0, 4), ha="center", fontsize=8,
-                            fontweight="bold", color="#b30000")
+                            fontweight="bold", color="#e42728")
                 ax.annotate(f"{lost_tot.iloc[j]:,.0f}", (y, lost_tot.iloc[j]),
-                            textcoords="offset points", xytext=(0, -12), ha="center", fontsize=8, color="#08519c")
+                            textcoords="offset points", xytext=(0, -12), ha="center", fontsize=8, color="#2c324c")
             else:
                 ax.annotate(f"+{gained_tot.iloc[j]:,.0f}\n({int(nh.iloc[j])} havens)", (y, gained_tot.iloc[j]),
                             textcoords="offset points", xytext=(0, 4), ha="center", fontsize=8,
-                            fontweight="bold", color="#b30000")
+                            fontweight="bold", color="#e42728")
                 ax.annotate(f"{lost_tot.iloc[j]:,.0f}\n({int(nl.iloc[j])} countries)", (y, lost_tot.iloc[j]),
-                            textcoords="offset points", xytext=(0, -18), ha="center", fontsize=8, color="#08519c")
+                            textcoords="offset points", xytext=(0, -18), ha="center", fontsize=8, color="#2c324c")
         ax.set_title("EU tax revenue: gained in a few low-tax EU havens (up) vs lost by the many (down)"
                      f"{title_suffix}{extra}\nLost = EU-out base × losing-country CIT; "
                      f"gained = EU→EU-haven base × ETR paid in the haven, {min(yrs)}–{max(yrs)}", fontsize=11)
@@ -3675,7 +3695,7 @@ else:
     # Real-activity factors only — the reported-profit line is intentionally
     # excluded from this figure (it is kept in the CSV for the combined chart).
     styles = {
-        "Employees":       ("#1b7837", "-", 2.6),
+        "Employees":       ("#28a186", "-", 2.6),
         "Tangible assets": ("#762a83", "-", 2.6),
         "Payroll":         ("#5aae61", "--", 1.8),
         "Sales":           ("#9970ab", "--", 1.8),
@@ -3740,7 +3760,7 @@ else:
     # ---- Figure: tax lost per EU country (cumulative) ----
     bc = by_country[by_country["tax_loss_bn"] > 0].copy().iloc[::-1]
     fig, ax = plt.subplots(figsize=(10, max(5.0, 0.42 * len(bc))))
-    ax.barh(bc["iso_partner"], bc["tax_loss_bn"], color="#3182bd", edgecolor="white")
+    ax.barh(bc["iso_partner"], bc["tax_loss_bn"], color="#2c324c", edgecolor="white")
     for yi, v in enumerate(bc["tax_loss_bn"]):
         ax.annotate(f"${v:,.1f}bn", (v, yi), textcoords="offset points", xytext=(4, 0),
                     va="center", fontsize=8)
@@ -3829,7 +3849,7 @@ else:
 
     fig, ax = plt.subplots(figsize=(10, 6))
     bottoms = np.zeros(len(de_years))
-    lvl_colors = {"Federal (Bund)": "#08519c", "State (Länder)": "#6baed6",
+    lvl_colors = {"Federal (Bund)": "#2c324c", "State (Länder)": "#6baed6",
                   "Municipal (Kommunen)": "#fdae6b"}
     for lvl in LEVELS:
         vals = np.array(de_level[lvl])
@@ -3898,7 +3918,7 @@ else:
     eus = pd.DataFrame(_rows).sort_values("year")
     eus.to_csv(OUTPUT_TABLES / "eu_share_activity.csv", index=False)
     _eyrs = eus["year"].tolist()
-    _est = {"Employees": ("#1b7837", "-", 2.6), "Tangible assets": ("#762a83", "-", 2.6),
+    _est = {"Employees": ("#28a186", "-", 2.6), "Tangible assets": ("#762a83", "-", 2.6),
             "Payroll": ("#5aae61", "--", 1.8), "Sales": ("#9970ab", "--", 1.8)}
     fig, ax = plt.subplots(figsize=(12, 7))
     for _name, (_color, _ls, _lw) in _est.items():
