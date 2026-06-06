@@ -57,12 +57,24 @@ PALETTE = {
     "grid": "#d1dae5",   # gridlines
 }
 PALETTE_SEQ = [PALETTE["red"], PALETTE["navy"], PALETTE["teal"], PALETTE["slate"], PALETTE["amber"]]
+TCJA_GREY = "#9c9c9c"   # neutral grey for the TCJA marker (Stata gs6 equivalent)
 plt.rcParams.update({
     "grid.color": PALETTE["grid"], "grid.linewidth": 0.7,
     "axes.edgecolor": PALETTE["ink"], "axes.labelcolor": PALETTE["ink"],
     "text.color": PALETTE["ink"], "xtick.color": PALETTE["ink"], "ytick.color": PALETTE["ink"],
     "axes.prop_cycle": plt.cycler(color=PALETTE_SEQ),
 })
+
+
+def add_tcja_marker(ax, label=True, va="top", y=0.99):
+    """Single labelled vertical dashed line at 2017 ("Tax Cuts and Jobs Act"),
+    per the house style guide — the one policy marker used on the over-time
+    figures. Drawn behind the data; label spelled out in full, no abbreviation."""
+    ax.axvline(2017, color=TCJA_GREY, linestyle="--", linewidth=1.2, zorder=0)
+    if label:
+        ax.annotate("Tax Cuts and Jobs Act", xy=(2017, y), xycoords=("data", "axes fraction"),
+                    xytext=(4, 0), textcoords="offset points",
+                    ha="left", va=va, fontsize=8, color=TCJA_GREY)
 
 pd.set_option("display.max_columns", None)
 pd.options.display.float_format = "{:,.2f}".format
@@ -139,6 +151,23 @@ else:
     _ETR_MAX = float(_etr_max_env)
     ETR_TAG = f"etr{int(round(_ETR_MAX * 100))}"   # 0.15 -> 'etr15'
 
+# Apportionment formula used for ALL the bespoke figures (winners/losers, gap,
+# missing-shares, tax-revenue gap, Germany splits, home/EU share). Default
+# 'ccctb'. Set FIG_FORMULA=employees_payroll for the SOTJ variant; that run
+# writes to a `_sotj` suffixed topic so the two formula sets coexist for
+# comparison. Both formulas are computed by the UT loop regardless; this only
+# selects which spec the figures read and how they're labelled.
+FIG_FORMULA = os.environ.get("FIG_FORMULA", "ccctb").strip()
+# Human-readable description spliced into figure titles/notes, and the short
+# topic tag, keyed by formula name.
+_FIG_FORMULA_META = {
+    "ccctb": ("CCCTB: 1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll", "CCCTB", ""),
+    "employees_payroll": ("SOTJ: 50% employees, 50% payroll", "SOTJ", "_sotj"),
+}
+if FIG_FORMULA not in _FIG_FORMULA_META:
+    raise ValueError(f"FIG_FORMULA must be one of {list(_FIG_FORMULA_META)}; got {FIG_FORMULA!r}")
+FIG_FORMULA_DESC, FIG_FORMULA_LABEL, _FIG_FORMULA_TAG = _FIG_FORMULA_META[FIG_FORMULA]
+
 _cfg = DATASET_CONFIGS[RUN_DATASET]
 PROFIT_VAR = _cfg["profit_var"]
 TAX_VAR = _cfg["tax_var"]
@@ -150,6 +179,7 @@ _OUTPUT_TOPIC = (
     _cfg["output_topic"]
     + ("_reported" if REPORTED_ONLY else "")
     + ("" if ETR_TAG == "inf" else f"_{ETR_TAG}")
+    + _FIG_FORMULA_TAG
 )
 
 # Partner-year ETR columns derived from the active suffix. The
@@ -1004,6 +1034,22 @@ def load_input_samples():
                   f"bad-reporter parents (no cross-border country data after filter), "
                   f"leaving {len(df):,} rows for {n_parents_after} parents.")
         df = coerce_numeric_columns(df, numeric_cols)
+
+        # US-domestic-ETR override (HOME_GROUP=USA only). For the US jurisdiction,
+        # use the rate US MNEs pay on their US domestic operations
+        # (etr_domestic) instead of the blended average ETR, which also reflects
+        # foreign-owned firms operating in the US. Applied to the US partner rows
+        # by overwriting ETR_COL_AVERAGE, so it flows into BOTH the <ETR_MAX
+        # haven test (threshold_rate_col defaults to ETR_COL_AVERAGE) and the ETR
+        # shown/coloured in the figures. Only where a domestic ETR exists; rows
+        # with no domestic value keep the average. (Per user request, US sample.)
+        if HOME_GROUP == "USA" and ETR_COL_DOMESTIC in df.columns and ETR_COL_AVERAGE in df.columns:
+            df[ETR_COL_DOMESTIC] = pd.to_numeric(df[ETR_COL_DOMESTIC], errors="coerce")
+            _us_dom = (df["iso_partner"] == "USA") & df[ETR_COL_DOMESTIC].notna()
+            df.loc[_us_dom, ETR_COL_AVERAGE] = df.loc[_us_dom, ETR_COL_DOMESTIC]
+            print(f"  [US-domestic-ETR] set {ETR_COL_AVERAGE} := {ETR_COL_DOMESTIC} "
+                  f"for {int(_us_dom.sum())} US partner rows (US-MNE sample).")
+
         df = ensure_tax_rate_columns(df)
         df = ensure_current_tax_source_column(df)
         validate_input_data(df, sample_name)
@@ -2495,7 +2541,7 @@ print("\nSummary export block finished.")
 # net direction over the whole period).
 
 # EU27 is defined once at the top (section 1.1).
-EU_FIG_FORMULA = "ccctb"
+EU_FIG_FORMULA = FIG_FORMULA
 
 _eu_src = run_summary.loc[run_summary["formula_name"] == EU_FIG_FORMULA]
 if _eu_src.empty:
@@ -2600,7 +2646,7 @@ else:
         fig.text(
             0.01, -0.02,
             "Note: Net misalignment summed within each group per year. Negative (winners) = profit a unitary "
-            "(CCCTB: 1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll) split would ADD to these EU countries; positive (losers) = profit they "
+            f"({FIG_FORMULA_DESC}) split would ADD to these EU countries; positive (losers) = profit they "
             f"would LOSE. Group membership fixed by cumulative net misalignment over the period{_excl_txt}. "
             "Baseline disaggregated CbCR; " + HOME_LABEL + " parents only.",
             ha="left", va="top", fontsize=9, wrap=True,
@@ -2970,7 +3016,7 @@ else:
 # EU-missing profit by destination jurisdiction (top 8 + Other), so it shows
 # both the scale of EU under-allocation and the EU-vs-non-EU haven split.
 
-BIL_FORMULA = "ccctb"
+BIL_FORMULA = FIG_FORMULA
 BIL_RATE_MODE = "loss_cit_gain_etr"
 
 
@@ -3068,7 +3114,7 @@ def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15):
     cb = fig.colorbar(sm, ax=ax, pad=0.02, fraction=0.045)
     cb.set_label(f"ETR {HOME_LABEL} MNEs pay there, % (period mean, 5yr-rolling)", fontsize=9)
     fig.text(0.01, -0.02,
-             f"Note: Top {top_n} destinations of profit a unitary (CCCTB: 1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll) split would assign to EU "
+             f"Note: Top {top_n} destinations of profit a unitary ({FIG_FORMULA_DESC}) split would assign to EU "
              f"countries but that {HOME_LABEL} MNEs book elsewhere (bilateral attribution, cumulative "
              f"{min(years)}-{max(years)}); they cover {covered:.0f}% of all EU-missing profit (long tail omitted). "
              f"Bars coloured by the ETR {HOME_LABEL} MNEs pay in each destination; '(EU)' = EU member. "
@@ -3186,7 +3232,7 @@ if "bilateral" in globals() and not bilateral.empty:
 # Net misalignment = reported − (employees+payroll 50/50) theoretical, the same
 # quantity, read in profit-shifting terms. ETR = period mean of the 5-year
 # rolling partner ETR (etr_partner_median_corrected), shown as %.
-PS_FORMULA = "ccctb"
+PS_FORMULA = FIG_FORMULA
 _ps_src = run_summary.loc[run_summary["formula_name"] == PS_FORMULA]
 if _ps_src.empty:
     print(f"\n[EU exploitation figures] No '{PS_FORMULA}' run; skipping.")
@@ -3268,7 +3314,7 @@ else:
     fig.text(0.01, -0.02,
              "Note: GAINS (up) count only profit shifted OUT OF EU countries and re-booked in EU havens (intra-EU, "
              "via bilateral attribution) — not over-reporting sourced from the rest of the world. DOWN = profit a "
-             "CCCTB split would assign to EU countries but that is booked elsewhere (to any destination); the gap "
+             f"{FIG_FORMULA_LABEL} split would assign to EU countries but that is booked elsewhere (to any destination); the gap "
              "between up and down is EU profit that leaves the EU entirely. ETR = period mean of the 5yr-rolling "
              "partner ETR. Baseline disaggregated CbCR; " + HOME_LABEL + " parents only.",
              ha="left", va="top", fontsize=9, wrap=True)
@@ -3306,7 +3352,7 @@ else:
                label="Loser — profit generated here is shifted out"),
     ], loc="upper right", fontsize=9)
     fig.text(0.01, -0.02,
-             "Note: x = cumulative (2016–2022) net misalignment (reported − CCCTB-implied profit); "
+             f"Note: x = cumulative (2016–2022) net misalignment (reported − {FIG_FORMULA_LABEL}-implied profit); "
              "right = profit shifted IN (haven), left = shifted OUT (victim). y = ETR US MNEs actually pay there. "
              "Havens cluster at low ETR. LUX and MLT sit on the left only because large 2021 book losses make their "
              "cumulative net negative — their very low ETR shows they are havens too. Bubble size ∝ √|net misalignment|. "
@@ -3624,7 +3670,7 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         ax.legend(title="Tax revenue gained in (ETR = period mean)", ncol=2, fontsize=9, loc="upper left")
         fig.text(0.01, -0.02,
-                 f"Note: Tax revenue LOST = profit a CCCTB split assigns to an EU country but that is booked "
+                 f"Note: Tax revenue LOST = profit a {FIG_FORMULA_LABEL} split assigns to an EU country but that is booked "
                  f"elsewhere, × that country's statutory CIT. Tax revenue GAINED = profit shifted OUT OF EU countries "
                  f"and re-booked in an EU haven (intra-EU, bilateral) × the ETR {HOME_LABEL} MNEs pay there — gains "
                  f"from harming the rest of the world are excluded. Because havens tax that profit at a very low ETR, "
@@ -3650,7 +3696,7 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
           f"  CUMULATIVE by {tg['year'].max():.0f}: gained {cg.iloc[-1]:,.0f} bn | lost {-cl.iloc[-1]:,.0f} bn")
 
 
-build_tax_revenue_gap("ccctb", "", "")
+build_tax_revenue_gap(FIG_FORMULA, "", "")
 
 
 # %% [10] Home-group share of real activity vs profit, over time.
@@ -3658,7 +3704,7 @@ build_tax_revenue_gap("ccctb", "", "")
 # the group's worldwide employees, tangible assets, payroll and sales — versus
 # its share of reported profit. Real-activity shares being high and flat while
 # the profit share is lower/volatile is exactly the misalignment UT corrects.
-HS_FORMULA = "ccctb"
+HS_FORMULA = FIG_FORMULA
 _hs_src = run_summary.loc[run_summary["formula_name"] == HS_FORMULA]
 if not PARENT_SET:
     print("\n[home-share figure] GLOBAL run (no single home region) — skipping.")
@@ -3694,11 +3740,12 @@ else:
 
     # Real-activity factors only — the reported-profit line is intentionally
     # excluded from this figure (it is kept in the CSV for the combined chart).
+    # The Left palette, hero red first (see figure_style_guide.md); all solid.
     styles = {
-        "Employees":       ("#28a186", "-", 2.6),
-        "Tangible assets": ("#762a83", "-", 2.6),
-        "Payroll":         ("#5aae61", "--", 1.8),
-        "Sales":           ("#9970ab", "--", 1.8),
+        "Employees":       (PALETTE["red"], "-", 2.4),
+        "Tangible assets": (PALETTE["navy"], "-", 2.4),
+        "Payroll":         (PALETTE["teal"], "-", 2.4),
+        "Sales":           (PALETTE["slate"], "-", 2.4),
     }
     fig, ax = plt.subplots(figsize=(12, 7))
     for name, (color, ls, lw) in styles.items():
@@ -3707,7 +3754,13 @@ else:
         last = share[name].iloc[-1]
         ax.annotate(f"{last:.0f}%", (hs_years[-1], last), textcoords="offset points",
                     xytext=(6, 0), fontsize=8, color=color, va="center")
-    ax.set_ylim(0, 100)
+    # Axis fitted tightly to the data so the change in real activity is legible
+    # (non-zero start is fine per the house style); pad ≈15% of the spread.
+    _hsv = share[list(styles)].to_numpy(dtype=float)
+    _lo, _hi = np.nanmin(_hsv), np.nanmax(_hsv)
+    _pad = max(0.5, (_hi - _lo) * 0.15)
+    ax.set_ylim(max(0, np.floor(_lo - _pad)), min(100, np.ceil(_hi + _pad)))
+    add_tcja_marker(ax)
     ax.set_xlabel("Year")
     ax.set_ylabel(f"{HOME_LABEL} share of {HOME_LABEL}-MNE worldwide total, %")
     ax.set_xticks(hs_years)
@@ -3715,11 +3768,11 @@ else:
     ax.set_title(f"{HOME_LABEL} multinationals' real activity is concentrated in the home base\n"
                  f"{HOME_LABEL} share of {HOME_LABEL}-MNE worldwide employees, assets, payroll & sales, "
                  f"{min(hs_years)}–{max(hs_years)}", fontsize=13)
-    ax.legend(loc="center right", fontsize=9)
+    ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=9, frameon=False)
     fig.text(0.01, -0.02,
              f"Note: Each line is the {HOME_LABEL} home region's share of {HOME_LABEL}-MNE worldwide employees, "
-             "tangible assets, payroll and sales — the real activity. These are high and flat over the period; "
-             "factors clipped at 0. Baseline disaggregated CbCR.",
+             "tangible assets, payroll and sales — the real economic activity. The 2017 line marks the Tax Cuts and "
+             "Jobs Act. Y-axis fitted to the data; factors clipped at 0. Baseline disaggregated CbCR.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _hs_path = OUTPUT_FIGURES / f"home_share_activity_vs_profit_{min(hs_years)}_{max(hs_years)}.png"
@@ -3736,7 +3789,7 @@ else:
 # the loss_cit_gain_etr country file). For Germany the loss is split across the
 # three layers of government using the statutory composition of the ~30%
 # combined corporate rate (see GERMANY_LEVEL_SHARES below).
-TL_FORMULA = "ccctb"
+TL_FORMULA = FIG_FORMULA
 _tl_src = run_summary.loc[
     (run_summary["formula_name"] == TL_FORMULA)
     & (run_summary["rate_mode"] == "loss_cit_gain_etr")
@@ -3758,25 +3811,67 @@ else:
      .to_csv(OUTPUT_TABLES / "eu_country_tax_loss_by_year.csv"))
 
     # ---- Figure: tax lost per EU country (cumulative) ----
+    # Luxembourg & Malta are flagged (amber) and explained in the note: they top
+    # the "victims" list only because of large 2021 reported book losses, not
+    # because they are genuinely drained — they are really low-ETR havens.
+    _LUX_FLAG = ("LUX", "MLT")
     bc = by_country[by_country["tax_loss_bn"] > 0].copy().iloc[::-1]
     fig, ax = plt.subplots(figsize=(10, max(5.0, 0.42 * len(bc))))
-    ax.barh(bc["iso_partner"], bc["tax_loss_bn"], color="#2c324c", edgecolor="white")
-    for yi, v in enumerate(bc["tax_loss_bn"]):
-        ax.annotate(f"${v:,.1f}bn", (v, yi), textcoords="offset points", xytext=(4, 0),
-                    va="center", fontsize=8)
+    _bar_colors = [PALETTE["amber"] if iso in _LUX_FLAG else PALETTE["navy"]
+                   for iso in bc["iso_partner"]]
+    ax.barh(bc["iso_partner"], bc["tax_loss_bn"], color=_bar_colors, edgecolor="white")
+    for yi, (v, iso) in enumerate(zip(bc["tax_loss_bn"], bc["iso_partner"])):
+        _suffix = "  ⚠ see note" if iso in _LUX_FLAG else ""
+        ax.annotate(f"${v:,.1f}bn{_suffix}", (v, yi), textcoords="offset points", xytext=(4, 0),
+                    va="center", fontsize=8,
+                    color=PALETTE["amber"] if iso in _LUX_FLAG else PALETTE["ink"])
     ax.set_xlabel(f"Tax revenue lost, USD bn (cumulative {min(tl_years)}–{max(tl_years)})")
     ax.set_title(f"Tax revenue each EU country loses to {HOME_LABEL} multinationals' profit shifting\n"
                  f"Cumulative {min(tl_years)}–{max(tl_years)}", fontsize=12)
     ax.grid(True, axis="x", linewidth=0.3, alpha=0.5)
     ax.margins(x=0.12)
     fig.text(0.01, -0.02,
-             f"Note: Tax revenue lost = profit a unitary (CCCTB: 1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll) split would assign to the country "
-             f"but that {HOME_LABEL} MNEs book elsewhere, × the country's statutory CIT rate. Baseline disaggregated "
-             f"CbCR; {HOME_LABEL} parents only.",
+             f"Note: Tax revenue lost = profit a unitary ({FIG_FORMULA_DESC}) split would assign to the country "
+             f"but that {HOME_LABEL} MNEs book elsewhere, × the country's statutory CIT rate. ⚠ Luxembourg & Malta "
+             "(amber) sit near the top only because of large 2021 reported book losses (plausibly TCJA-driven "
+             "repatriation/restructuring): in that year their formulary-implied profit exceeds what is booked there, "
+             "so they register as 'losing' profit. Their very low effective tax rates show they are really low-tax "
+             f"havens, not drained victims. Baseline disaggregated CbCR; {HOME_LABEL} parents only.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _tl_path = OUTPUT_FIGURES / f"eu_country_tax_loss_{min(tl_years)}_{max(tl_years)}.png"
     plt.savefig(_longpath(_tl_path), dpi=300, bbox_inches="tight")
+    plt.close()
+
+    # ---- Figure: EU tax loss aggregated over time (annual bars + cumulative) ----
+    _annual = tl.groupby("year")["tax_loss_bn"].sum().reindex(tl_years).fillna(0.0)
+    _cum = _annual.cumsum()
+    fig, ax = plt.subplots(figsize=(11, 6.5))
+    ax.bar(tl_years, _annual.to_numpy(), color=PALETTE["red"], edgecolor="white",
+           width=0.7, zorder=3, label="Lost that year")
+    ax.plot(tl_years, _cum.to_numpy(), color=PALETTE["ink"], marker="o", markersize=5,
+            linewidth=2.2, zorder=4, label=f"Cumulative since {min(tl_years)}")
+    for _x, _yv in zip(tl_years, _cum.to_numpy()):
+        ax.annotate(f"${_yv:,.0f}bn", (_x, _yv), textcoords="offset points", xytext=(0, 6),
+                    ha="center", fontsize=8, color=PALETTE["ink"], fontweight="bold")
+    add_tcja_marker(ax)
+    ax.set_xlabel("Year")
+    ax.set_ylabel("Tax revenue lost, USD bn")
+    ax.set_xticks(tl_years)
+    ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+    ax.set_title(f"EU tax revenue lost to {HOME_LABEL} multinationals' profit shifting\n"
+                 f"Per year and cumulative, {min(tl_years)}–{max(tl_years)} "
+                 f"(total ${_cum.iloc[-1]:,.0f}bn)", fontsize=12)
+    ax.legend(loc="upper left", fontsize=9, frameon=False)
+    fig.text(0.01, -0.02,
+             f"Note: Bars = EU-27 tax revenue lost each year to {HOME_LABEL} multinationals' profit shifting (profit "
+             f"a unitary ({FIG_FORMULA_DESC}) split assigns to EU countries but is booked elsewhere, × each country's "
+             "statutory CIT). Line = running total since the first year. The 2017 line marks the Tax Cuts and Jobs "
+             f"Act. Baseline disaggregated CbCR; {HOME_LABEL} parents only.",
+             ha="left", va="top", fontsize=9, wrap=True)
+    plt.tight_layout()
+    _tlc_path = OUTPUT_FIGURES / f"eu_tax_loss_cumulative_{min(tl_years)}_{max(tl_years)}.png"
+    plt.savefig(_longpath(_tlc_path), dpi=300, bbox_inches="tight")
     plt.close()
 
     # ---- Germany: split across the three layers of government ----
@@ -3882,6 +3977,66 @@ else:
     plt.savefig(_longpath(_de_path), dpi=300, bbox_inches="tight")
     plt.close()
 
+    # ---- Per-level benchmark figures (produced per home group, so the all-MNE
+    # versions land in all_multinationals/). USD->EUR for the contrast. Daycare
+    # is a municipal matter; schools a Länder/state matter.
+    _KOM_DEBT, _DAYCARE, _SCHOOL, _USD_EUR = 154.6, 10.5, 67.8, 1.10
+    _muni_eur = de_totals["Municipal (Kommunen)"] / _USD_EUR
+    _laender_eur = de_totals["State (Länder)"] / _USD_EUR
+
+    # (a) Kommunen loss vs the daycare/Kita investment backlog — the municipal
+    # spending need it owns. Daycare is the headline comparison (total municipal
+    # debt, at €155bn, would dwarf these bars and is shown in the combined
+    # all-MNE debt figure instead).
+    fig, ax = plt.subplots(figsize=(7.5, 6.5))
+    _vv = [_DAYCARE, _muni_eur]
+    _b = ax.bar([f"Daycare/Kita investment backlog\n(KfW Kommunalpanel)",
+                 f"Lost to {HOME_LABEL} multinationals\n({min(de_years)}–{max(de_years)})"],
+                _vv, color=[PALETTE["slate"], PALETTE["red"]], edgecolor="white", width=0.6)
+    for _bar, _v in zip(_b, _vv):
+        _pct = "" if _v == _DAYCARE else f"\n({100 * _v / _DAYCARE:.0f}% of backlog)"
+        ax.annotate(f"€{_v:,.1f}bn{_pct}", (_bar.get_x() + _bar.get_width() / 2, _v),
+                    textcoords="offset points", xytext=(0, 3), ha="center", fontsize=10, fontweight="bold")
+    ax.set_ylabel("EUR bn")
+    ax.set_ylim(0, max(_vv) * 1.18)
+    ax.set_title(f"German municipal (Kommunen) tax lost to {HOME_LABEL} multinationals\n"
+                 f"vs the daycare investment backlog, cumulative {min(de_years)}–{max(de_years)}", fontsize=12)
+    ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+    fig.text(0.01, -0.02,
+             f"Note: Municipal (Kommunen) share of Germany's modelled corporate-tax loss to {HOME_LABEL} "
+             f"multinationals, cumulative {min(de_years)}–{max(de_years)}, USD→EUR at {_USD_EUR}. Daycare/Kita "
+             "investment backlog = KfW Kommunalpanel (the municipal spending need). Baseline disaggregated CbCR.",
+             ha="left", va="top", fontsize=9, wrap=True)
+    plt.tight_layout()
+    _km_path = OUTPUT_FIGURES / f"germany_kommunen_loss_vs_daycare_{min(de_years)}_{max(de_years)}.png"
+    plt.savefig(_longpath(_km_path), dpi=300, bbox_inches="tight")
+    plt.close()
+
+    # (b) Länder loss vs the school-building investment backlog
+    fig, ax = plt.subplots(figsize=(8.5, 6.5))
+    _vv = [_SCHOOL, _laender_eur]
+    _b = ax.bar([f"School investment backlog\n(KfW Kommunalpanel)",
+                 f"Lost to {HOME_LABEL} multinationals\n({min(de_years)}–{max(de_years)})"],
+                _vv, color=[PALETTE["slate"], PALETTE["red"]], edgecolor="white", width=0.6)
+    for _bar, _v in zip(_b, _vv):
+        _pct = "" if _v == _SCHOOL else f"\n({100 * _v / _SCHOOL:.0f}% of backlog)"
+        ax.annotate(f"€{_v:,.1f}bn{_pct}", (_bar.get_x() + _bar.get_width() / 2, _v),
+                    textcoords="offset points", xytext=(0, 3), ha="center", fontsize=10, fontweight="bold")
+    ax.set_ylabel("EUR bn")
+    ax.set_ylim(0, max(_vv) * 1.18)
+    ax.set_title(f"German state (Länder) tax lost to {HOME_LABEL} multinationals\n"
+                 f"vs the school-building investment backlog, cumulative {min(de_years)}–{max(de_years)}", fontsize=12)
+    ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+    fig.text(0.01, -0.02,
+             f"Note: Länder (state) share of Germany's modelled corporate-tax loss to {HOME_LABEL} multinationals, "
+             f"cumulative {min(de_years)}–{max(de_years)}, USD→EUR at {_USD_EUR}. School-building investment backlog "
+             f"= KfW Kommunalpanel (€{_SCHOOL:.0f}bn). Baseline disaggregated CbCR.",
+             ha="left", va="top", fontsize=9, wrap=True)
+    plt.tight_layout()
+    _ld_path = OUTPUT_FIGURES / f"germany_laender_loss_vs_schools_{min(de_years)}_{max(de_years)}.png"
+    plt.savefig(_longpath(_ld_path), dpi=300, bbox_inches="tight")
+    plt.close()
+
     _de_top = ", ".join(f"{lvl.split(' ')[0]} ${de_totals[lvl]:,.1f}bn" for lvl in LEVELS)
     print(f"\n[EU country tax loss] saved: {_tl_path}\n"
           f"  Top losers (USD bn): "
@@ -3895,7 +4050,7 @@ else:
 # payroll/sales). Like the home-share figure but with the EU-27 as the region —
 # how much of THIS headquarters group's real activity happens in the EU.
 # Produced for every home group (US / EU / global).
-EUS_FORMULA = "ccctb"
+EUS_FORMULA = FIG_FORMULA
 _eus_src = run_summary.loc[run_summary["formula_name"] == EUS_FORMULA]
 if _eus_src.empty:
     print("\n[EU-share figure] no run; skipping.")
@@ -3918,15 +4073,20 @@ else:
     eus = pd.DataFrame(_rows).sort_values("year")
     eus.to_csv(OUTPUT_TABLES / "eu_share_activity.csv", index=False)
     _eyrs = eus["year"].tolist()
-    _est = {"Employees": ("#28a186", "-", 2.6), "Tangible assets": ("#762a83", "-", 2.6),
-            "Payroll": ("#5aae61", "--", 1.8), "Sales": ("#9970ab", "--", 1.8)}
+    _est = {"Employees": (PALETTE["red"], "-", 2.4), "Tangible assets": (PALETTE["navy"], "-", 2.4),
+            "Payroll": (PALETTE["teal"], "-", 2.4), "Sales": (PALETTE["slate"], "-", 2.4)}
     fig, ax = plt.subplots(figsize=(12, 7))
     for _name, (_color, _ls, _lw) in _est.items():
         ax.plot(eus["year"], eus[_name], marker="o", markersize=5, linewidth=_lw,
                 linestyle=_ls, color=_color, label=_name)
         ax.annotate(f"{eus[_name].iloc[-1]:.0f}%", (_eyrs[-1], eus[_name].iloc[-1]),
                     textcoords="offset points", xytext=(6, 0), fontsize=8, color=_color, va="center")
-    ax.set_ylim(0, None)
+    # Axis fitted tightly to the data (non-zero start OK per the house style).
+    _eusv = eus[list(_est)].to_numpy(dtype=float)
+    _elo, _ehi = np.nanmin(_eusv), np.nanmax(_eusv)
+    _epad = max(0.5, (_ehi - _elo) * 0.15)
+    ax.set_ylim(max(0, np.floor(_elo - _epad)), min(100, np.ceil(_ehi + _epad)))
+    add_tcja_marker(ax)
     ax.set_xlabel("Year")
     ax.set_ylabel(f"EU-27 share of {HOME_LABEL}-MNE worldwide total, %")
     ax.set_xticks(_eyrs)
@@ -3934,10 +4094,11 @@ else:
     ax.set_title(f"How much {HOME_LABEL}-MNE economic activity happens in the EU-27\n"
                  f"EU-27 share of worldwide employees, assets, payroll & sales, "
                  f"{min(_eyrs)}–{max(_eyrs)}", fontsize=13)
-    ax.legend(loc="best", fontsize=9)
+    ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=9, frameon=False)
     fig.text(0.01, -0.02,
              f"Note: Each line = the EU-27's share of {HOME_LABEL}-MNE worldwide employees, tangible assets, "
-             "payroll and sales. Factors clipped at 0. Baseline disaggregated CbCR.",
+             "payroll and sales — the real economic activity. The 2017 line marks the Tax Cuts and Jobs Act. "
+             "Y-axis fitted to the data; factors clipped at 0. Baseline disaggregated CbCR.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _eus_path = OUTPUT_FIGURES / f"eu_share_activity_{min(_eyrs)}_{max(_eyrs)}.png"

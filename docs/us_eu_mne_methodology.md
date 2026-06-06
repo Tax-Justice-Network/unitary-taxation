@@ -26,6 +26,7 @@ to `docs/pcbcr_us_noncompliance.md` and `docs/eu_profit_shifting_us_mnes.md`.
 | `ETR_MAX` | `inf` (default) / `0.15` | Minimum-ETR threshold for counting over-reporting as shifting. `inf` → all misalignment captured, no rescale; `0.15` → only profit shifted to sub-15%-ETR destinations counts (haven-only), with balancing rescale on. `0.15` writes to an `_etr15`-suffixed topic so both coexist. |
 | `REPORTED_ONLY` | `0` (default) / `1` | `0` keeps the disaggregated partner cells (the full footprint); `1` is a no-imputation sensitivity (`_reported` topic). Defaulted **off** here (unlike script 5) because the disaggregated dataset's purpose is to include those cells. |
 | `RUN_DATASET` | `disaggregated` | Baseline disaggregated CbCR only. |
+| `FIG_FORMULA` | `ccctb` (default) / `employees_payroll` | Apportionment formula the bespoke figures read and are labelled with. `ccctb` writes the established topics; `employees_payroll` (SOTJ: 50% employees, 50% payroll) writes a parallel `_sotj`-suffixed topic so both formula sets coexist for comparison. The UT loop computes every formula regardless — this only selects which spec the figures use. |
 
 Run order for the full set:
 
@@ -38,6 +39,11 @@ python src/us_only/combine_us_eu.py                 # inf
 ETR_MAX=0.15 python src/us_only/combine_us_eu.py    # 0.15
 ```
 
+For the **SOTJ** (`employees_payroll`) parallel set, re-run the same six commands
+with `FIG_FORMULA=employees_payroll` prefixed; outputs land in the
+`*_sotj`-suffixed topics (`us_multinationals_sotj`, …, `combined_us_eu_sotj`,
+plus the `_etr15_sotj` variants) alongside the CCCTB ones.
+
 ## Core method
 
 - **Parent filter.** UT misalignment is computed per `iso_parent`, so keeping
@@ -47,12 +53,25 @@ ETR_MAX=0.15 python src/us_only/combine_us_eu.py    # 0.15
   parent's worldwide profit pool (floored at 0). Positive = over-reported
   (profit shifted *in*, a haven); negative = under-reported (profit generated
   there but booked elsewhere).
-- **Formulas.** Headline = `employees_payroll` (50% employees, 50% payroll);
-  `ccctb` (⅓ sales, ⅓ assets, ⅙ employees, ⅙ payroll) produced as a robustness
-  variant for every bespoke figure.
-- **ETR.** "ETR a group pays in a jurisdiction" = period mean of the 5-year
-  rolling partner ETR (`etr_partner_median_corrected`, built by
-  `src/_etr_construction.py`). Net misalignment (profit) is ETR/rate-independent.
+- **Formulas.** Headline = `ccctb` (⅓ sales, ⅓ assets, ⅙ employees, ⅙ payroll);
+  `employees_payroll` (SOTJ: 50% employees, 50% payroll) produced as a parallel
+  set via `FIG_FORMULA=employees_payroll` (the `_sotj` topics) for comparison.
+  Switching from SOTJ to CCCTB notably flattens the **2021 US-as-haven spike**
+  for EU MNEs (EU→US bilateral inflow ≈ $4.7bn under SOTJ vs ≈ $0.5bn under
+  CCCTB): CCCTB credits the US's large real sales/assets, so that 2021 profit
+  reads as earned rather than shifted in.
+- **ETR.** "ETR a group pays in a jurisdiction" = the partner's average ETR
+  (`etr_average_corrected`, 5-year rolling, built by `src/_etr_construction.py`).
+  This is the column used for both the <`ETR_MAX` haven test and the ETR shown in
+  the figures. Net misalignment (profit) is ETR/rate-independent.
+  - **US-domestic-ETR override (US sample only).** For `HOME_GROUP=USA`, the US
+    jurisdiction's ETR is overridden at load time to its **domestic** ETR
+    (`etr_domestic_corrected` — the rate US MNEs pay on their US operations)
+    instead of the blended average, which also reflects foreign-owned firms in
+    the US. The US domestic ETR is actually *higher* (≈27% vs ≈23% period mean;
+    both above 15% every year, so the US is not a sub-15% haven either way) — the
+    override mainly raises the ETR shown for the US in the figures. Applied to
+    the US partner rows, so it flows into both the haven test and the figures.
 - **Tax revenue.** From the `loss_cit_gain_etr` country file: tax revenue **lost**
   = under-reported base × the losing country's statutory **CIT**; tax revenue
   **gained** = over-reported base × the **ETR** the MNEs pay in the gaining
@@ -85,15 +104,26 @@ quantity, read in status-quo terms.
   CIT vs gain × ETR); per-year and a **cumulative** running-total variant; both
   excl-LUX/MLT and CCCTB.
 - **Per-EU-country tax loss** (`eu_country_tax_loss*`) — tax revenue each EU
-  country loses, cumulative + per-year.
+  country loses, cumulative. **Luxembourg & Malta are kept but flagged (amber)
+  and explained** in the note: they top the list only because of large 2021
+  reported book losses, not genuine draining (they are really low-ETR havens).
+- **Tax loss over time** (`eu_tax_loss_cumulative*`) — the EU tax-revenue loss
+  just aggregated over time: per-year bars + cumulative running-total line, with
+  the 2022 cumulative total in the title and the TCJA marker.
 - **Germany by government level** (`germany_tax_loss_by_level*`) — see below.
-- **Home-share** (`home_share_activity_vs_profit*`) — home region's share of
-  worldwide employees / tangible assets / payroll / sales / reported profit over
-  time. Shows real activity flat while the profit share moves (US: 32%→72% in
-  2021, consistent with TCJA repatriation).
+- **Kommunen loss vs daycare** (`germany_kommunen_loss_vs_daycare*`) and **Länder
+  loss vs schools** (`germany_laender_loss_vs_schools*`) — per-level benchmark
+  contrasts; see "Per-level benchmark figures" below.
+- **Home-share / EU-share** (`home_share_activity_vs_profit*`,
+  `eu_share_activity*`) — home region's (or EU-27's) share of worldwide
+  employees / tangible assets / payroll / sales over time. Real economic
+  activity. Restyled to the house style: The Left palette, **y-axis fitted to
+  the data** (non-zero start, so the change is legible), and the single **"Tax
+  Cuts and Jobs Act" 2017 marker** (shared `add_tcja_marker` helper).
 
 Combined (`output/combined_us_eu*/`): US-vs-EU total profit shifted + as a share
-of profit; US-vs-EU home-share; and the Germany Kommunen-loss-vs-debt contrast.
+of profit; US-vs-EU home-share; the Germany Kommunen-loss-vs-needs (daycare) and
+all-MNE Kommunen-loss-vs-debt contrasts.
 
 ## Germany federal / Länder / Kommunen split
 
@@ -116,14 +146,27 @@ Figures are **per-year** (bars) with the **cumulative** total in the title.
 Gewerbesteuerumlage) or OECD Revenue Statistics (corporate income by level);
 the Körperschaftsteuerstatistik does NOT carry a level split.
 
-## Kommunen loss vs debt
+## Per-level benchmark figures (Kommunen vs daycare; Länder vs schools)
 
-`germany_kommunen_loss_vs_debt*` contrasts the cumulative municipal loss
-(2016–2022, USD→EUR at `USD_PER_EUR=1.10`) with German municipal core-budget
-debt (**Destatis end-2023: €154.6bn**). Result: lost to US MNEs ≈ €10bn (6% of
-debt), EU MNEs ≈ €25bn (16%), **US+EU ≈ €35bn (23%)** on the ∞ basis (smaller on
-the 0.15 basis). So shifting-driven losses are a meaningful fraction (~quarter)
-of municipal debt, not the whole.
+Produced **per home group** in the estimate script's Germany section, so the
+all-MNE versions land in `output/all_multinationals/figures/` alongside the
+US/EU ones. Both convert the modelled cumulative loss USD→EUR at
+`USD_PER_EUR=1.10`. The matching tasks follow the German competence split —
+**daycare is a municipal (Kommunen) task, school buildings/education a Länder
+matter** — so each level is benchmarked against the spending need it owns:
+
+- **`germany_kommunen_loss_vs_daycare*`** — cumulative **municipal (Kommunen)**
+  loss vs the **daycare/Kita investment backlog** (€10.5bn, KfW Kommunalpanel) —
+  the municipal spending need, as the headline comparison (bars). Total
+  municipal debt (€154.6bn) is *not* drawn here (it would dwarf the bars); the
+  debt contrast lives in the combined `germany_kommunen_all_loss_vs_debt*`.
+  All-MNE loss ≈ €40bn ≈ 377% of the daycare backlog on the ∞ basis.
+- **`germany_laender_loss_vs_schools*`** — cumulative **state (Länder)** loss vs
+  the **school-building investment backlog** (€67.8bn, KfW Kommunalpanel).
+
+The combined `germany_kommunen_loss_vs_needs*` (cross-group US/EU/All bars)
+references the daycare backlog only; `germany_kommunen_all_loss_vs_debt*` remains
+the cross-group all-MNE debt contrast.
 
 ## Data fix — Romania 2022 (in `1_clean.py`)
 

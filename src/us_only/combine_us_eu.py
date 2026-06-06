@@ -35,18 +35,32 @@ plt.rcParams.update({
     "text.color": PALETTE["ink"], "xtick.color": PALETTE["ink"], "ytick.color": PALETTE["ink"],
 })
 
+# Apportionment formula for the figures. Must match the FIG_FORMULA the estimate
+# script was run with: 'ccctb' (default) reads the CCCTB topics; SOTJ
+# (employees_payroll) reads the `_sotj` topics and tags the combined output to
+# match, so the two formula sets sit side by side.
+FIG_FORMULA = os.environ.get("FIG_FORMULA", "ccctb").strip()
+_FIG_FORMULA_META = {
+    "ccctb": ("CCCTB formula (1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll)", "CCCTB", ""),
+    "employees_payroll": ("SOTJ formula (50% employees, 50% payroll)", "SOTJ", "_sotj"),
+}
+if FIG_FORMULA not in _FIG_FORMULA_META:
+    raise ValueError(f"FIG_FORMULA must be one of {list(_FIG_FORMULA_META)}; got {FIG_FORMULA!r}")
+FIG_FORMULA_DESC, FIG_FORMULA_LABEL, _FIG_FORMULA_TAG = _FIG_FORMULA_META[FIG_FORMULA]
+
 # Country-estimate file (positive_misalignment + reported_profit are
 # rate-independent; loss_cit_gain_etr is just a concrete spec that exists). The
 # etrmax tag in the filename matches the active ETR_MAX (inf or e.g. 0_15).
 _etrmax_fn = os.environ.get("ETR_MAX", "inf").strip().lower()
 _etrmax_fn = "inf" if _etrmax_fn in ("inf", "infinity", "none", "") else _etrmax_fn.replace(".", "_")
-_STUB = f"country_estimates__ccctb__etrdef_average__etrmax_{_etrmax_fn}__loss_cit_gain_etr.csv"
+_STUB = f"country_estimates__{FIG_FORMULA}__etrdef_average__etrmax_{_etrmax_fn}__loss_cit_gain_etr.csv"
 # ETR-max config: combine the matching per-group topics (inf -> untagged;
 # 0.15 -> *_etr15) so `ETR_MAX=0.15 python combine_us_eu.py` builds the 0.15
-# combined figures alongside the inf ones.
+# combined figures alongside the inf ones. The _sotj formula tag is appended
+# after the ETR tag, matching the estimate script's topic naming.
 _etr_env = os.environ.get("ETR_MAX", "inf").strip().lower()
 ETR_TAG = "inf" if _etr_env in ("inf", "infinity", "none", "") else f"etr{int(round(float(_etr_env) * 100))}"
-_TS = "" if ETR_TAG == "inf" else f"_{ETR_TAG}"
+_TS = ("" if ETR_TAG == "inf" else f"_{ETR_TAG}") + _FIG_FORMULA_TAG
 GROUPS = {"US": "us_multinationals" + _TS, "EU": "eu_multinationals" + _TS,
           "All": "all_multinationals" + _TS}
 COLORS = {"US": "#e42728", "EU": "#2c324c", "All": "#5c7090"}
@@ -127,8 +141,8 @@ def main():
 
     # Two-panel comparison (absolute left, share of profit right), reused for
     # ALL activity and for profit shifted OUT OF the EU only.
-    _NOTE_BASE = ("Baseline disaggregated CbCR, CCCTB formula (1/3 sales, 1/3 assets, 1/6 employees, "
-                  "1/6 payroll). Share = ÷ total positive reported profit of the group. "
+    _NOTE_BASE = (f"Baseline disaggregated CbCR, {FIG_FORMULA_DESC}. "
+                  "Share = ÷ total positive reported profit of the group. "
                   "US = US-parented MNEs; EU = EU-27-parented MNEs.")
 
     def _two_panel(metric, pct, title_abs, suptitle, note, fname):
@@ -166,14 +180,14 @@ def main():
         "shifted_bn", "shifted_pct_of_profit",
         "Total profit shifted (booked away from where earned)\nALL activity, any destination (incl. EU havens)",
         f"US vs EU multinationals: total profit shifting (all activity), {min(years)}–{max(years)}",
-        "Note: 'Profit shifted' = total positive misalignment (profit booked beyond the CCCTB-implied split), to "
+        f"Note: 'Profit shifted' = total positive misalignment (profit booked beyond the {FIG_FORMULA_LABEL}-implied split), to "
         "any destination. " + _NOTE_BASE,
         "combined_profit_shifted_us_eu")
     _two_panel(
         "eu_out_bn", "eu_out_pct_of_profit",
         "Profit shifted OUT OF the EU\n(generated in EU-27 countries, booked elsewhere)",
         f"US vs EU multinationals: profit shifted out of the EU, {min(years)}–{max(years)}",
-        "Note: 'Shifted out of the EU' = sum over EU-27 partner countries of profit a CCCTB split would assign them "
+        f"Note: 'Shifted out of the EU' = sum over EU-27 partner countries of profit a {FIG_FORMULA_LABEL} split would assign them "
         "but that is booked elsewhere (their negative misalignment). " + _NOTE_BASE,
         "combined_profit_shifted_out_of_eu_us_eu")
     for label, g in data.items():
@@ -242,15 +256,17 @@ def main():
             ax.annotate(f"€{v:,.0f}bn\n({v / DAYCARE_BACKLOG_EUR_BN:.1f}× daycare backlog)",
                         (bar.get_x() + bar.get_width() / 2, v), textcoords="offset points",
                         xytext=(0, 3), ha="center", fontsize=9, fontweight="bold")
+        # Daycare is a municipal task; schools are a Länder matter (shown in a
+        # separate Länder-vs-school figure in the estimate script), so only the
+        # daycare backlog is referenced here.
         for yv, lab, col in [
             (DAYCARE_BACKLOG_EUR_BN, f"Daycare/Kita investment backlog (€{DAYCARE_BACKLOG_EUR_BN:.1f}bn, KfW)", "#28a186"),
-            (SCHOOL_BACKLOG_EUR_BN, f"School investment backlog (€{SCHOOL_BACKLOG_EUR_BN:.0f}bn, KfW)", "#d95f02"),
         ]:
             ax.axhline(yv, color=col, linestyle="--", linewidth=1.4, zorder=2)
             ax.annotate(lab, (len(labels) - 0.5, yv), xytext=(0, 2), textcoords="offset points",
                         ha="right", va="bottom", fontsize=8, color=col)
         ax.set_ylabel("EUR bn")
-        ax.set_ylim(0, max(SCHOOL_BACKLOG_EUR_BN * 1.15, max(vals) * 1.3))
+        ax.set_ylim(0, max(DAYCARE_BACKLOG_EUR_BN * 1.6, max(vals) * 1.3))
         ax.set_title("German municipal tax lost to profit shifting vs municipal investment backlogs\n"
                      f"Cumulative Kommunen loss {min(years)}–{max(years)} vs KfW Kommunalpanel backlogs", fontsize=12)
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
