@@ -62,8 +62,11 @@ EU27 = {
     "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE",
 }
 HOME_GROUPS = {
-    "USA":  {"parents": {"USA"}, "label": "US", "topic": "us_multinationals"},
-    "EU27": {"parents": set(EU27), "label": "EU", "topic": "eu_multinationals"},
+    "USA":    {"parents": {"USA"}, "label": "US", "topic": "us_multinationals"},
+    "EU27":   {"parents": set(EU27), "label": "EU", "topic": "eu_multinationals"},
+    # GLOBAL = all parent jurisdictions (no filter) — total profit shifting by
+    # ALL multinationals, e.g. total EU / Germany losses from any-HQ MNEs.
+    "GLOBAL": {"parents": None, "label": "all", "topic": "all_multinationals"},
 }
 HOME_GROUP = os.environ.get("HOME_GROUP", "USA")
 if HOME_GROUP not in HOME_GROUPS:
@@ -147,6 +150,11 @@ ETR_COL_P25 = f"etr_partner_p25_{ETR_SUFFIX}"
 ETR_COL_MIN = f"etr_partner_min_{ETR_SUFFIX}"
 
 ETR_THRESHOLDS = [_ETR_MAX]
+
+# Haven test (finite ETR_MAX) uses the ETR-spec column (partner average ETR);
+# figures display the partner median ETR. The parent-partner pair ETR was tried
+# and reverted per request.
+THRESHOLD_ETR_COL = None
 
 OUTPUT_TABLES, OUTPUT_FIGURES = output_dirs(_OUTPUT_TOPIC)
 # OUTPUT_ROOT keeps backward-compatible naming as the per-sample tables root.
@@ -473,7 +481,9 @@ ETR_SPECS_FULL = [
     {"name": "p25",     "etr_col": ETR_COL_P25},
     {"name": "minimum", "etr_col": ETR_COL_MIN},
 ]
-ETR_SPECS_MINIMAL = [  # only what `8_four_scenario_report.py` consumes
+ETR_SPECS_MINIMAL = [
+    # The gain rate uses the parent-partner pair ETR (filled). Name kept as
+    # "average" so output filenames stay etrdef_average across runs.
     {"name": "average", "etr_col": ETR_COL_AVERAGE},
 ]
 
@@ -1542,7 +1552,7 @@ def run_estimation_year(
         weights=formula_spec["weights"],
         profit_var=PROFIT_VAR,
         etr_max=etr_threshold,
-        threshold_rate_col=etr_spec["etr_col"],
+        threshold_rate_col=(THRESHOLD_ETR_COL or etr_spec["etr_col"]),
         loss_rate_col=rate_mode["loss_rate_col"],
         secondary_formula_vars=formula_spec.get("secondary_formula_vars"),
         secondary_weights=formula_spec.get("secondary_weights"),
@@ -1553,7 +1563,7 @@ def run_estimation_year(
     misalignment["etr_name"] = etr_spec["name"]
     misalignment["etr_col"] = etr_spec["etr_col"]
     misalignment["etr_threshold"] = etr_threshold
-    misalignment["threshold_rate_col"] = etr_spec["etr_col"]
+    misalignment["threshold_rate_col"] = THRESHOLD_ETR_COL or etr_spec["etr_col"]
     misalignment["rate_mode"] = rate_mode["name"]
     misalignment["loss_rate_col"] = rate_mode["loss_rate_col"]
     misalignment["gain_rate_col"] = rate_mode["gain_rate_col"]
@@ -2465,7 +2475,7 @@ print("\nSummary export block finished.")
 # net direction over the whole period).
 
 # EU27 is defined once at the top (section 1.1).
-EU_FIG_FORMULA = "employees_payroll"
+EU_FIG_FORMULA = "ccctb"
 
 _eu_src = run_summary.loc[run_summary["formula_name"] == EU_FIG_FORMULA]
 if _eu_src.empty:
@@ -2570,7 +2580,7 @@ else:
         fig.text(
             0.01, -0.02,
             "Note: Net misalignment summed within each group per year. Negative (winners) = profit a unitary "
-            "(employees+payroll, 50/50) split would ADD to these EU countries; positive (losers) = profit they "
+            "(CCCTB: 1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll) split would ADD to these EU countries; positive (losers) = profit they "
             f"would LOSE. Group membership fixed by cumulative net misalignment over the period{_excl_txt}. "
             "Baseline disaggregated CbCR; " + HOME_LABEL + " parents only.",
             ha="left", va="top", fontsize=9, wrap=True,
@@ -2691,11 +2701,7 @@ def _build_eu_lines_for_formula(formula_name, file_suffix, formula_desc, title_s
           f"Luxembourg classified as: {lux.iloc[0] if not lux.empty else 'n/a'}")
 
 
-_build_eu_lines_for_formula(
-    "ccctb", "_ccctb",
-    "CCCTB: 1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll",
-    " — CCCTB formula",
-)
+# (CCCTB is now the main formula in section [6B]; no separate variant.)
 
 
 # %% [7] Bilateral links
@@ -2944,7 +2950,7 @@ else:
 # EU-missing profit by destination jurisdiction (top 8 + Other), so it shows
 # both the scale of EU under-allocation and the EU-vs-non-EU haven split.
 
-BIL_FORMULA = "employees_payroll"
+BIL_FORMULA = "ccctb"
 BIL_RATE_MODE = "loss_cit_gain_etr"
 
 
@@ -3042,7 +3048,7 @@ def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15):
     cb = fig.colorbar(sm, ax=ax, pad=0.02, fraction=0.045)
     cb.set_label(f"ETR {HOME_LABEL} MNEs pay there, % (period mean, 5yr-rolling)", fontsize=9)
     fig.text(0.01, -0.02,
-             f"Note: Top {top_n} destinations of profit a unitary (employees+payroll, 50/50) split would assign to EU "
+             f"Note: Top {top_n} destinations of profit a unitary (CCCTB: 1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll) split would assign to EU "
              f"countries but that {HOME_LABEL} MNEs book elsewhere (bilateral attribution, cumulative "
              f"{min(years)}-{max(years)}); they cover {covered:.0f}% of all EU-missing profit (long tail omitted). "
              f"Bars coloured by the ETR {HOME_LABEL} MNEs pay in each destination; '(EU)' = EU member. "
@@ -3122,7 +3128,7 @@ else:
         # ETR each destination charges = period mean of the 5yr-rolling partner
         # ETR (etr_partner_median_corrected), keyed by jurisdiction.
         etr_by_iso = (
-            _mis.assign(_e=pd.to_numeric(_mis["etr_partner_median_corrected"],
+            _mis.assign(_e=pd.to_numeric(_mis[ETR_COL_AVERAGE],
                                          errors="coerce") * 100.0)
             .groupby("iso_partner")["_e"].mean().to_dict()
         )
@@ -3160,7 +3166,7 @@ if "bilateral" in globals() and not bilateral.empty:
 # Net misalignment = reported − (employees+payroll 50/50) theoretical, the same
 # quantity, read in profit-shifting terms. ETR = period mean of the 5-year
 # rolling partner ETR (etr_partner_median_corrected), shown as %.
-PS_FORMULA = "employees_payroll"
+PS_FORMULA = "ccctb"
 _ps_src = run_summary.loc[run_summary["formula_name"] == PS_FORMULA]
 if _ps_src.empty:
     print(f"\n[EU exploitation figures] No '{PS_FORMULA}' run; skipping.")
@@ -3169,7 +3175,7 @@ else:
     ps["year"] = pd.to_numeric(ps["year"], errors="coerce")
     ps = ps.loc[ps["iso_partner"].isin(EU27)].copy()
     for _c in ["positive_misalignment", "negative_misalignment", "reported_profit",
-               "etr_partner_median_corrected"]:
+               ETR_COL_AVERAGE]:
         ps[_c] = pd.to_numeric(ps[_c], errors="coerce")
     ps["over_reported_bn"] = ps["positive_misalignment"].fillna(0.0) / 1000.0   # shifted IN
     ps["under_reported_bn"] = ps["negative_misalignment"].fillna(0.0) / 1000.0  # shifted OUT (magnitude)
@@ -3179,7 +3185,7 @@ else:
     summ = ps.groupby(["iso_partner", "partner_jurisdiction"], as_index=False).agg(
         net_bn=("net_bn", "sum"),
         reported_bn=("reported_profit", lambda x: x.sum() / 1000.0),
-        etr=("etr_partner_median_corrected", "mean"),
+        etr=(ETR_COL_AVERAGE, "mean"),
     )
     summ["etr_pct"] = summ["etr"] * 100.0
     summ["role"] = np.where(summ["net_bn"] > 0, "winner_haven", "loser_victim")
@@ -3234,7 +3240,7 @@ else:
     ax.legend(title="Profit over-reported in (ETR = period mean, 5yr-rolling)",
               ncol=2, fontsize=9, loc="upper left")
     fig.text(0.01, -0.02,
-             "Note: 'Over-reported' = " + HOME_LABEL + "-MNE profit booked in a country beyond what an employees+payroll (50/50) "
+             "Note: 'Over-reported' = " + HOME_LABEL + "-MNE profit booked in a country beyond what a CCCTB "
              "split implies (shifted IN); 'shifted out' = profit a country generates but that is booked elsewhere. "
              "A handful of low-ETR havens absorb the over-reported profit while many EU countries are drained — and "
              "the haven total grows over the period. ETR = period mean of the 5-year-rolling partner ETR. "
@@ -3274,7 +3280,7 @@ else:
                label="Loser — profit generated here is shifted out"),
     ], loc="upper right", fontsize=9)
     fig.text(0.01, -0.02,
-             "Note: x = cumulative (2016–2022) net misalignment (reported − employees+payroll-implied profit); "
+             "Note: x = cumulative (2016–2022) net misalignment (reported − CCCTB-implied profit); "
              "right = profit shifted IN (haven), left = shifted OUT (victim). y = ETR US MNEs actually pay there. "
              "Havens cluster at low ETR. LUX and MLT sit on the left only because large 2021 book losses make their "
              "cumulative net negative — their very low ETR shows they are havens too. Bubble size ∝ √|net misalignment|. "
@@ -3299,7 +3305,7 @@ if "ps" in globals():
     _excl = frozenset({"LUX", "MLT"})
     ps2 = ps.loc[~ps["iso_partner"].isin(_excl)].copy()
     yrs = sorted(int(y) for y in ps2["year"].dropna().unique())
-    etr2 = (ps2.groupby("iso_partner")["etr_partner_median_corrected"].mean() * 100).to_dict()
+    etr2 = (ps2.groupby("iso_partner")[ETR_COL_AVERAGE].mean() * 100).to_dict()
     haven_tot = ps2.groupby("iso_partner")["over_reported_bn"].sum().sort_values(ascending=False)
     top_havens = [h for h in haven_tot.index if haven_tot[h] > 0][:5]
     up = (ps2[ps2["iso_partner"].isin(top_havens)]
@@ -3370,7 +3376,7 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
     pf["year"] = pd.to_numeric(pf["year"], errors="coerce")
     pf = pf.loc[pf["iso_partner"].isin(EU27)].copy()
     for c in ["positive_misalignment", "negative_misalignment", "reported_profit",
-              "etr_partner_median_corrected"]:
+              ETR_COL_AVERAGE]:
         pf[c] = pd.to_numeric(pf[c], errors="coerce")
     pf["over_reported_bn"] = pf["positive_misalignment"].fillna(0.0) / 1000.0
     pf["under_reported_bn"] = pf["negative_misalignment"].fillna(0.0) / 1000.0
@@ -3380,7 +3386,7 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
     summ = pf.groupby(["iso_partner", "partner_jurisdiction"], as_index=False).agg(
         net_bn=("net_bn", "sum"),
         reported_bn=("reported_profit", lambda x: x.sum() / 1000.0),
-        etr=("etr_partner_median_corrected", "mean"),
+        etr=(ETR_COL_AVERAGE, "mean"),
     )
     summ["etr_pct"] = summ["etr"] * 100.0
     summ["role"] = np.where(summ["net_bn"] > 0, "winner_haven", "loser_victim")
@@ -3389,7 +3395,7 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
     )
 
     def _gap(ps_in, suffix, extra):
-        etr_iso = (ps_in.groupby("iso_partner")["etr_partner_median_corrected"].mean() * 100).to_dict()
+        etr_iso = (ps_in.groupby("iso_partner")[ETR_COL_AVERAGE].mean() * 100).to_dict()
         yrs = sorted(int(y) for y in ps_in["year"].dropna().unique())
         haven_tot = ps_in.groupby("iso_partner")["over_reported_bn"].sum().sort_values(ascending=False)
         top_h = [h for h in haven_tot.index if haven_tot[h] > 0][:5]
@@ -3489,7 +3495,7 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
           f"Data: eu_profit_shifting_roles{file_suffix}.csv")
 
 
-build_exploitation_for_formula("ccctb", "_ccctb", " — CCCTB formula")
+# (CCCTB is now the main exploitation formula in section [9]; no separate variant.)
 
 
 # %% [9d] The same gap, but in TAX REVENUE rather than profit.
@@ -3511,11 +3517,11 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
     tg = pd.read_csv(_longpath(src.iloc[0]["country_file"]))
     tg["year"] = pd.to_numeric(tg["year"], errors="coerce")
     tg = tg.loc[tg["iso_partner"].isin(EU27)].copy()
-    for c in ["tax_revenue_gain", "tax_revenue_loss", "etr_partner_median_corrected"]:
+    for c in ["tax_revenue_gain", "tax_revenue_loss", ETR_COL_AVERAGE]:
         tg[c] = pd.to_numeric(tg[c], errors="coerce")
     tg["gained_bn"] = tg["tax_revenue_gain"].fillna(0.0) / 1000.0   # haven gains (pos_mis × ETR)
     tg["lost_bn"] = tg["tax_revenue_loss"].fillna(0.0) / 1000.0     # victim losses (neg_mis × CIT)
-    etr_iso = (tg.groupby("iso_partner")["etr_partner_median_corrected"].mean() * 100).to_dict()
+    etr_iso = (tg.groupby("iso_partner")[ETR_COL_AVERAGE].mean() * 100).to_dict()
 
     summ = tg.groupby(["iso_partner", "partner_jurisdiction"], as_index=False).agg(
         tax_gained_bn=("gained_bn", "sum"), tax_lost_bn=("lost_bn", "sum"))
@@ -3576,7 +3582,7 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         ax.legend(title="Tax revenue gained in (ETR = period mean)", ncol=2, fontsize=9, loc="upper left")
         fig.text(0.01, -0.02,
-                 f"Note: Tax revenue LOST = profit a unitary (employees+payroll, 50/50) split assigns to a country but "
+                 f"Note: Tax revenue LOST = profit a unitary (CCCTB: 1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll) split assigns to a country but "
                  f"that is booked elsewhere, × that country's statutory CIT. Tax revenue GAINED = profit a haven "
                  f"over-books × the ETR {HOME_LABEL} MNEs actually pay there. Because havens tax the shifted-in profit "
                  f"at a very low ETR, the tax gained is far smaller than the tax lost. Baseline disaggregated CbCR; "
@@ -3602,8 +3608,7 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
           f"  CUMULATIVE by {tg['year'].max():.0f}: gained {cg.iloc[-1]:,.0f} bn | lost {-cl.iloc[-1]:,.0f} bn")
 
 
-build_tax_revenue_gap("employees_payroll", "", "")
-build_tax_revenue_gap("ccctb", "_ccctb", " — CCCTB formula")
+build_tax_revenue_gap("ccctb", "", "")
 
 
 # %% [10] Home-group share of real activity vs profit, over time.
@@ -3611,10 +3616,13 @@ build_tax_revenue_gap("ccctb", "_ccctb", " — CCCTB formula")
 # the group's worldwide employees, tangible assets, payroll and sales — versus
 # its share of reported profit. Real-activity shares being high and flat while
 # the profit share is lower/volatile is exactly the misalignment UT corrects.
-HS_FORMULA = "employees_payroll"
+HS_FORMULA = "ccctb"
 _hs_src = run_summary.loc[run_summary["formula_name"] == HS_FORMULA]
+if not PARENT_SET:
+    print("\n[home-share figure] GLOBAL run (no single home region) — skipping.")
+    _hs_src = _hs_src.iloc[0:0]  # force the skip branch below
 if _hs_src.empty:
-    print(f"\n[home-share figure] No '{HS_FORMULA}' run; skipping.")
+    print(f"\n[home-share figure] No '{HS_FORMULA}' run / no home region; skipping.")
 else:
     hs = pd.read_csv(_longpath(_hs_src.iloc[0]["misalignment_file"]))
     hs["year"] = pd.to_numeric(hs["year"], errors="coerce")
@@ -3642,12 +3650,13 @@ else:
     share.to_csv(OUTPUT_TABLES / "home_share_activity_vs_profit.csv", index=False)
     hs_years = share["year"].tolist()
 
+    # Real-activity factors only — the reported-profit line is intentionally
+    # excluded from this figure (it is kept in the CSV for the combined chart).
     styles = {
         "Employees":       ("#1b7837", "-", 2.6),
         "Tangible assets": ("#762a83", "-", 2.6),
         "Payroll":         ("#5aae61", "--", 1.8),
         "Sales":           ("#9970ab", "--", 1.8),
-        "Reported profit": ("#b2182b", "-", 2.8),
     }
     fig, ax = plt.subplots(figsize=(12, 7))
     for name, (color, ls, lw) in styles.items():
@@ -3661,15 +3670,14 @@ else:
     ax.set_ylabel(f"{HOME_LABEL} share of {HOME_LABEL}-MNE worldwide total, %")
     ax.set_xticks(hs_years)
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
-    ax.set_title(f"Real activity stays in the {HOME_LABEL} home base, but profit does not track it\n"
-                 f"{HOME_LABEL} share of {HOME_LABEL}-MNE worldwide totals, "
+    ax.set_title(f"{HOME_LABEL} multinationals' real activity is concentrated in the home base\n"
+                 f"{HOME_LABEL} share of {HOME_LABEL}-MNE worldwide employees, assets, payroll & sales, "
                  f"{min(hs_years)}–{max(hs_years)}", fontsize=13)
     ax.legend(loc="center right", fontsize=9)
     fig.text(0.01, -0.02,
              f"Note: Each line is the {HOME_LABEL} home region's share of {HOME_LABEL}-MNE worldwide employees, "
-             "tangible assets, payroll, sales and reported profit. Real-activity factors are high and flat while the "
-             "profit share is lower / more volatile — the gap unitary taxation would close. Profit cells may be "
-             "negative (kept); other factors clipped at 0. Baseline disaggregated CbCR.",
+             "tangible assets, payroll and sales — the real activity. These are high and flat over the period; "
+             "factors clipped at 0. Baseline disaggregated CbCR.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _hs_path = OUTPUT_FIGURES / f"home_share_activity_vs_profit_{min(hs_years)}_{max(hs_years)}.png"
@@ -3686,7 +3694,7 @@ else:
 # the loss_cit_gain_etr country file). For Germany the loss is split across the
 # three layers of government using the statutory composition of the ~30%
 # combined corporate rate (see GERMANY_LEVEL_SHARES below).
-TL_FORMULA = "employees_payroll"
+TL_FORMULA = "ccctb"
 _tl_src = run_summary.loc[
     (run_summary["formula_name"] == TL_FORMULA)
     & (run_summary["rate_mode"] == "loss_cit_gain_etr")
@@ -3720,7 +3728,7 @@ else:
     ax.grid(True, axis="x", linewidth=0.3, alpha=0.5)
     ax.margins(x=0.12)
     fig.text(0.01, -0.02,
-             f"Note: Tax revenue lost = profit a unitary (employees+payroll, 50/50) split would assign to the country "
+             f"Note: Tax revenue lost = profit a unitary (CCCTB: 1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll) split would assign to the country "
              f"but that {HOME_LABEL} MNEs book elsewhere, × the country's statutory CIT rate. Baseline disaggregated "
              f"CbCR; {HOME_LABEL} parents only.",
              ha="left", va="top", fontsize=9, wrap=True)
@@ -3730,53 +3738,81 @@ else:
     plt.close()
 
     # ---- Germany: split across the three layers of government ----
-    # Refined split: decompose Germany's ACTUAL combined corporate rate (from the
-    # data) into its statutory components and assign each to the level(s) that
-    # receive it. Because the modelled tax loss = base × combined rate, splitting
-    # by the rate's composition (not by aggregate revenue shares) is the
-    # internally consistent method.
+    # Decompose Germany's ACTUAL combined corporate rate into its statutory
+    # components and assign each to the level(s) that receive it (the modelled
+    # loss = base × combined rate, so splitting by the rate's composition is the
+    # internally consistent method):
     #   • Körperschaftsteuer (KSt) 15% → 50% Bund / 50% Länder (Art.106(3) GG)
     #   • Solidaritätszuschlag (SolZ) = 5.5% × KSt = 0.825pp → Bund
     #   • Gewerbesteuer = combined rate − 15.825pp → Kommunen, NET of the
-    #     Gewerbesteuerumlage. At an average Hebesatz ~407% and Umlagesatz ~35%,
-    #     the umlage is ~Umlagesatz/Hebesatz ≈ 8.6% of trade tax, redistributed
-    #     to Bund/Länder ≈ 41%/59%.
-    # Confidence: medium — the Gewerbesteuerumlage and average Hebesatz are
-    # nationwide approximations; adjust the constants below for precision.
-    _KST, _SOLZ = 0.15, 0.055 * 0.15
-    _UMLAGE_FRAC, _UMLAGE_BUND = 0.086, 0.41
+    #     Gewerbesteuerumlage (redistributed to Bund/Länder).
+    # The Gewerbesteuerumlage fraction is read YEAR-BY-YEAR from the Destatis
+    # Realsteuervergleich (GENESIS 71231-0001: trade-tax apportionment ÷ trade-tax
+    # revenue) — it fell from ~16% (2016–19) to ~9% (2020–22) when the Fonds
+    # Deutsche Einheit umlage ended. The Bund/Länder split of the umlage (~41/59)
+    # is not in that table, so it remains a documented assumption.
+    _KST, _SOLZ, _UMLAGE_BUND = 0.15, 0.055 * 0.15, 0.41
+
+    def _load_umlage_fracs():
+        p = Path(data_raw) / "corporate_taxes_germany" / "71231-0001_en" / "71231-0001_en.csv"
+        fr = {}
+        try:
+            with open(_longpath(str(p)), encoding="utf-8-sig") as fh:
+                for line in fh:
+                    c = line.rstrip("\n").split(";")
+                    if c and c[0].strip().isdigit() and len(c[0].strip()) == 4:
+                        try:
+                            yy, tt, um = int(c[0]), float(c[5]), float(c[13])
+                        except (ValueError, IndexError):
+                            continue
+                        if tt > 0:
+                            fr[yy] = um / tt
+        except OSError:
+            pass
+        return fr
+
+    _umlage_fr = _load_umlage_fracs()
+    _umlage_default = (sum(_umlage_fr.values()) / len(_umlage_fr)) if _umlage_fr else 0.13
     _de_cit = pd.to_numeric(tl.loc[tl["iso_partner"] == "DEU", "cit"], errors="coerce").dropna()
     _r = float(_de_cit.median()) if not _de_cit.empty else 0.2982
     _gewerbe = max(_r - _KST - _SOLZ, 0.0)
-    _bund = 0.5 * _KST + _SOLZ + _gewerbe * _UMLAGE_FRAC * _UMLAGE_BUND
-    _laender = 0.5 * _KST + _gewerbe * _UMLAGE_FRAC * (1.0 - _UMLAGE_BUND)
-    _kommunen = _gewerbe * (1.0 - _UMLAGE_FRAC)
-    _lvl_tot = _bund + _laender + _kommunen
-    GERMANY_LEVEL_SHARES = {
-        "Federal (Bund)": _bund / _lvl_tot,
-        "State (Länder)": _laender / _lvl_tot,
-        "Municipal (Kommunen)": _kommunen / _lvl_tot,
-    }
+
     de_by_year = tl.loc[tl["iso_partner"] == "DEU"].groupby("year")["tax_loss_bn"].sum()
     de_years = sorted(int(y) for y in de_by_year.index)
     de_total = float(de_by_year.sum())
 
+    LEVELS = ["Federal (Bund)", "State (Länder)", "Municipal (Kommunen)"]
+    de_level = {lvl: [] for lvl in LEVELS}    # per-year loss by level
+    for y in de_years:
+        uf = _umlage_fr.get(y, _umlage_default)
+        bund_rate = 0.5 * _KST + _SOLZ + _gewerbe * uf * _UMLAGE_BUND
+        laender_rate = 0.5 * _KST + _gewerbe * uf * (1.0 - _UMLAGE_BUND)
+        komm_rate = _gewerbe * (1.0 - uf)
+        loss_y = float(de_by_year.get(y, 0.0))
+        de_level["Federal (Bund)"].append(loss_y * bund_rate / _r if _r else 0.0)
+        de_level["State (Länder)"].append(loss_y * laender_rate / _r if _r else 0.0)
+        de_level["Municipal (Kommunen)"].append(loss_y * komm_rate / _r if _r else 0.0)
+
+    de_totals = {lvl: float(np.sum(de_level[lvl])) for lvl in LEVELS}
+    GERMANY_LEVEL_SHARES = {lvl: (de_totals[lvl] / de_total if de_total else float("nan"))
+                            for lvl in LEVELS}
+
     de_rows = []
-    for lvl, sh in GERMANY_LEVEL_SHARES.items():
-        row = {"level": lvl, "share": sh, "tax_loss_bn_total": de_total * sh}
-        for y in de_years:
-            row[str(int(y))] = float(de_by_year.get(y, 0.0)) * sh
+    for lvl in LEVELS:
+        row = {"level": lvl, "share": GERMANY_LEVEL_SHARES[lvl], "tax_loss_bn_total": de_totals[lvl]}
+        for j, y in enumerate(de_years):
+            row[str(y)] = de_level[lvl][j]
         de_rows.append(row)
-    de_split = pd.DataFrame(de_rows)
-    de_split.to_csv(OUTPUT_TABLES / "germany_tax_loss_by_level.csv", index=False)
+    pd.DataFrame(de_rows).to_csv(OUTPUT_TABLES / "germany_tax_loss_by_level.csv", index=False)
 
     fig, ax = plt.subplots(figsize=(10, 6))
     bottoms = np.zeros(len(de_years))
     lvl_colors = {"Federal (Bund)": "#08519c", "State (Länder)": "#6baed6",
                   "Municipal (Kommunen)": "#fdae6b"}
-    for lvl, sh in GERMANY_LEVEL_SHARES.items():
-        vals = np.array([float(de_by_year.get(y, 0.0)) * sh for y in de_years])
-        ax.bar(de_years, vals, bottom=bottoms, label=f"{lvl} — {sh*100:.0f}%",
+    for lvl in LEVELS:
+        vals = np.array(de_level[lvl])
+        ax.bar(de_years, vals, bottom=bottoms,
+               label=f"{lvl} — {GERMANY_LEVEL_SHARES[lvl]*100:.0f}%",
                color=lvl_colors[lvl], edgecolor="white", width=0.75)
         bottoms += vals
     for j, y in enumerate(de_years):
@@ -3790,12 +3826,12 @@ else:
     ax.set_title(f"Germany's tax revenue lost to {HOME_LABEL} multinationals, by level of government\n"
                  f"Total {min(de_years)}–{max(de_years)}: ${de_total:,.0f}bn", fontsize=12)
     ax.legend(title="Government level (share of corporate tax)", fontsize=9)
-    _shares_txt = " / ".join(f"{lvl.split(' ')[0]} {sh*100:.0f}%"
-                             for lvl, sh in GERMANY_LEVEL_SHARES.items())
+    _shares_txt = " / ".join(f"{lvl.split(' ')[0]} {GERMANY_LEVEL_SHARES[lvl]*100:.0f}%" for lvl in LEVELS)
+    _uf_src = "Destatis Realsteuervergleich 71231-0001" if _umlage_fr else "approx ~13%"
     fig.text(0.01, -0.02,
-             f"Note: Germany's loss split by the statutory make-up of its combined corporate rate "
-             f"({_r*100:.1f}%) — Körperschaftsteuer 15% (50/50 Bund/Länder) + Solidaritätszuschlag (federal) + "
-             f"Gewerbesteuer (municipal, net of the Gewerbesteuerumlage ≈8.6% redistributed to Bund/Länder) → "
+             f"Note: Germany's loss split by the statutory make-up of its combined corporate rate ({_r*100:.1f}%) — "
+             f"KSt 15% (50/50 Bund/Länder) + SolZ (federal) + Gewerbesteuer (municipal, net of the year-specific "
+             f"Gewerbesteuerumlage from {_uf_src}: ~16% in 2016–19, ~9% in 2020–22; Bund/Länder split ~41/59) → "
              f"{_shares_txt}. Per-year bars; title shows the cumulative total. Baseline disaggregated CbCR; "
              f"{HOME_LABEL} parents only.",
              ha="left", va="top", fontsize=9, wrap=True)
@@ -3804,14 +3840,69 @@ else:
     plt.savefig(_longpath(_de_path), dpi=300, bbox_inches="tight")
     plt.close()
 
-    _de_top = ", ".join(f"{lvl.split(' ')[0]} ${de_total*sh:,.1f}bn"
-                        for lvl, sh in GERMANY_LEVEL_SHARES.items())
+    _de_top = ", ".join(f"{lvl.split(' ')[0]} ${de_totals[lvl]:,.1f}bn" for lvl in LEVELS)
     print(f"\n[EU country tax loss] saved: {_tl_path}\n"
           f"  Top losers (USD bn): "
           + ", ".join(f"{r.iso_partner}={r.tax_loss_bn:,.1f}"
                       for r in by_country.head(6).itertuples(index=False))
           + f"\n[Germany split] saved: {_de_path} | total ${de_total:,.1f}bn -> {_de_top}\n"
           f"  Data: eu_country_tax_loss.csv, germany_tax_loss_by_level.csv")
+
+
+# %% [10c] EU-27 share of the group's economic activity (employees/assets/
+# payroll/sales). Like the home-share figure but with the EU-27 as the region —
+# how much of THIS headquarters group's real activity happens in the EU.
+# Produced for every home group (US / EU / global).
+EUS_FORMULA = "ccctb"
+_eus_src = run_summary.loc[run_summary["formula_name"] == EUS_FORMULA]
+if _eus_src.empty:
+    print("\n[EU-share figure] no run; skipping.")
+else:
+    es = pd.read_csv(_longpath(_eus_src.iloc[0]["misalignment_file"]))
+    es["year"] = pd.to_numeric(es["year"], errors="coerce")
+    _fcols = {"n_employees": "Employees", "tangible_assets_except_cash": "Tangible assets",
+              "payroll": "Payroll", "unrelated_party_revenues": "Sales"}
+    for _c in _fcols:
+        es[_c] = pd.to_numeric(es[_c], errors="coerce")
+    _rows = []
+    for _y, _g in es.groupby("year"):
+        _rec = {"year": int(_y)}
+        _eu = _g["iso_partner"].isin(EU27)
+        for _c, _name in _fcols.items():
+            _tot = _g[_c].clip(lower=0).sum()
+            _num = _g.loc[_eu, _c].clip(lower=0).sum()
+            _rec[_name] = 100 * _num / _tot if _tot else np.nan
+        _rows.append(_rec)
+    eus = pd.DataFrame(_rows).sort_values("year")
+    eus.to_csv(OUTPUT_TABLES / "eu_share_activity.csv", index=False)
+    _eyrs = eus["year"].tolist()
+    _est = {"Employees": ("#1b7837", "-", 2.6), "Tangible assets": ("#762a83", "-", 2.6),
+            "Payroll": ("#5aae61", "--", 1.8), "Sales": ("#9970ab", "--", 1.8)}
+    fig, ax = plt.subplots(figsize=(12, 7))
+    for _name, (_color, _ls, _lw) in _est.items():
+        ax.plot(eus["year"], eus[_name], marker="o", markersize=5, linewidth=_lw,
+                linestyle=_ls, color=_color, label=_name)
+        ax.annotate(f"{eus[_name].iloc[-1]:.0f}%", (_eyrs[-1], eus[_name].iloc[-1]),
+                    textcoords="offset points", xytext=(6, 0), fontsize=8, color=_color, va="center")
+    ax.set_ylim(0, None)
+    ax.set_xlabel("Year")
+    ax.set_ylabel(f"EU-27 share of {HOME_LABEL}-MNE worldwide total, %")
+    ax.set_xticks(_eyrs)
+    ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+    ax.set_title(f"How much {HOME_LABEL}-MNE economic activity happens in the EU-27\n"
+                 f"EU-27 share of worldwide employees, assets, payroll & sales, "
+                 f"{min(_eyrs)}–{max(_eyrs)}", fontsize=13)
+    ax.legend(loc="best", fontsize=9)
+    fig.text(0.01, -0.02,
+             f"Note: Each line = the EU-27's share of {HOME_LABEL}-MNE worldwide employees, tangible assets, "
+             "payroll and sales. Factors clipped at 0. Baseline disaggregated CbCR.",
+             ha="left", va="top", fontsize=9, wrap=True)
+    plt.tight_layout()
+    _eus_path = OUTPUT_FIGURES / f"eu_share_activity_{min(_eyrs)}_{max(_eyrs)}.png"
+    plt.savefig(_longpath(_eus_path), dpi=300, bbox_inches="tight")
+    plt.close()
+    print(f"\n[EU-share figure] saved: {_eus_path}\n  "
+          + " | ".join(f"{_n}: {eus[_n].iloc[-1]:.0f}%" for _n in _fcols.values()))
 
 
 # %% [11] Mirror outputs to the TJN shared project folder.
@@ -3837,27 +3928,21 @@ def _mirror_outputs_to_shared():
         print(f"\n[mirror] shared root not found, skipping: {SHARED_OUTPUT_ROOT}")
         return
     base = OUTPUT_TABLES.parent            # output/<topic>/  (has figures/ and tables/)
-    # Mirror straight into 3_output/figures and 3_output/tables (no topic
-    # subfolder). Prefix each file with the home group so US and EU runs don't
-    # collide in the shared flat folder.
-    prefix = f"{HOME_GROUP.lower()}_" + ("" if ETR_TAG == "inf" else f"{ETR_TAG}_")
-    # -> 'usa_' / 'eu27_' for inf; 'usa_etr15_' / 'eu27_etr15_' for the 0.15 run
+    # Mirror into 3_output/2_figures/<topic>/ and 3_output/1_tables/<topic>/ —
+    # the shared folder mirrors the main directory's per-topic subfolders.
     n = 0
     for p in base.rglob("*"):
         rel = p.relative_to(base)
         if "disaggregated" in rel.parts:   # skip the heavy per-spec CSVs
             continue
         if p.is_file():
-            fname = rel.name if rel.name.startswith(prefix) else prefix + rel.name
-            parts = list(rel.parts)
-            # shared folder names the subdirs 1_tables / 2_figures
-            parts[0] = {"figures": "2_figures", "tables": "1_tables"}.get(parts[0], parts[0])
-            parts[-1] = fname
-            target = SHARED_OUTPUT_ROOT.joinpath(*parts)
+            parts = list(rel.parts)         # ['figures'|'tables', ...subdirs..., name]
+            top = {"figures": "2_figures", "tables": "1_tables"}.get(parts[0], parts[0])
+            target = SHARED_OUTPUT_ROOT.joinpath(top, _OUTPUT_TOPIC, *parts[1:])
             os.makedirs(_longpath(str(target.parent)), exist_ok=True)
             shutil.copy2(_longpath(str(p)), _longpath(str(target)))
             n += 1
-    print(f"\n[mirror] copied {n} files to {SHARED_OUTPUT_ROOT} (prefix '{prefix}')")
+    print(f"\n[mirror] copied {n} files to {SHARED_OUTPUT_ROOT}\\(2_figures|1_tables)\\{_OUTPUT_TOPIC}")
 
 
 try:

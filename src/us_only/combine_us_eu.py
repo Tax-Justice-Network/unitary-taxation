@@ -31,21 +31,31 @@ from config import output_dirs, output_root  # noqa: E402
 # etrmax tag in the filename matches the active ETR_MAX (inf or e.g. 0_15).
 _etrmax_fn = os.environ.get("ETR_MAX", "inf").strip().lower()
 _etrmax_fn = "inf" if _etrmax_fn in ("inf", "infinity", "none", "") else _etrmax_fn.replace(".", "_")
-_STUB = f"country_estimates__employees_payroll__etrdef_average__etrmax_{_etrmax_fn}__loss_cit_gain_etr.csv"
+_STUB = f"country_estimates__ccctb__etrdef_average__etrmax_{_etrmax_fn}__loss_cit_gain_etr.csv"
 # ETR-max config: combine the matching per-group topics (inf -> untagged;
 # 0.15 -> *_etr15) so `ETR_MAX=0.15 python combine_us_eu.py` builds the 0.15
 # combined figures alongside the inf ones.
 _etr_env = os.environ.get("ETR_MAX", "inf").strip().lower()
 ETR_TAG = "inf" if _etr_env in ("inf", "infinity", "none", "") else f"etr{int(round(float(_etr_env) * 100))}"
 _TS = "" if ETR_TAG == "inf" else f"_{ETR_TAG}"
-GROUPS = {"US": "us_multinationals" + _TS, "EU": "eu_multinationals" + _TS}
-COLORS = {"US": "#b2182b", "EU": "#2166ac"}
+GROUPS = {"US": "us_multinationals" + _TS, "EU": "eu_multinationals" + _TS,
+          "All": "all_multinationals" + _TS}
+COLORS = {"US": "#b2182b", "EU": "#2166ac", "All": "#555555"}
 
 # German municipal (Kommunen) core-budget debt, Destatis end-2023 (Kernhaushalte
 # der Gemeinden/Gv.): EUR 154.6bn. USD_PER_EUR converts the USD-denominated
 # modelled loss to EUR for the contrast (period-average, for scale only).
-KOMMUNEN_DEBT_EUR_BN = 154.6
+KOMMUNEN_DEBT_EUR_BN = 154.6      # Destatis end-2023, core municipal budgets
+# Municipal investment backlog (Investitionsrückstand), KfW Kommunalpanel:
+DAYCARE_BACKLOG_EUR_BN = 10.5     # childcare/Kitas (2021; ~11.2bn in 2024)
+SCHOOL_BACKLOG_EUR_BN = 67.8      # school buildings (2025 panel)
 USD_PER_EUR = 1.10
+
+EU27 = {
+    "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", "FRA",
+    "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", "LUX", "MLT", "NLD",
+    "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE",
+}
 
 SHARED_OUTPUT_ROOT = Path(os.environ.get(
     "SHARED_OUTPUT_ROOT",
@@ -67,19 +77,33 @@ def load_group(topic):
         raise FileNotFoundError(f"Missing {path}. Run estimate_us_multinationals.py for this group first.")
     df = pd.read_csv(_longpath(path))
     df["year"] = pd.to_numeric(df["year"], errors="coerce")
-    df["positive_misalignment"] = pd.to_numeric(df["positive_misalignment"], errors="coerce")
-    df["reported_profit"] = pd.to_numeric(df["reported_profit"], errors="coerce")
+    for c in ["positive_misalignment", "negative_misalignment", "reported_profit"]:
+        df[c] = pd.to_numeric(df[c], errors="coerce")
+    # Profit shifted OUT OF the EU = profit generated in EU-27 partner countries
+    # but booked elsewhere (their negative misalignment, stored positive).
+    df["_eu_out"] = np.where(df["iso_partner"].isin(EU27),
+                             df["negative_misalignment"].clip(lower=0), 0.0)
     g = df.groupby("year", as_index=False).agg(
         shifted_bn=("positive_misalignment", lambda x: x.clip(lower=0).sum() / 1000.0),
+        eu_out_bn=("_eu_out", lambda x: x.sum() / 1000.0),
         total_profit_bn=("reported_profit", lambda x: x.clip(lower=0).sum() / 1000.0),
     )
     g["shifted_pct_of_profit"] = np.where(
         g["total_profit_bn"] > 0, 100.0 * g["shifted_bn"] / g["total_profit_bn"], np.nan)
+    g["eu_out_pct_of_profit"] = np.where(
+        g["total_profit_bn"] > 0, 100.0 * g["eu_out_bn"] / g["total_profit_bn"], np.nan)
     return g
 
 
 def main():
-    data = {label: load_group(topic) for label, topic in GROUPS.items()}
+    data = {}
+    for label, topic in GROUPS.items():
+        try:
+            data[label] = load_group(topic)
+        except FileNotFoundError as e:
+            print(f"[skip] {label} group not available: {e}")
+    if not data:
+        raise SystemExit("No groups available — run estimate_us_multinationals.py first.")
     years = sorted(set().union(*[set(g["year"].dropna().astype(int)) for g in data.values()]))
 
     # Tidy combined CSV.
@@ -92,45 +116,60 @@ def main():
     tables_dir, figures_dir = output_dirs("combined_us_eu" + _TS)
     combined.to_csv(tables_dir / "combined_profit_shifted_us_eu.csv", index=False)
 
-    # Two-panel figure: absolute shifted (left) and share of profit (right).
-    fig, axes = plt.subplots(1, 2, figsize=(16, 6.5))
-    x = np.arange(len(years))
-    w = 0.38
-    for i, (label, g) in enumerate(data.items()):
-        gi = g.set_index("year").reindex(years)
-        axes[0].bar(x + (i - 0.5) * w, gi["shifted_bn"].to_numpy(), w,
-                    label=f"{label} MNEs", color=COLORS[label], edgecolor="white")
-        axes[1].bar(x + (i - 0.5) * w, gi["shifted_pct_of_profit"].to_numpy(), w,
-                    label=f"{label} MNEs", color=COLORS[label], edgecolor="white")
+    # Two-panel comparison (absolute left, share of profit right), reused for
+    # ALL activity and for profit shifted OUT OF the EU only.
+    _NOTE_BASE = ("Baseline disaggregated CbCR, CCCTB formula (1/3 sales, 1/3 assets, 1/6 employees, "
+                  "1/6 payroll). Share = ÷ total positive reported profit of the group. "
+                  "US = US-parented MNEs; EU = EU-27-parented MNEs.")
 
-    axes[0].set_title("Total profit shifted (booked away from where earned)\nincl. profit ending in EU havens")
-    axes[0].set_ylabel("Profit shifted, USD bn")
-    axes[1].set_title("Profit shifted as a share of total profit")
-    axes[1].set_ylabel("Profit shifted, % of total reported profit")
-    for ax in axes:
-        ax.set_xticks(x)
-        ax.set_xticklabels(years)
-        ax.set_xlabel("Year")
-        ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
-        ax.legend()
+    def _two_panel(metric, pct, title_abs, suptitle, note, fname):
+        fig, axes = plt.subplots(1, 2, figsize=(16, 6.5))
+        x = np.arange(len(years))
+        ng = len(data)
+        w = 0.8 / ng
+        for i, (label, g) in enumerate(data.items()):
+            gi = g.set_index("year").reindex(years)
+            off = (i - (ng - 1) / 2) * w
+            axes[0].bar(x + off, gi[metric].to_numpy(), w,
+                        label=f"{label} MNEs", color=COLORS[label], edgecolor="white")
+            axes[1].bar(x + off, gi[pct].to_numpy(), w,
+                        label=f"{label} MNEs", color=COLORS[label], edgecolor="white")
+        axes[0].set_title(title_abs)
+        axes[0].set_ylabel("Profit shifted, USD bn")
+        axes[1].set_title("As a share of total profit")
+        axes[1].set_ylabel("Profit shifted, % of total reported profit")
+        for ax in axes:
+            ax.set_xticks(x)
+            ax.set_xticklabels(years)
+            ax.set_xlabel("Year")
+            ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+            ax.legend()
+        fig.suptitle(suptitle, fontsize=14, fontweight="bold")
+        fig.text(0.01, -0.02, note, ha="left", va="top", fontsize=9, wrap=True)
+        plt.tight_layout()
+        out = figures_dir / f"{fname}_{min(years)}_{max(years)}.png"
+        plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
+        plt.close()
+        print(f"Saved: {out}")
+        return out
 
-    fig.suptitle(f"US vs EU multinationals: profit shifting, {min(years)}–{max(years)}",
-                 fontsize=14, fontweight="bold")
-    fig.text(0.01, -0.02,
-             "Note: 'Profit shifted' = total positive misalignment — profit booked beyond what an employees+payroll "
-             "(50/50) unitary split implies, i.e. shifted away from where it is earned (including profit that ends up "
-             "in EU havens). Share = shifted ÷ total positive reported profit of the group. Baseline disaggregated "
-             "CbCR. US = US-parented MNEs; EU = EU-27-parented MNEs.",
-             ha="left", va="top", fontsize=9, wrap=True)
-    plt.tight_layout()
-    out = figures_dir / f"combined_profit_shifted_us_eu_{min(years)}_{max(years)}.png"
-    plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
-    plt.close()
-    print(f"Saved: {out}")
+    _two_panel(
+        "shifted_bn", "shifted_pct_of_profit",
+        "Total profit shifted (booked away from where earned)\nALL activity, any destination (incl. EU havens)",
+        f"US vs EU multinationals: total profit shifting (all activity), {min(years)}–{max(years)}",
+        "Note: 'Profit shifted' = total positive misalignment (profit booked beyond the CCCTB-implied split), to "
+        "any destination. " + _NOTE_BASE,
+        "combined_profit_shifted_us_eu")
+    _two_panel(
+        "eu_out_bn", "eu_out_pct_of_profit",
+        "Profit shifted OUT OF the EU\n(generated in EU-27 countries, booked elsewhere)",
+        f"US vs EU multinationals: profit shifted out of the EU, {min(years)}–{max(years)}",
+        "Note: 'Shifted out of the EU' = sum over EU-27 partner countries of profit a CCCTB split would assign them "
+        "but that is booked elsewhere (their negative misalignment). " + _NOTE_BASE,
+        "combined_profit_shifted_out_of_eu_us_eu")
     for label, g in data.items():
-        first, last = g.iloc[0], g.iloc[-1]
-        print(f"  {label}: shifted {first['shifted_bn']:,.0f}->{last['shifted_bn']:,.0f} bn | "
-              f"share {first['shifted_pct_of_profit']:.0f}%->{last['shifted_pct_of_profit']:.0f}%")
+        print(f"  {label}: all-shifted {g['shifted_bn'].iloc[0]:,.0f}->{g['shifted_bn'].iloc[-1]:,.0f}bn | "
+              f"out-of-EU {g['eu_out_bn'].iloc[0]:,.0f}->{g['eu_out_bn'].iloc[-1]:,.0f}bn")
 
     # ---- Combined home-share: real activity vs profit kept at home, US vs EU ----
     hs = {}
@@ -177,43 +216,82 @@ def main():
             if not row.empty:
                 muni_eur[label] = float(row["tax_loss_bn_total"].iloc[0]) / USD_PER_EUR
     if muni_eur:
-        bars = {"Kommunen debt\n(Destatis end-2023)": KOMMUNEN_DEBT_EUR_BN}
+        bars = {}
         if "US" in muni_eur:
-            bars["Lost to US MNEs\n(2016–2022)"] = muni_eur["US"]
+            bars["Lost to US MNEs"] = muni_eur["US"]
         if "EU" in muni_eur:
-            bars["Lost to EU MNEs\n(2016–2022)"] = muni_eur["EU"]
-        if "US" in muni_eur and "EU" in muni_eur:
-            bars["Lost to US+EU MNEs\n(2016–2022)"] = muni_eur["US"] + muni_eur["EU"]
+            bars["Lost to EU MNEs"] = muni_eur["EU"]
+        if "All" in muni_eur:
+            bars["Lost to ALL MNEs"] = muni_eur["All"]
+        elif "US" in muni_eur and "EU" in muni_eur:
+            bars["Lost to US+EU MNEs"] = muni_eur["US"] + muni_eur["EU"]
         labels, vals = list(bars.keys()), list(bars.values())
-        colors = ["#525252", "#b2182b", "#2166ac", "#6a51a3"][:len(vals)]
+        colors = ["#b2182b", "#2166ac", "#555555"][:len(vals)]
         fig, ax = plt.subplots(figsize=(11, 6.5))
-        b = ax.bar(labels, vals, color=colors, edgecolor="white")
-        for bar, v, lab in zip(b, vals, labels):
-            pct = "" if lab.startswith("Kommunen debt") else f"\n({100 * v / KOMMUNEN_DEBT_EUR_BN:.0f}% of debt)"
-            ax.annotate(f"€{v:,.0f}bn{pct}", (bar.get_x() + bar.get_width() / 2, v),
-                        textcoords="offset points", xytext=(0, 3), ha="center",
-                        fontsize=9, fontweight="bold")
+        b = ax.bar(labels, vals, color=colors, edgecolor="white", width=0.6, zorder=3)
+        for bar, v in zip(b, vals):
+            ax.annotate(f"€{v:,.0f}bn\n({v / DAYCARE_BACKLOG_EUR_BN:.1f}× daycare backlog)",
+                        (bar.get_x() + bar.get_width() / 2, v), textcoords="offset points",
+                        xytext=(0, 3), ha="center", fontsize=9, fontweight="bold")
+        for yv, lab, col in [
+            (DAYCARE_BACKLOG_EUR_BN, f"Daycare/Kita investment backlog (€{DAYCARE_BACKLOG_EUR_BN:.1f}bn, KfW)", "#1b7837"),
+            (SCHOOL_BACKLOG_EUR_BN, f"School investment backlog (€{SCHOOL_BACKLOG_EUR_BN:.0f}bn, KfW)", "#d95f02"),
+        ]:
+            ax.axhline(yv, color=col, linestyle="--", linewidth=1.4, zorder=2)
+            ax.annotate(lab, (len(labels) - 0.5, yv), xytext=(0, 2), textcoords="offset points",
+                        ha="right", va="bottom", fontsize=8, color=col)
         ax.set_ylabel("EUR bn")
-        ax.set_title("German municipal (Kommunen) tax lost to profit shifting vs current municipal debt\n"
-                     f"Cumulative loss {min(years)}–{max(years)} vs Destatis end-2023 debt", fontsize=12)
+        ax.set_ylim(0, max(SCHOOL_BACKLOG_EUR_BN * 1.15, max(vals) * 1.3))
+        ax.set_title("German municipal tax lost to profit shifting vs municipal investment backlogs\n"
+                     f"Cumulative Kommunen loss {min(years)}–{max(years)} vs KfW Kommunalpanel backlogs", fontsize=12)
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         _basis = ("all misalignment (ETR max = ∞)" if ETR_TAG == "inf"
                   else f"haven-only (ETR max = {float(_etr_env):.0%})")
         fig.text(0.01, -0.02,
-                 f"Note: Municipal share of Germany's modelled corporate-tax loss (Kommunen, incl. Gewerbesteuer), "
-                 f"cumulative {min(years)}–{max(years)}, converted USD→EUR at {USD_PER_EUR}. Basis: {_basis}. "
-                 f"Municipal debt = Destatis core municipal budgets (Kernhaushalte), end-2023, €{KOMMUNEN_DEBT_EUR_BN}bn. "
-                 "Baseline disaggregated CbCR.",
+                 f"Note: Bars = municipal (Kommunen) share of Germany's modelled corporate-tax loss to US/EU MNEs, "
+                 f"cumulative {min(years)}–{max(years)}, USD→EUR at {USD_PER_EUR}; basis: {_basis}. The ≈€"
+                 f"{muni_eur.get('US', 0):.0f}bn lost to US MNEs alone ≈ the entire national daycare (Kita) investment "
+                 f"backlog (€{DAYCARE_BACKLOG_EUR_BN:.1f}bn, KfW Kommunalpanel). For context, total municipal debt is "
+                 f"€{KOMMUNEN_DEBT_EUR_BN:.0f}bn (Destatis end-2023). Baseline disaggregated CbCR.",
                  ha="left", va="top", fontsize=9, wrap=True)
         plt.tight_layout()
-        out_k = figures_dir / f"germany_kommunen_loss_vs_debt_{min(years)}_{max(years)}.png"
+        out_k = figures_dir / f"germany_kommunen_loss_vs_needs_{min(years)}_{max(years)}.png"
         plt.savefig(_longpath(out_k), dpi=300, bbox_inches="tight")
         plt.close()
         print(f"Saved: {out_k} | "
-              + ", ".join(f"{k}: €{v:,.1f}bn ({100 * v / KOMMUNEN_DEBT_EUR_BN:.0f}% of debt)"
+              + ", ".join(f"{k}: €{v:,.1f}bn ({v / DAYCARE_BACKLOG_EUR_BN:.1f}x daycare backlog)"
                           for k, v in muni_eur.items()))
 
-    # Mirror to the shared folder (flat, combined_ prefix, 1_tables / 2_figures).
+        # Focused figure: ALL-MNE (any HQ) Kommunen loss vs TOTAL municipal debt.
+        if "All" in muni_eur:
+            all_loss = muni_eur["All"]
+            fig, ax = plt.subplots(figsize=(8, 6.5))
+            vv = [KOMMUNEN_DEBT_EUR_BN, all_loss]
+            b = ax.bar(["Total Kommunen debt\n(Destatis end-2023)", "Lost to ALL multinationals\n(2016–2022)"],
+                       vv, color=["#525252", "#6a0f0f"], edgecolor="white", width=0.6)
+            for bar, v in zip(b, vv):
+                pct = "" if v == KOMMUNEN_DEBT_EUR_BN else f"\n({100 * v / KOMMUNEN_DEBT_EUR_BN:.0f}% of debt)"
+                ax.annotate(f"€{v:,.0f}bn{pct}", (bar.get_x() + bar.get_width() / 2, v),
+                            textcoords="offset points", xytext=(0, 3), ha="center",
+                            fontsize=10, fontweight="bold")
+            ax.set_ylabel("EUR bn")
+            ax.set_title("German municipal tax lost to ALL multinationals' profit shifting\n"
+                         f"vs total municipal debt, cumulative {min(years)}–{max(years)}", fontsize=12)
+            ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+            fig.text(0.01, -0.02,
+                     f"Note: Municipal (Kommunen) share of Germany's modelled corporate-tax loss to ALL "
+                     f"multinationals (any HQ), cumulative {min(years)}–{max(years)}, USD→EUR at {USD_PER_EUR}; "
+                     f"basis: {_basis}. Total municipal debt = Destatis core municipal budgets (Kernhaushalte), "
+                     "end-2023. Baseline disaggregated CbCR.",
+                     ha="left", va="top", fontsize=9, wrap=True)
+            plt.tight_layout()
+            out_kd = figures_dir / f"germany_kommunen_all_loss_vs_debt_{min(years)}_{max(years)}.png"
+            plt.savefig(_longpath(out_kd), dpi=300, bbox_inches="tight")
+            plt.close()
+            print(f"Saved: {out_kd} | all-MNE €{all_loss:,.1f}bn = "
+                  f"{100 * all_loss / KOMMUNEN_DEBT_EUR_BN:.0f}% of total municipal debt")
+
+    # Mirror to the shared folder (subfolder per topic, 1_tables / 2_figures).
     if SHARED_OUTPUT_ROOT.exists():
         base = tables_dir.parent
         n = 0
@@ -221,10 +299,8 @@ def main():
             if not p.is_file():
                 continue
             rel = list(p.relative_to(base).parts)
-            rel[0] = {"figures": "2_figures", "tables": "1_tables"}.get(rel[0], rel[0])
-            _cpfx = "combined_" + ("" if ETR_TAG == "inf" else f"{ETR_TAG}_")
-            rel[-1] = rel[-1] if rel[-1].startswith(_cpfx) else _cpfx + rel[-1]
-            target = SHARED_OUTPUT_ROOT.joinpath(*rel)
+            top = {"figures": "2_figures", "tables": "1_tables"}.get(rel[0], rel[0])
+            target = SHARED_OUTPUT_ROOT.joinpath(top, "combined_us_eu" + _TS, *rel[1:])
             os.makedirs(_longpath(str(target.parent)), exist_ok=True)
             shutil.copy2(_longpath(str(p)), _longpath(str(target)))
             n += 1
