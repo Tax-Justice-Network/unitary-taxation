@@ -2564,6 +2564,104 @@ else:
     )
 
 
+# %% [6C] CCCTB variant of the EU winners/losers line graph (item 3).
+# The headline figure uses employees+payroll (50/50), which classifies
+# Luxembourg as a "winner" because that formula ignores assets and sales.
+# Rebuild the same aggregated winners/losers lines on the CCCTB formula
+# (1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll) to test whether LUX
+# reclassifies as a haven. Net misalignment is rate-independent → only the
+# apportionment formula matters. Outputs carry a `_ccctb` suffix so they sit
+# beside the employees+payroll versions without overwriting them.
+def _build_eu_lines_for_formula(formula_name, file_suffix, formula_desc, title_suffix):
+    src = run_summary.loc[run_summary["formula_name"] == formula_name]
+    if src.empty:
+        print(f"\n[EU figure{title_suffix}] No '{formula_name}' run; skipping.")
+        return
+    eu = pd.read_csv(_longpath(src.iloc[0]["country_file"]))
+    eu["year"] = pd.to_numeric(eu["year"], errors="coerce")
+    eu = eu.loc[eu["iso_partner"].isin(EU27)].copy()
+    eu["net_misalignment_musd"] = (
+        pd.to_numeric(eu["positive_misalignment"], errors="coerce").fillna(0.0)
+        - pd.to_numeric(eu["negative_misalignment"], errors="coerce").fillna(0.0)
+    )
+    panel = eu.groupby(
+        ["iso_partner", "partner_jurisdiction", "year"], as_index=False
+    )["net_misalignment_musd"].sum()
+    panel["net_misalignment_bn"] = panel["net_misalignment_musd"] / 1000.0
+    totals = (
+        panel.groupby(["iso_partner", "partner_jurisdiction"], as_index=False)[
+            "net_misalignment_musd"
+        ].sum().rename(columns={"net_misalignment_musd": "total_net_misalignment_musd"})
+    )
+    totals["group"] = np.where(
+        totals["total_net_misalignment_musd"] < 0, "benefits_from_ut", "loses_under_ut"
+    )
+    panel = panel.merge(totals[["iso_partner", "group"]], on="iso_partner", how="left")
+    panel.sort_values(["group", "iso_partner", "year"]).to_csv(
+        OUTPUT_TABLES / f"eu_net_misalignment_by_year{file_suffix}.csv", index=False
+    )
+    totals.sort_values(["group", "total_net_misalignment_musd"]).to_csv(
+        OUTPUT_TABLES / f"eu_net_misalignment_classification{file_suffix}.csv", index=False
+    )
+    years = sorted(int(y) for y in panel["year"].dropna().unique())
+    meta = {
+        "benefits_from_ut": ("Winners — benefit from UT (net negative)", "#1b7837"),
+        "loses_under_ut":   ("Losers — lose under UT (net positive)", "#b2182b"),
+    }
+
+    def _plot(exclude=frozenset(), suffix="", extra=""):
+        p2 = panel.loc[~panel["iso_partner"].isin(exclude)]
+        agg = p2.groupby(["group", "year"])["net_misalignment_bn"].sum().reset_index()
+        fig, ax = plt.subplots(figsize=(12, 7))
+        for gk, (lbl, color) in meta.items():
+            sub = agg.loc[agg["group"] == gk].sort_values("year")
+            if sub.empty:
+                continue
+            n = p2.loc[p2["group"] == gk, "iso_partner"].nunique()
+            ax.plot(sub["year"], sub["net_misalignment_bn"], marker="o", markersize=5,
+                    linewidth=2.4, color=color, label=f"{lbl} — {n} countries")
+            last = sub.tail(1)
+            ax.annotate(f"{last['net_misalignment_bn'].iloc[0]:,.0f}",
+                        (last["year"].iloc[0], last["net_misalignment_bn"].iloc[0]),
+                        textcoords="offset points", xytext=(6, 0), fontsize=9,
+                        color=color, fontweight="bold", va="center")
+        ax.axhline(0, color="black", linewidth=0.8)
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Aggregate net misalignment of US-MNE profit, USD bn")
+        ax.set_xticks(years)
+        ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+        ax.set_title("EU winners vs losers under unitary taxation of US multinationals"
+                     f"{title_suffix}{extra}, {min(years)}-{max(years)}", fontsize=13)
+        ax.legend(loc="best", fontsize=10)
+        et = f" (EU-27 excl. {', '.join(sorted(exclude))})" if exclude else " (EU-27)"
+        fig.text(0.01, -0.02,
+                 "Note: Net misalignment summed within each group per year. Negative (winners) = profit a unitary "
+                 f"({formula_desc}) split would ADD to these EU countries; positive (losers) = profit they would "
+                 f"LOSE. Group membership fixed by cumulative net misalignment over the period{et}. Baseline "
+                 "disaggregated CbCR; US parents only.",
+                 ha="left", va="top", fontsize=9, wrap=True)
+        plt.tight_layout()
+        out = OUTPUT_FIGURES / f"eu_net_misalignment_aggregated{file_suffix}{suffix}_{min(years)}_{max(years)}.png"
+        plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
+        plt.close()
+        return out
+
+    pa = _plot()
+    pe = _plot(exclude=frozenset({"LUX"}), suffix="_excl_LUX", extra=" (excl. Luxembourg)")
+    lux = totals.loc[totals["iso_partner"] == "LUX", "group"]
+    print(f"\n[EU figure{title_suffix}] saved:\n  {pa}\n  {pe}\n"
+          f"  Winners: {int((totals['group']=='benefits_from_ut').sum())} | "
+          f"Losers: {int((totals['group']=='loses_under_ut').sum())} | "
+          f"Luxembourg classified as: {lux.iloc[0] if not lux.empty else 'n/a'}")
+
+
+_build_eu_lines_for_formula(
+    "ccctb", "_ccctb",
+    "CCCTB: 1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll",
+    " — CCCTB formula",
+)
+
+
 # %% [7] Bilateral links
 if not RUN_BILATERALS:
     print("\nSkipping bilateral calculations.")
@@ -2973,4 +3071,420 @@ else:
             + ", ".join(f"{d}={dest_tot[d]/1000:,.0f}" for d in top_dest)
             + "\n  Data: eu_missing_profit_bilateral.csv"
         )
+
+
+# %% [8b] excl-Luxembourg variant of the "profit missing from the EU" chart (item 2).
+# The all-EU chart's 2021 spike is partly Luxembourg's anomalous -$87bn loss.
+# Rebuild it excluding LUX as an affected (sufferer) country. Reuses the already
+# computed module-level `bilateral` table (rate-independent, employees+payroll).
+if "bilateral" in globals() and not bilateral.empty:
+    def _build_eu_missing(exclude_affected, file_suffix, title_extra):
+        affected = EU27 - set(exclude_affected)
+        em = bilateral.loc[bilateral["iso_affected"].isin(affected)].copy()
+        if em.empty:
+            print(f"\n[EU-missing figure{title_extra}] no rows; skipping.")
+            return
+        em.sort_values(["year", "shifted_profit_musd"], ascending=[True, False]).to_csv(
+            OUTPUT_TABLES / f"eu_missing_profit_bilateral{file_suffix}.csv", index=False
+        )
+        dest_tot = (
+            em.groupby("iso_responsible")["shifted_profit_musd"].sum().sort_values(ascending=False)
+        )
+        top_dest = list(dest_tot.head(8).index)
+        em["dest_grp"] = np.where(em["iso_responsible"].isin(top_dest), em["iso_responsible"], "Other")
+        wide = (
+            em.groupby(["year", "dest_grp"])["shifted_profit_musd"].sum()
+            .unstack("dest_grp").fillna(0.0) / 1000.0
+        )
+        years = sorted(int(y) for y in wide.index)
+        wide = wide.reindex(years)
+        cols = [d for d in top_dest if d in wide.columns] + (["Other"] if "Other" in wide.columns else [])
+        wide = wide[cols]
+
+        def _lbl(c):
+            return "Other" if c == "Other" else (f"{c} (EU)" if c in EU27 else c)
+
+        fig, ax = plt.subplots(figsize=(13, 7.5))
+        bottoms = np.zeros(len(wide))
+        cmap = plt.get_cmap("tab10")
+        for i, c in enumerate(wide.columns):
+            v = wide[c].to_numpy()
+            color = "#bdbdbd" if c == "Other" else cmap(i % 10)
+            ax.bar(wide.index, v, bottom=bottoms, label=_lbl(c), color=color,
+                   edgecolor="white", linewidth=0.4, width=0.7)
+            bottoms += v
+        for x, t in zip(wide.index, wide.sum(axis=1).to_numpy()):
+            ax.annotate(f"{t:,.0f}", (x, t), textcoords="offset points", xytext=(0, 3),
+                        ha="center", fontsize=9, fontweight="bold")
+        ax.set_title("Profit missing from the EU under unitary taxation of US multinationals"
+                     f"{title_extra},\nby where it is booked instead, {min(years)}-{max(years)}", fontsize=13)
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Profit missing from EU countries, USD bn")
+        ax.set_xticks(years)
+        ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+        ax.legend(title="Booked in (ISO3)", ncol=2, fontsize=9, loc="upper left")
+        _excl_note = (
+            f"Excludes {', '.join(sorted(exclude_affected))} as an affected country. "
+            if exclude_affected else ""
+        )
+        fig.text(0.01, -0.03,
+                 "Note: 'Missing' profit = US-MNE profit an employees+payroll (50/50) unitary split would assign to "
+                 "EU countries but which is reported elsewhere. Each EU country's missing profit is attributed across "
+                 "the jurisdictions that over-report US-MNE profit, in proportion to their over-reporting. '(EU)' marks "
+                 f"EU-member destinations. {_excl_note}Baseline disaggregated CbCR; US parents only.",
+                 ha="left", va="top", fontsize=9, wrap=True)
+        plt.tight_layout()
+        out = OUTPUT_FIGURES / f"eu_missing_profit_bilateral{file_suffix}_{min(years)}_{max(years)}.png"
+        plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
+        plt.close()
+        print(f"\n[EU-missing figure{title_extra}] saved: {out}\n"
+              f"  Total missing from EU{title_extra}: USD {em['shifted_profit_musd'].sum()/1000:,.0f} bn\n"
+              f"  Top destinations (USD bn): "
+              + ", ".join(f"{d}={dest_tot[d]/1000:,.0f}" for d in top_dest))
+
+    _build_eu_missing(frozenset({"LUX"}), "_excl_LUX", " (excl. Luxembourg)")
+
+
+# %% [9] How US corporations exploit the EU (CURRENT profit-shifting framing).
+#
+# Reframed per request: this describes profit shifting under the STATUS QUO, not
+# who gains/loses from a UT reform.
+#   WINNERS = EU jurisdictions that RECEIVE illegitimate profit (report more
+#             US-MNE profit than real activity warrants → net positive
+#             misalignment). The few havens.
+#   LOSERS  = EU jurisdictions whose profit is generated there but booked
+#             elsewhere (net negative misalignment). The many.
+# Net misalignment = reported − (employees+payroll 50/50) theoretical, the same
+# quantity, read in profit-shifting terms. ETR = period mean of the 5-year
+# rolling partner ETR (etr_partner_median_corrected), shown as %.
+PS_FORMULA = "employees_payroll"
+_ps_src = run_summary.loc[run_summary["formula_name"] == PS_FORMULA]
+if _ps_src.empty:
+    print(f"\n[EU exploitation figures] No '{PS_FORMULA}' run; skipping.")
+else:
+    ps = pd.read_csv(_longpath(_ps_src.iloc[0]["country_file"]))
+    ps["year"] = pd.to_numeric(ps["year"], errors="coerce")
+    ps = ps.loc[ps["iso_partner"].isin(EU27)].copy()
+    for _c in ["positive_misalignment", "negative_misalignment", "reported_profit",
+               "etr_partner_median_corrected"]:
+        ps[_c] = pd.to_numeric(ps[_c], errors="coerce")
+    ps["over_reported_bn"] = ps["positive_misalignment"].fillna(0.0) / 1000.0   # shifted IN
+    ps["under_reported_bn"] = ps["negative_misalignment"].fillna(0.0) / 1000.0  # shifted OUT (magnitude)
+    ps["net_bn"] = ps["over_reported_bn"] - ps["under_reported_bn"]
+    ps_years = sorted(int(y) for y in ps["year"].dropna().unique())
+
+    summ = ps.groupby(["iso_partner", "partner_jurisdiction"], as_index=False).agg(
+        net_bn=("net_bn", "sum"),
+        reported_bn=("reported_profit", lambda x: x.sum() / 1000.0),
+        etr=("etr_partner_median_corrected", "mean"),
+    )
+    summ["etr_pct"] = summ["etr"] * 100.0
+    summ["role"] = np.where(summ["net_bn"] > 0, "winner_haven", "loser_victim")
+    summ.sort_values("net_bn", ascending=False).to_csv(
+        OUTPUT_TABLES / "eu_profit_shifting_roles.csv", index=False
+    )
+    etr_by_iso = summ.set_index("iso_partner")["etr_pct"].to_dict()
+
+    # ===== Figure 1: the widening gap — few havens (up) vs the many (down) =====
+    haven_tot = ps.groupby("iso_partner")["over_reported_bn"].sum().sort_values(ascending=False)
+    top_havens = [h for h in haven_tot.index if haven_tot[h] > 0][:5]
+    up = (ps[ps["iso_partner"].isin(top_havens)]
+          .pivot_table(index="year", columns="iso_partner",
+                       values="over_reported_bn", aggfunc="sum")
+          .reindex(ps_years).fillna(0.0))
+    up = up[[h for h in top_havens if h in up.columns]]
+    over_tot = ps.groupby("year")["over_reported_bn"].sum().reindex(ps_years).fillna(0.0)
+    other_up = over_tot - up.sum(axis=1)
+    down_total = -ps.groupby("year")["under_reported_bn"].sum().reindex(ps_years).fillna(0.0)
+
+    yr_net = ps.groupby(["year", "iso_partner"])["net_bn"].sum().reset_index()
+    n_win = yr_net[yr_net.net_bn > 0].groupby("year")["iso_partner"].nunique().reindex(ps_years).fillna(0)
+    n_los = yr_net[yr_net.net_bn < 0].groupby("year")["iso_partner"].nunique().reindex(ps_years).fillna(0)
+
+    fig, ax = plt.subplots(figsize=(13.5, 8))
+    cmap = plt.get_cmap("autumn")
+    bottoms = np.zeros(len(ps_years))
+    for i, h in enumerate(up.columns):
+        lbl = f"{h} (ETR {etr_by_iso.get(h, float('nan')):.0f}%)"
+        ax.bar(ps_years, up[h].to_numpy(), bottom=bottoms, label=lbl,
+               color=cmap(i / max(len(up.columns), 1) * 0.75), edgecolor="white", width=0.72)
+        bottoms += up[h].to_numpy()
+    ax.bar(ps_years, other_up.to_numpy(), bottom=bottoms, label="Other EU havens",
+           color="#fdd0a2", edgecolor="white", width=0.72)
+    ax.bar(ps_years, down_total.to_numpy(), label="Profit shifted OUT (the many EU countries)",
+           color="#3182bd", edgecolor="white", width=0.72)
+    ax.axhline(0, color="black", linewidth=0.9)
+    for j, y in enumerate(ps_years):
+        ax.annotate(f"+{over_tot.iloc[j]:,.0f}\n({int(n_win.iloc[j])} havens)",
+                    (y, over_tot.iloc[j]), textcoords="offset points", xytext=(0, 4),
+                    ha="center", fontsize=8, fontweight="bold", color="#b30000")
+        ax.annotate(f"{down_total.iloc[j]:,.0f}\n({int(n_los.iloc[j])} countries)",
+                    (y, down_total.iloc[j]), textcoords="offset points", xytext=(0, -18),
+                    ha="center", fontsize=8, color="#08519c")
+    ax.set_title("US multinationals book EU profit in a few low-tax havens, not where it is earned\n"
+                 f"Profit over-reported (up) vs shifted out (down), {min(ps_years)}–{max(ps_years)}",
+                 fontsize=13)
+    ax.set_xlabel("Year")
+    ax.set_ylabel("US-MNE profit misalignment, USD bn")
+    ax.set_xticks(ps_years)
+    ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+    ax.legend(title="Profit over-reported in (ETR = period mean, 5yr-rolling)",
+              ncol=2, fontsize=9, loc="upper left")
+    fig.text(0.01, -0.02,
+             "Note: 'Over-reported' = US-MNE profit booked in a country beyond what an employees+payroll (50/50) "
+             "split implies (shifted IN); 'shifted out' = profit a country generates but that is booked elsewhere. "
+             "A handful of low-ETR havens absorb the over-reported profit while many EU countries are drained — and "
+             "the haven total grows over the period. ETR = period mean of the 5-year-rolling partner ETR. "
+             "Baseline disaggregated CbCR; US parents only.",
+             ha="left", va="top", fontsize=9, wrap=True)
+    plt.tight_layout()
+    _f1 = OUTPUT_FIGURES / f"eu_profit_shifting_gap_{min(ps_years)}_{max(ps_years)}.png"
+    plt.savefig(_longpath(_f1), dpi=300, bbox_inches="tight")
+    plt.close()
+
+    # ===== Figure 2: profit follows the lowest tax rate (scatter) =====
+    from matplotlib.lines import Line2D
+    fig, ax = plt.subplots(figsize=(12, 8))
+    for _, r in summ.iterrows():
+        color = "#b2182b" if r["net_bn"] > 0 else "#2166ac"
+        size = 30 + 25 * np.sqrt(abs(r["net_bn"]))
+        ax.scatter(r["net_bn"], r["etr_pct"], s=size, color=color, alpha=0.65,
+                   edgecolor="white", zorder=3)
+        if abs(r["net_bn"]) >= 3 or r["etr_pct"] <= 6:
+            ax.annotate(r["iso_partner"], (r["net_bn"], r["etr_pct"]),
+                        textcoords="offset points", xytext=(5, 3), fontsize=8)
+    ax.axvline(0, color="black", linewidth=0.8)
+    ax.axhline(15, color="grey", linestyle="--", linewidth=1)
+    ax.annotate("15% global minimum-tax reference", (ax.get_xlim()[0], 15),
+                xytext=(5, 4), textcoords="offset points", fontsize=8, color="grey")
+    ax.set_xlabel("Cumulative net misalignment, USD bn   "
+                  "(→ profit shifted IN / haven    ← profit shifted OUT / victim)")
+    ax.set_ylabel("Effective tax rate paid by US MNEs, %  (period mean, 5yr-rolling)")
+    ax.set_title("US-MNE profit is booked where the tax rate is lowest\n"
+                 f"EU jurisdictions: over/under-reporting vs ETR, {min(ps_years)}–{max(ps_years)}",
+                 fontsize=13)
+    ax.grid(True, linewidth=0.3, alpha=0.5)
+    ax.legend(handles=[
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="#b2182b", markersize=11,
+               label="Winner — receives shifted-in profit (haven)"),
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="#2166ac", markersize=11,
+               label="Loser — profit generated here is shifted out"),
+    ], loc="upper right", fontsize=9)
+    fig.text(0.01, -0.02,
+             "Note: x = cumulative (2016–2022) net misalignment (reported − employees+payroll-implied profit); "
+             "right = profit shifted IN (haven), left = shifted OUT (victim). y = ETR US MNEs actually pay there. "
+             "Havens cluster at low ETR. LUX and MLT sit on the left only because large 2021 book losses make their "
+             "cumulative net negative — their very low ETR shows they are havens too. Bubble size ∝ √|net misalignment|. "
+             "Baseline disaggregated CbCR; US parents only.",
+             ha="left", va="top", fontsize=9, wrap=True)
+    plt.tight_layout()
+    _f2 = OUTPUT_FIGURES / f"eu_profit_vs_etr_scatter_{min(ps_years)}_{max(ps_years)}.png"
+    plt.savefig(_longpath(_f2), dpi=300, bbox_inches="tight")
+    plt.close()
+
+    print(f"\n[EU exploitation figures] saved:\n  {_f1}\n  {_f2}\n"
+          f"  Over-reported in havens: {over_tot.iloc[0]:,.0f} bn ({ps_years[0]}) "
+          f"-> {over_tot.iloc[-1]:,.0f} bn ({ps_years[-1]})\n"
+          f"  Shifted out of the many: {-down_total.iloc[0]:,.0f} bn -> {-down_total.iloc[-1]:,.0f} bn\n"
+          f"  Data: eu_profit_shifting_roles.csv")
+
+
+# %% [9b] excl-Luxembourg & Malta variant of the gap chart.
+# Removes the two low-ETR havens whose large 2021 book losses distort the
+# "shifted out" side (and the 2021 spike), leaving a cleaner few-vs-many gap.
+if "ps" in globals():
+    _excl = frozenset({"LUX", "MLT"})
+    ps2 = ps.loc[~ps["iso_partner"].isin(_excl)].copy()
+    yrs = sorted(int(y) for y in ps2["year"].dropna().unique())
+    etr2 = (ps2.groupby("iso_partner")["etr_partner_median_corrected"].mean() * 100).to_dict()
+    haven_tot = ps2.groupby("iso_partner")["over_reported_bn"].sum().sort_values(ascending=False)
+    top_havens = [h for h in haven_tot.index if haven_tot[h] > 0][:5]
+    up = (ps2[ps2["iso_partner"].isin(top_havens)]
+          .pivot_table(index="year", columns="iso_partner", values="over_reported_bn", aggfunc="sum")
+          .reindex(yrs).fillna(0.0))
+    up = up[[h for h in top_havens if h in up.columns]]
+    over_tot = ps2.groupby("year")["over_reported_bn"].sum().reindex(yrs).fillna(0.0)
+    other_up = over_tot - up.sum(axis=1)
+    down_total = -ps2.groupby("year")["under_reported_bn"].sum().reindex(yrs).fillna(0.0)
+    yr_net = ps2.groupby(["year", "iso_partner"])["net_bn"].sum().reset_index()
+    n_win = yr_net[yr_net.net_bn > 0].groupby("year")["iso_partner"].nunique().reindex(yrs).fillna(0)
+    n_los = yr_net[yr_net.net_bn < 0].groupby("year")["iso_partner"].nunique().reindex(yrs).fillna(0)
+
+    fig, ax = plt.subplots(figsize=(13.5, 8))
+    cmap = plt.get_cmap("autumn")
+    bottoms = np.zeros(len(yrs))
+    for i, h in enumerate(up.columns):
+        ax.bar(yrs, up[h].to_numpy(), bottom=bottoms,
+               label=f"{h} (ETR {etr2.get(h, float('nan')):.0f}%)",
+               color=cmap(i / max(len(up.columns), 1) * 0.75), edgecolor="white", width=0.72)
+        bottoms += up[h].to_numpy()
+    ax.bar(yrs, other_up.to_numpy(), bottom=bottoms, label="Other EU havens",
+           color="#fdd0a2", edgecolor="white", width=0.72)
+    ax.bar(yrs, down_total.to_numpy(), label="Profit shifted OUT (the many EU countries)",
+           color="#3182bd", edgecolor="white", width=0.72)
+    ax.axhline(0, color="black", linewidth=0.9)
+    for j, y in enumerate(yrs):
+        ax.annotate(f"+{over_tot.iloc[j]:,.0f}\n({int(n_win.iloc[j])} havens)",
+                    (y, over_tot.iloc[j]), textcoords="offset points", xytext=(0, 4),
+                    ha="center", fontsize=8, fontweight="bold", color="#b30000")
+        ax.annotate(f"{down_total.iloc[j]:,.0f}\n({int(n_los.iloc[j])} countries)",
+                    (y, down_total.iloc[j]), textcoords="offset points", xytext=(0, -18),
+                    ha="center", fontsize=8, color="#08519c")
+    ax.set_title("US multinationals book EU profit in a few low-tax havens, not where it is earned "
+                 "(excl. Luxembourg & Malta)\n"
+                 f"Profit over-reported (up) vs shifted out (down), {min(yrs)}–{max(yrs)}", fontsize=12)
+    ax.set_xlabel("Year")
+    ax.set_ylabel("US-MNE profit misalignment, USD bn")
+    ax.set_xticks(yrs)
+    ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+    ax.legend(title="Profit over-reported in (ETR = period mean, 5yr-rolling)",
+              ncol=2, fontsize=9, loc="upper left")
+    fig.text(0.01, -0.02,
+             "Note: As the main gap chart, excluding Luxembourg and Malta — two low-ETR havens whose large 2021 "
+             "book losses otherwise distort the 'shifted out' side. The few-vs-many gap and its widening remain. "
+             "Baseline disaggregated CbCR; US parents only.",
+             ha="left", va="top", fontsize=9, wrap=True)
+    plt.tight_layout()
+    _f1b = OUTPUT_FIGURES / f"eu_profit_shifting_gap_excl_LUX_MLT_{min(yrs)}_{max(yrs)}.png"
+    plt.savefig(_longpath(_f1b), dpi=300, bbox_inches="tight")
+    plt.close()
+    print(f"\n[EU exploitation figure excl LUX&MLT] saved: {_f1b}\n"
+          f"  Over-reported: {over_tot.iloc[0]:,.0f} -> {over_tot.iloc[-1]:,.0f} bn | "
+          f"Shifted out: {-down_total.iloc[0]:,.0f} -> {-down_total.iloc[-1]:,.0f} bn")
+
+
+# %% [9c] Same exploitation analysis under a different formula (CCCTB).
+# Generalises section [9]/[9b] so the gap chart, the ETR scatter and the
+# excl-LUX&MLT gap variant can be produced on any apportionment formula. Called
+# for CCCTB (1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll) so the
+# profit-shifting story can be compared against the employees+payroll headline.
+def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
+    src = run_summary.loc[run_summary["formula_name"] == formula_name]
+    if src.empty:
+        print(f"\n[EU exploitation{title_suffix}] No '{formula_name}' run; skipping.")
+        return
+    pf = pd.read_csv(_longpath(src.iloc[0]["country_file"]))
+    pf["year"] = pd.to_numeric(pf["year"], errors="coerce")
+    pf = pf.loc[pf["iso_partner"].isin(EU27)].copy()
+    for c in ["positive_misalignment", "negative_misalignment", "reported_profit",
+              "etr_partner_median_corrected"]:
+        pf[c] = pd.to_numeric(pf[c], errors="coerce")
+    pf["over_reported_bn"] = pf["positive_misalignment"].fillna(0.0) / 1000.0
+    pf["under_reported_bn"] = pf["negative_misalignment"].fillna(0.0) / 1000.0
+    pf["net_bn"] = pf["over_reported_bn"] - pf["under_reported_bn"]
+    years = sorted(int(y) for y in pf["year"].dropna().unique())
+
+    summ = pf.groupby(["iso_partner", "partner_jurisdiction"], as_index=False).agg(
+        net_bn=("net_bn", "sum"),
+        reported_bn=("reported_profit", lambda x: x.sum() / 1000.0),
+        etr=("etr_partner_median_corrected", "mean"),
+    )
+    summ["etr_pct"] = summ["etr"] * 100.0
+    summ["role"] = np.where(summ["net_bn"] > 0, "winner_haven", "loser_victim")
+    summ.sort_values("net_bn", ascending=False).to_csv(
+        OUTPUT_TABLES / f"eu_profit_shifting_roles{file_suffix}.csv", index=False
+    )
+
+    def _gap(ps_in, suffix, extra):
+        etr_iso = (ps_in.groupby("iso_partner")["etr_partner_median_corrected"].mean() * 100).to_dict()
+        yrs = sorted(int(y) for y in ps_in["year"].dropna().unique())
+        haven_tot = ps_in.groupby("iso_partner")["over_reported_bn"].sum().sort_values(ascending=False)
+        top_h = [h for h in haven_tot.index if haven_tot[h] > 0][:5]
+        up = (ps_in[ps_in["iso_partner"].isin(top_h)]
+              .pivot_table(index="year", columns="iso_partner", values="over_reported_bn", aggfunc="sum")
+              .reindex(yrs).fillna(0.0))
+        up = up[[h for h in top_h if h in up.columns]]
+        over_tot = ps_in.groupby("year")["over_reported_bn"].sum().reindex(yrs).fillna(0.0)
+        other_up = over_tot - up.sum(axis=1)
+        down_total = -ps_in.groupby("year")["under_reported_bn"].sum().reindex(yrs).fillna(0.0)
+        yn = ps_in.groupby(["year", "iso_partner"])["net_bn"].sum().reset_index()
+        nw = yn[yn.net_bn > 0].groupby("year")["iso_partner"].nunique().reindex(yrs).fillna(0)
+        nl = yn[yn.net_bn < 0].groupby("year")["iso_partner"].nunique().reindex(yrs).fillna(0)
+        fig, ax = plt.subplots(figsize=(13.5, 8))
+        cmap = plt.get_cmap("autumn")
+        bottoms = np.zeros(len(yrs))
+        for i, h in enumerate(up.columns):
+            ax.bar(yrs, up[h].to_numpy(), bottom=bottoms,
+                   label=f"{h} (ETR {etr_iso.get(h, float('nan')):.0f}%)",
+                   color=cmap(i / max(len(up.columns), 1) * 0.75), edgecolor="white", width=0.72)
+            bottoms += up[h].to_numpy()
+        ax.bar(yrs, other_up.to_numpy(), bottom=bottoms, label="Other EU havens",
+               color="#fdd0a2", edgecolor="white", width=0.72)
+        ax.bar(yrs, down_total.to_numpy(), label="Profit shifted OUT (the many EU countries)",
+               color="#3182bd", edgecolor="white", width=0.72)
+        ax.axhline(0, color="black", linewidth=0.9)
+        for j, y in enumerate(yrs):
+            ax.annotate(f"+{over_tot.iloc[j]:,.0f}\n({int(nw.iloc[j])} havens)", (y, over_tot.iloc[j]),
+                        textcoords="offset points", xytext=(0, 4), ha="center", fontsize=8,
+                        fontweight="bold", color="#b30000")
+            ax.annotate(f"{down_total.iloc[j]:,.0f}\n({int(nl.iloc[j])} countries)", (y, down_total.iloc[j]),
+                        textcoords="offset points", xytext=(0, -18), ha="center", fontsize=8, color="#08519c")
+        ax.set_title("US multinationals book EU profit in a few low-tax havens, not where it is earned"
+                     f"{title_suffix}{extra}\nProfit over-reported (up) vs shifted out (down), "
+                     f"{min(yrs)}–{max(yrs)}", fontsize=12)
+        ax.set_xlabel("Year")
+        ax.set_ylabel("US-MNE profit misalignment, USD bn")
+        ax.set_xticks(yrs)
+        ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+        ax.legend(title="Profit over-reported in (ETR = period mean, 5yr-rolling)",
+                  ncol=2, fontsize=9, loc="upper left")
+        fig.text(0.01, -0.02,
+                 "Note: 'Over-reported' = US-MNE profit booked beyond what the apportionment formula implies "
+                 "(shifted IN); 'shifted out' = profit generated locally but booked elsewhere. A few low-ETR havens "
+                 "absorb the over-reported profit while many EU countries are drained. ETR = period mean of the "
+                 "5-year-rolling partner ETR. Baseline disaggregated CbCR; US parents only.",
+                 ha="left", va="top", fontsize=9, wrap=True)
+        plt.tight_layout()
+        out = OUTPUT_FIGURES / f"eu_profit_shifting_gap{file_suffix}{suffix}_{min(yrs)}_{max(yrs)}.png"
+        plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
+        plt.close()
+        return out, over_tot, down_total
+
+    def _scatter(summ_in, suffix, extra):
+        from matplotlib.lines import Line2D
+        fig, ax = plt.subplots(figsize=(12, 8))
+        for _, r in summ_in.iterrows():
+            color = "#b2182b" if r["net_bn"] > 0 else "#2166ac"
+            size = 30 + 25 * np.sqrt(abs(r["net_bn"]))
+            ax.scatter(r["net_bn"], r["etr_pct"], s=size, color=color, alpha=0.65,
+                       edgecolor="white", zorder=3)
+            if abs(r["net_bn"]) >= 3 or r["etr_pct"] <= 6:
+                ax.annotate(r["iso_partner"], (r["net_bn"], r["etr_pct"]),
+                            textcoords="offset points", xytext=(5, 3), fontsize=8)
+        ax.axvline(0, color="black", linewidth=0.8)
+        ax.axhline(15, color="grey", linestyle="--", linewidth=1)
+        ax.set_xlabel("Cumulative net misalignment, USD bn   "
+                      "(→ profit shifted IN / haven    ← profit shifted OUT / victim)")
+        ax.set_ylabel("Effective tax rate paid by US MNEs, %  (period mean, 5yr-rolling)")
+        ax.set_title("US-MNE profit is booked where the tax rate is lowest"
+                     f"{title_suffix}{extra}\nEU jurisdictions: over/under-reporting vs ETR, "
+                     f"{min(years)}–{max(years)}", fontsize=12)
+        ax.grid(True, linewidth=0.3, alpha=0.5)
+        ax.legend(handles=[
+            Line2D([0], [0], marker="o", color="w", markerfacecolor="#b2182b", markersize=11,
+                   label="Winner — receives shifted-in profit (haven)"),
+            Line2D([0], [0], marker="o", color="w", markerfacecolor="#2166ac", markersize=11,
+                   label="Loser — profit generated here is shifted out"),
+        ], loc="upper right", fontsize=9)
+        fig.text(0.01, -0.02,
+                 "Note: x = cumulative net misalignment (reported − formulary-implied profit); right = shifted IN "
+                 "(haven), left = shifted OUT (victim). y = ETR US MNEs actually pay. Havens cluster at low ETR. "
+                 "Bubble size ∝ √|net misalignment|. Baseline disaggregated CbCR; US parents only.",
+                 ha="left", va="top", fontsize=9, wrap=True)
+        plt.tight_layout()
+        out = OUTPUT_FIGURES / f"eu_profit_vs_etr_scatter{file_suffix}{suffix}_{min(years)}_{max(years)}.png"
+        plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
+        plt.close()
+        return out
+
+    g_all, over_tot, down_total = _gap(pf, "", "")
+    s_all = _scatter(summ, "", "")
+    g_excl, _, _ = _gap(pf.loc[~pf["iso_partner"].isin({"LUX", "MLT"})],
+                        "_excl_LUX_MLT", " (excl. Luxembourg & Malta)")
+    print(f"\n[EU exploitation{title_suffix}] saved:\n  {g_all}\n  {s_all}\n  {g_excl}\n"
+          f"  Over-reported in havens: {over_tot.iloc[0]:,.0f} -> {over_tot.iloc[-1]:,.0f} bn | "
+          f"Data: eu_profit_shifting_roles{file_suffix}.csv")
+
+
+build_exploitation_for_formula("ccctb", "_ccctb", " — CCCTB formula")
 # %%
