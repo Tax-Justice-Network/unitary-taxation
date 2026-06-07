@@ -34,6 +34,17 @@ plt.rcParams.update({
     "axes.edgecolor": PALETTE["ink"], "axes.labelcolor": PALETTE["ink"],
     "text.color": PALETTE["ink"], "xtick.color": PALETTE["ink"], "ytick.color": PALETTE["ink"],
 })
+TCJA_GREY = "#9c9c9c"
+
+
+def add_tcja_marker(ax, xpos=2017, label=True):
+    """Vertical dashed 2017 'Tax Cuts and Jobs Act' marker (house style)."""
+    ax.axvline(xpos, color=TCJA_GREY, linestyle="--", linewidth=1.2, zorder=0)
+    if label:
+        ax.annotate("Tax Cuts and Jobs Act", xy=(xpos, 0.99),
+                    xycoords=("data", "axes fraction"), xytext=(4, 0),
+                    textcoords="offset points", ha="left", va="top",
+                    fontsize=8, color=TCJA_GREY)
 
 # Apportionment formula for the figures. Must match the FIG_FORMULA the estimate
 # script was run with: 'ccctb' (default) reads the CCCTB topics; SOTJ
@@ -214,6 +225,7 @@ def main():
         for ax in axes:
             ax.set_ylim(0, 100)
             ax.set_xlabel("Year")
+            add_tcja_marker(ax)
             ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
             ax.legend()
         fig.suptitle("US vs EU multinationals: where activity sits vs where profit is booked, "

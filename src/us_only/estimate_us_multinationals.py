@@ -2635,6 +2635,7 @@ else:
         ax.set_xlabel("Year")
         ax.set_ylabel("Aggregate net misalignment of " + HOME_LABEL + "-MNE profit, USD bn")
         ax.set_xticks(_eu_years)
+        add_tcja_marker(ax)
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         ax.set_title(
             "EU winners vs losers under unitary taxation of " + HOME_LABEL + " multinationals"
@@ -3308,6 +3309,7 @@ else:
     ax.set_xlabel("Year")
     ax.set_ylabel("" + HOME_LABEL + "-MNE profit shifted, USD bn")
     ax.set_xticks(ps_years)
+    add_tcja_marker(ax)
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
     ax.legend(title="EU profit re-booked in (ETR = period mean)",
               ncol=2, fontsize=9, loc="upper left")
@@ -3423,6 +3425,7 @@ if "ps" in globals():
     ax.set_xlabel("Year")
     ax.set_ylabel("" + HOME_LABEL + "-MNE profit shifted, USD bn")
     ax.set_xticks(yrs)
+    add_tcja_marker(ax)
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
     ax.legend(title="EU profit re-booked in (ETR = period mean)",
               ncol=2, fontsize=9, loc="upper left")
@@ -3667,6 +3670,7 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
         ax.set_xlabel("Year")
         ax.set_ylabel("Tax revenue, USD bn")
         ax.set_xticks(yrs)
+        add_tcja_marker(ax)
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         ax.legend(title="Tax revenue gained in (ETR = period mean)", ncol=2, fontsize=9, loc="upper left")
         fig.text(0.01, -0.02,

@@ -118,8 +118,14 @@ quantity, read in status-quo terms.
   `eu_share_activity*`) — home region's (or EU-27's) share of worldwide
   employees / tangible assets / payroll / sales over time. Real economic
   activity. Restyled to the house style: The Left palette, **y-axis fitted to
-  the data** (non-zero start, so the change is legible), and the single **"Tax
-  Cuts and Jobs Act" 2017 marker** (shared `add_tcja_marker` helper).
+  the data** (non-zero start, so the change is legible), legend outside-right.
+
+**House-style marker.** Every over-time figure carries the single **"Tax Cuts
+and Jobs Act" 2017 marker** (shared `add_tcja_marker` helper) — the share
+figures, the winners/losers lines, the profit-shifting gap (incl. excl-LUX/MLT),
+the tax-revenue gap, the cumulative tax-loss figure, and the combined
+home-share. The non-time-series figures (ETR scatter, the missing-from-EU
+ranking bars) do not.
 
 Combined (`output/combined_us_eu*/`): US-vs-EU total profit shifted + as a share
 of profit; US-vs-EU home-share; the Germany Kommunen-loss-vs-needs (daycare) and
