@@ -34,17 +34,17 @@ plt.rcParams.update({
     "axes.edgecolor": PALETTE["ink"], "axes.labelcolor": PALETTE["ink"],
     "text.color": PALETTE["ink"], "xtick.color": PALETTE["ink"], "ytick.color": PALETTE["ink"],
 })
-TCJA_GREY = "#9c9c9c"
+TCJA_GREY = "#6f6f6f"
 
 
 def add_tcja_marker(ax, xpos=2017, label=True):
     """Vertical dashed 2017 'Tax Cuts and Jobs Act' marker (house style)."""
-    ax.axvline(xpos, color=TCJA_GREY, linestyle="--", linewidth=1.2, zorder=0)
+    ax.axvline(xpos, color=TCJA_GREY, linestyle="--", linewidth=2.0, zorder=1)
     if label:
         ax.annotate("Tax Cuts and Jobs Act", xy=(xpos, 0.99),
-                    xycoords=("data", "axes fraction"), xytext=(4, 0),
+                    xycoords=("data", "axes fraction"), xytext=(5, 0),
                     textcoords="offset points", ha="left", va="top",
-                    fontsize=8, color=TCJA_GREY)
+                    fontsize=10.5, fontweight="bold", color=TCJA_GREY)
 
 
 SUBTITLE_BLUE = "#2e7d9e"

@@ -57,7 +57,7 @@ PALETTE = {
     "grid": "#d1dae5",   # gridlines
 }
 PALETTE_SEQ = [PALETTE["red"], PALETTE["navy"], PALETTE["teal"], PALETTE["slate"], PALETTE["amber"]]
-TCJA_GREY = "#9c9c9c"   # neutral grey for the TCJA marker (Stata gs6 equivalent)
+TCJA_GREY = "#6f6f6f"   # mid-dark grey for the TCJA marker (kept visible)
 plt.rcParams.update({
     "grid.color": PALETTE["grid"], "grid.linewidth": 0.7,
     "axes.edgecolor": PALETTE["ink"], "axes.labelcolor": PALETTE["ink"],
@@ -70,11 +70,11 @@ def add_tcja_marker(ax, label=True, va="top", y=0.99):
     """Single labelled vertical dashed line at 2017 ("Tax Cuts and Jobs Act"),
     per the house style guide — the one policy marker used on the over-time
     figures. Drawn behind the data; label spelled out in full, no abbreviation."""
-    ax.axvline(2017, color=TCJA_GREY, linestyle="--", linewidth=1.2, zorder=0)
+    ax.axvline(2017, color=TCJA_GREY, linestyle="--", linewidth=2.0, zorder=1)
     if label:
         ax.annotate("Tax Cuts and Jobs Act", xy=(2017, y), xycoords=("data", "axes fraction"),
-                    xytext=(4, 0), textcoords="offset points",
-                    ha="left", va=va, fontsize=8, color=TCJA_GREY)
+                    xytext=(5, 0), textcoords="offset points",
+                    ha="left", va=va, fontsize=10.5, fontweight="bold", color=TCJA_GREY)
 
 
 SUBTITLE_BLUE = "#2e7d9e"   # teal-blue subtitle, matching the TCJA-folder figures
@@ -3800,13 +3800,13 @@ else:
     hs_years = share["year"].tolist()
 
     # Real-activity factors only — the reported-profit line is intentionally
-    # excluded from this figure (it is kept in the CSV for the combined chart).
+    # excluded from this figure (kept in the CSV for the combined chart), and so
+    # is tangible assets (per request, to keep the chart uncluttered).
     # The Left palette, hero red first (see figure_style_guide.md); all solid.
     styles = {
-        "Employees":       (PALETTE["red"], "-", 2.4),
-        "Tangible assets": (PALETTE["navy"], "-", 2.4),
-        "Payroll":         (PALETTE["teal"], "-", 2.4),
-        "Sales":           (PALETTE["slate"], "-", 2.4),
+        "Employees": (PALETTE["red"], "-", 2.4),
+        "Payroll":   (PALETTE["teal"], "-", 2.4),
+        "Sales":     (PALETTE["slate"], "-", 2.4),
     }
     fig, ax = plt.subplots(figsize=(12, 7))
     for name, (color, ls, lw) in styles.items():
@@ -3815,25 +3815,22 @@ else:
         last = share[name].iloc[-1]
         ax.annotate(f"{last:.0f}%", (hs_years[-1], last), textcoords="offset points",
                     xytext=(6, 0), fontsize=8, color=color, va="center")
-    # Axis fitted tightly to the data so the change in real activity is legible
-    # (non-zero start is fine per the house style); pad ≈15% of the spread.
-    _hsv = share[list(styles)].to_numpy(dtype=float)
-    _lo, _hi = np.nanmin(_hsv), np.nanmax(_hsv)
-    _pad = max(0.5, (_hi - _lo) * 0.15)
-    ax.set_ylim(max(0, np.floor(_lo - _pad)), min(100, np.ceil(_hi + _pad)))
+    # Y-axis from 0 so the shares are read against the full 0–100% range.
+    _hi = np.nanmax(share[list(styles)].to_numpy(dtype=float))
+    ax.set_ylim(0, min(100, np.ceil((_hi + 3) / 5) * 5))
     add_tcja_marker(ax)
     ax.set_xlabel("Year")
     ax.set_ylabel(f"{HOME_LABEL} share of {HOME_LABEL}-MNE worldwide total, %")
     ax.set_xticks(hs_years)
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
     house_style(ax, f"{HOME_LABEL} multinationals keep their real activity at home",
-                f"{HOME_LABEL} share of {HOME_LABEL}-MNE worldwide employees, assets, payroll & sales, "
+                f"{HOME_LABEL} share of {HOME_LABEL}-MNE worldwide employees, payroll & sales, "
                 f"{min(hs_years)}–{max(hs_years)}")
     ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=9, frameon=False)
     fig.text(0.01, -0.02,
-             f"Note: Each line is the {HOME_LABEL} home region's share of {HOME_LABEL}-MNE worldwide employees, "
-             "tangible assets, payroll and sales — the real economic activity. The 2017 line marks the Tax Cuts and "
-             "Jobs Act. Y-axis fitted to the data; factors clipped at 0. Baseline disaggregated CbCR.",
+             f"Each line is the {HOME_LABEL} home region's share of {HOME_LABEL} multinationals' worldwide "
+             "employees, payroll and sales — their real economic activity. The 2017 line marks the Tax Cuts and "
+             "Jobs Act. Shares clipped at 0. Based on OECD country-by-country data.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _hs_path = OUTPUT_FIGURES / f"home_share_activity_vs_profit_{min(hs_years)}_{max(hs_years)}.png"
