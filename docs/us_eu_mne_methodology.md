@@ -223,5 +223,15 @@ with a collision-proof prefix: `usa_` / `eu27_` (inf) and `usa_etr15_` /
 - **2021** is anomalous for US MNEs (profit surge + repatriation): US profit
   share spikes to 72%, and the US is a profit *destination* only in 2021 (a net
   origin every other year).
-- **Currency.** Model is USD; German debt is EUR — converted at a flat
-  `USD_PER_EUR=1.10` for the Kommunen contrast (scale only).
+- **Currency — real 2022 EUR.** All monetary figures and tables are expressed
+  in **real 2022 euros**. At load (`load_input_samples`) each row's profit and
+  tax columns are converted from nominal USD-of-the-reporting-year to 2022 EUR
+  by `USD_TO_EUR2022[year] = (1 / FX_year) × (HICP_2022 / HICP_year)`, using ECB
+  annual average EUR/USD rates and the euro-area HICP (Eurostat, 2015=100). The
+  deflation is applied **per year before any aggregation**, so cumulative
+  2016–2022 sums are correctly in 2022 prices. ETRs and economic-activity shares
+  are ratios and are unaffected. Note this is *below* the nominal-USD figure
+  (e.g. EU tax loss to US MNEs: €82bn vs $86bn nominal): the USD→EUR step shrinks
+  the number by more than euro-area inflation since 2016–21 lifts it. The German
+  Kommunen/Länder benchmarks (KfW backlogs, Destatis debt) are recent nominal
+  euro figures treated as ≈2022 euros.

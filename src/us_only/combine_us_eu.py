@@ -107,7 +107,10 @@ KOMMUNEN_DEBT_EUR_BN = 154.6      # Destatis end-2023, core municipal budgets
 # Municipal investment backlog (Investitionsrückstand), KfW Kommunalpanel:
 DAYCARE_BACKLOG_EUR_BN = 10.5     # childcare/Kitas (2021; ~11.2bn in 2024)
 SCHOOL_BACKLOG_EUR_BN = 67.8      # school buildings (2025 panel)
-USD_PER_EUR = 1.10
+# The per-group estimate runs already express all monetary values in real 2022
+# EUR (deflated at load), so the figures read here are euros — no FX conversion
+# (USD_PER_EUR kept as 1.0 for the existing divisions).
+USD_PER_EUR = 1.0
 
 EU27 = {
     "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", "FRA",
@@ -193,7 +196,7 @@ def main():
             axes[1].bar(x + off, gi[pct].to_numpy(), w,
                         label=f"{label} MNEs", color=COLORS[label], edgecolor="white")
         axes[0].set_title(title_abs)
-        axes[0].set_ylabel("Profit shifted, USD bn")
+        axes[0].set_ylabel("Profit shifted, 2022 EUR bn")
         axes[1].set_title("As a share of total profit")
         axes[1].set_ylabel("Profit shifted, % of total reported profit")
         for ax in axes:
@@ -314,7 +317,7 @@ def main():
                   else f"haven-only (ETR max = {float(_etr_env):.0%})")
         fig.text(0.01, -0.02,
                  f"Note: Bars = municipal (Kommunen) share of Germany's modelled corporate-tax loss to US/EU MNEs, "
-                 f"cumulative {min(years)}–{max(years)}, USD→EUR at {USD_PER_EUR}; basis: {_basis}. The ≈€"
+                 f"cumulative {min(years)}–{max(years)}, in real 2022 euros;basis: {_basis}. The ≈€"
                  f"{muni_eur.get('US', 0):.0f}bn lost to US MNEs alone ≈ the entire national daycare (Kita) investment "
                  f"backlog (€{DAYCARE_BACKLOG_EUR_BN:.1f}bn, KfW Kommunalpanel). For context, total municipal debt is "
                  f"€{KOMMUNEN_DEBT_EUR_BN:.0f}bn (Destatis end-2023). Baseline disaggregated CbCR.",
@@ -346,7 +349,7 @@ def main():
             ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
             fig.text(0.01, -0.02,
                      f"Note: Municipal (Kommunen) share of Germany's modelled corporate-tax loss to ALL "
-                     f"multinationals (any HQ), cumulative {min(years)}–{max(years)}, USD→EUR at {USD_PER_EUR}; "
+                     f"multinationals (any HQ), cumulative {min(years)}–{max(years)}, in real 2022 euros;"
                      f"basis: {_basis}. Total municipal debt = Destatis core municipal budgets (Kernhaushalte), "
                      "end-2023. Baseline disaggregated CbCR.",
                      ha="left", va="top", fontsize=9, wrap=True)
