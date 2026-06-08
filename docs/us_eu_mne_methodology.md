@@ -110,6 +110,16 @@ quantity, read in status-quo terms.
 - **Tax loss over time** (`eu_tax_loss_cumulative*`) — the EU tax-revenue loss
   just aggregated over time: per-year bars + cumulative running-total line, with
   the 2022 cumulative total in the title and the TCJA marker.
+- **EU loss by headquarters** (`eu_loss_by_hq*`, `eu_loss_us_share*`) —
+  **GLOBAL run only.** Decomposes profit shifted *out of* EU-27 countries by the
+  **parent (HQ) jurisdiction** of the MNEs causing it (each EU partner's negative
+  misalignment, attributed to the parent group; CbCR is aggregated by parent
+  country, so HQ-jurisdiction level, not individual firms). `eu_loss_by_hq` ranks
+  the top-15 HQs (US highlighted); `eu_loss_us_share` stacks US-HQ vs all other
+  HQs per year with the US fraction labelled. On CCCTB/∞ the **US is the single
+  largest HQ but only ≈15%** of the all-HQ total (Belgium a close #2); the US
+  share peaks in 2021 (≈30%, TCJA repatriation). Table: `eu_loss_by_hq.csv`
+  (parent, profit shifted, tax loss, share).
 - **Germany by government level** (`germany_tax_loss_by_level*`) — see below.
 - **Kommunen loss vs daycare** (`germany_kommunen_loss_vs_daycare*`) and **Länder
   loss vs schools** (`germany_laender_loss_vs_schools*`) — per-level benchmark

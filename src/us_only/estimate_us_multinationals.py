@@ -4112,6 +4112,109 @@ else:
           + " | ".join(f"{_n}: {eus[_n].iloc[-1]:.0f}%" for _n in _fcols.values()))
 
 
+# %% [10d] Which HQ jurisdictions cause the most EU losses (GLOBAL run only).
+# Decomposes profit shifted OUT of EU-27 countries by the PARENT (headquarter)
+# jurisdiction of the MNEs causing it = each EU partner's negative misalignment,
+# attributed to the parent group. CbCR is aggregated by parent country, so this
+# is HQ-jurisdiction level (not individual firms). Only meaningful on the GLOBAL
+# run where all parents are present; skipped for the US/EU single-group runs.
+if not PARENT_SET:
+    _hq_src = run_summary.loc[
+        (run_summary["formula_name"] == FIG_FORMULA)
+        & (run_summary["rate_mode"] == "loss_cit_gain_etr")
+    ]
+    if _hq_src.empty:
+        print("\n[EU loss by HQ] no run; skipping.")
+    else:
+        _hqm = pd.read_csv(_longpath(_hq_src.iloc[0]["misalignment_file"]))
+        _hqm["year"] = pd.to_numeric(_hqm["year"], errors="coerce")
+        _hqm["m"] = pd.to_numeric(_hqm["misaligned_profit"], errors="coerce")
+        _hqeu = _hqm[_hqm["iso_partner"].isin(EU27)].copy()
+        _hqeu["shifted_bn"] = np.where(_hqeu["m"] < 0, -_hqeu["m"], 0.0) / 1e9
+        if "tax_revenue_loss_suffered_musd_row" in _hqeu.columns:
+            _hqeu["taxloss_bn"] = pd.to_numeric(
+                _hqeu["tax_revenue_loss_suffered_musd_row"], errors="coerce").fillna(0.0) / 1000.0
+        else:
+            _hqeu["taxloss_bn"] = np.nan
+        _hq_years = sorted(int(y) for y in _hqeu["year"].dropna().unique())
+        by_hq = (_hqeu.groupby("iso_parent", as_index=False)
+                 .agg(shifted_bn=("shifted_bn", "sum"), taxloss_bn=("taxloss_bn", "sum"))
+                 .sort_values("shifted_bn", ascending=False).reset_index(drop=True))
+        _grand = by_hq["shifted_bn"].sum()
+        by_hq["share_pct"] = 100 * by_hq["shifted_bn"] / _grand if _grand else np.nan
+        by_hq.to_csv(OUTPUT_TABLES / "eu_loss_by_hq.csv", index=False)
+        _us_share = (float(by_hq.loc[by_hq["iso_parent"] == "USA", "share_pct"].iloc[0])
+                     if "USA" in by_hq["iso_parent"].values else 0.0)
+        _us_rank = (int(by_hq.index[by_hq["iso_parent"] == "USA"][0]) + 1
+                    if "USA" in by_hq["iso_parent"].values else -1)
+
+        # --- Figure A: ranking of HQ jurisdictions causing EU losses ---
+        _topn = by_hq.head(15).iloc[::-1]
+        fig, ax = plt.subplots(figsize=(10, 7))
+        _cols = [PALETTE["red"] if iso == "USA" else PALETTE["navy"] for iso in _topn["iso_parent"]]
+        ax.barh(_topn["iso_parent"], _topn["shifted_bn"], color=_cols, edgecolor="white")
+        for yi, (v, iso, sh) in enumerate(zip(_topn["shifted_bn"], _topn["iso_parent"], _topn["share_pct"])):
+            ax.annotate(f"${v:,.0f}bn ({sh:.0f}%)", (v, yi), textcoords="offset points", xytext=(4, 0),
+                        va="center", fontsize=8, color=PALETTE["red"] if iso == "USA" else PALETTE["ink"])
+        ax.set_xlabel(f"Profit shifted out of EU-27, USD bn (cumulative {min(_hq_years)}–{max(_hq_years)})")
+        ax.set_title("Which headquarters cause the most profit shifting out of the EU\n"
+                     f"By parent (HQ) jurisdiction — US ranks #{_us_rank} at {_us_share:.0f}% of the all-HQ total, "
+                     f"cumulative {min(_hq_years)}–{max(_hq_years)}", fontsize=12)
+        ax.grid(True, axis="x", linewidth=0.3, alpha=0.5)
+        ax.margins(x=0.16)
+        fig.text(0.01, -0.02,
+                 f"Note: Each bar = profit a unitary ({FIG_FORMULA_DESC}) split would assign to EU-27 countries but "
+                 "that MNEs headquartered in this jurisdiction book elsewhere (their EU-partner negative misalignment), "
+                 "cumulative. CbCR is aggregated by parent country, so this is HQ-jurisdiction level, not individual "
+                 f"firms. The US (red) is the single largest individual HQ but only ~{_us_share:.0f}% of the total — "
+                 "most EU loss is caused by the many other headquarters combined. Baseline disaggregated CbCR.",
+                 ha="left", va="top", fontsize=9, wrap=True)
+        plt.tight_layout()
+        _hqa = OUTPUT_FIGURES / f"eu_loss_by_hq_{min(_hq_years)}_{max(_hq_years)}.png"
+        plt.savefig(_longpath(_hqa), dpi=300, bbox_inches="tight")
+        plt.close()
+
+        # --- Figure B: US-caused EU loss as a fraction of all EU loss, over time ---
+        _byyr = (_hqeu.assign(grp=np.where(_hqeu["iso_parent"] == "USA", "US", "ROW"))
+                 .groupby(["year", "grp"])["shifted_bn"].sum().unstack("grp").reindex(_hq_years).fillna(0.0))
+        for _c in ("US", "ROW"):
+            if _c not in _byyr.columns:
+                _byyr[_c] = 0.0
+        _tot_yr = _byyr["US"] + _byyr["ROW"]
+        fig, ax = plt.subplots(figsize=(11, 6.5))
+        ax.bar(_hq_years, _byyr["US"].to_numpy(), color=PALETTE["red"], edgecolor="white",
+               label="US-headquartered MNEs")
+        ax.bar(_hq_years, _byyr["ROW"].to_numpy(), bottom=_byyr["US"].to_numpy(),
+               color=PALETTE["slate"], edgecolor="white", label="All other headquarters")
+        for i, y in enumerate(_hq_years):
+            if _tot_yr.iloc[i] > 0:
+                ax.annotate(f"US {100 * _byyr['US'].iloc[i] / _tot_yr.iloc[i]:.0f}%",
+                            (y, _tot_yr.iloc[i]), textcoords="offset points", xytext=(0, 3),
+                            ha="center", fontsize=8, color=PALETTE["red"], fontweight="bold")
+        add_tcja_marker(ax)
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Profit shifted out of EU-27, USD bn")
+        ax.set_xticks(_hq_years)
+        ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+        ax.set_title("How much of the EU's lost profit is caused by US multinationals\n"
+                     f"US-HQ vs all other headquarters — US = {_us_share:.0f}% cumulative, "
+                     f"{min(_hq_years)}–{max(_hq_years)}", fontsize=12)
+        ax.legend(loc="upper left", fontsize=9, frameon=False)
+        fig.text(0.01, -0.02,
+                 "Note: Bars = profit shifted out of EU-27 countries each year (profit a unitary "
+                 f"({FIG_FORMULA_DESC}) split assigns to EU-27 but is booked elsewhere), split by whether the MNE's "
+                 "HQ is the US (red) or any other jurisdiction (slate); label = US share of that year's total. The "
+                 "2017 line marks the Tax Cuts and Jobs Act. Baseline disaggregated CbCR.",
+                 ha="left", va="top", fontsize=9, wrap=True)
+        plt.tight_layout()
+        _hqb = OUTPUT_FIGURES / f"eu_loss_us_share_{min(_hq_years)}_{max(_hq_years)}.png"
+        plt.savefig(_longpath(_hqb), dpi=300, bbox_inches="tight")
+        plt.close()
+        print(f"\n[EU loss by HQ] saved {_hqa.name}, {_hqb.name} | US #{_us_rank} ({_us_share:.1f}%) | top: "
+              + ", ".join(f"{r.iso_parent} ${r.shifted_bn:,.0f}bn"
+                          for r in by_hq.head(5).itertuples(index=False)))
+
+
 # %% [11] Mirror outputs to the TJN shared project folder.
 # Copies this run's output/<topic>/ tree (figures + small summary tables) to the
 # "2605 The quiet tax war" shared folder so colleagues see it without the repo.
