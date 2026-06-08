@@ -70,27 +70,28 @@ def add_tcja_marker(ax, label=True, va="top", y=0.99):
     """Single labelled vertical dashed line at 2017 ("Tax Cuts and Jobs Act"),
     per the house style guide — the one policy marker used on the over-time
     figures. Drawn behind the data; label spelled out in full, no abbreviation."""
-    ax.axvline(2017, color=TCJA_GREY, linestyle="--", linewidth=2.0, zorder=1)
+    ax.axvline(2017, color="#9aa3b2", linestyle=(0, (5, 3)), linewidth=1.2, zorder=1)
     if label:
-        ax.annotate("Tax Cuts and Jobs Act", xy=(2017, y), xycoords=("data", "axes fraction"),
-                    xytext=(5, 0), textcoords="offset points",
-                    ha="left", va=va, fontsize=10.5, fontweight="bold", color=TCJA_GREY)
+        ax.text(2017, 0.975, "  Tax Cuts and Jobs Act", transform=ax.get_xaxis_transform(),
+                color="#666666", fontsize=12, va="top", ha="left")
 
 
-SUBTITLE_BLUE = "#2e7d9e"   # teal-blue subtitle, matching the TCJA-folder figures
+SUBTITLE_BLUE = "#5c7090"   # slate subtitle, matching the TCJA-folder figures (5_figures_python.py)
 
 
-def house_style(ax, title, subtitle=None, title_size=16, sub_size=12):
+def house_style(ax, title, subtitle=None, title_size=20, sub_size=14):
     """Apply the report's polished house style (see 4_docs/figure_style_guide.md
     §7 and the TCJA-folder Python figures): left-aligned **bold** title with a
     teal-blue subtitle above the axes, and top/right spines removed for the open
     'magazine' look. Replaces a centred ax.set_title."""
+    import textwrap
     ax.spines[["top", "right"]].set_visible(False)
-    ax.text(0.0, 1.13 if subtitle else 1.04, title, transform=ax.transAxes,
-            fontsize=title_size, fontweight="bold", color=PALETTE["ink"], va="bottom", ha="left")
+    ax.text(0.0, 1.14 if subtitle else 1.04, "\n".join(textwrap.wrap(title, 52)),
+            transform=ax.transAxes, fontsize=title_size, fontweight="bold",
+            color=PALETTE["ink"], va="bottom", ha="left", linespacing=1.1)
     if subtitle:
-        ax.text(0.0, 1.03, subtitle, transform=ax.transAxes, fontsize=sub_size,
-                color=SUBTITLE_BLUE, va="bottom", ha="left")
+        ax.text(0.0, 1.03, "\n".join(textwrap.wrap(subtitle, 95)), transform=ax.transAxes,
+                fontsize=sub_size, color=SUBTITLE_BLUE, va="bottom", ha="left", linespacing=1.2)
 
 pd.set_option("display.max_columns", None)
 pd.options.display.float_format = "{:,.2f}".format
@@ -2416,7 +2417,7 @@ def make_two_panel_figure(
     axes[1].tick_params(axis="x", rotation=25)
     axes[1].legend(title="Formula", bbox_to_anchor=(1.02, 1), loc="upper left")
 
-    fig.suptitle(f"Figure {figure_no}. {title}", fontsize=14)
+    fig.suptitle(f"Figure {figure_no}. {title}", fontsize=18, fontweight="bold")
     fig.text(0.01, -0.05, caption, ha="left", va="top", fontsize=10, wrap=True)
 
     plt.tight_layout()
@@ -2695,7 +2696,7 @@ else:
             "with LESS, because profit earned there is booked in the havens instead. Each country is placed in one "
             f"group by its total over the whole period{_excl_txt}. Based on OECD country-by-country data; "
             f"{HOME_LABEL} multinationals only.",
-            ha="left", va="top", fontsize=9, wrap=True,
+            ha="left", va="top", fontsize=11, color="#666666", wrap=True,
         )
         plt.tight_layout()
         p = OUTPUT_FIGURES / (
@@ -2801,7 +2802,7 @@ def _build_eu_lines_for_formula(formula_name, file_suffix, formula_desc, title_s
                  f"({formula_desc}) split would ADD to these EU countries; positive (losers) = profit they would "
                  f"LOSE. Group membership fixed by cumulative net misalignment over the period{et}. Baseline "
                  "disaggregated CbCR; " + HOME_LABEL + " parents only.",
-                 ha="left", va="top", fontsize=9, wrap=True)
+                 ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out = OUTPUT_FIGURES / f"eu_net_misalignment_aggregated{file_suffix}{suffix}_{min(years)}_{max(years)}.png"
         plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
@@ -3171,7 +3172,7 @@ def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15, i
              f"of smaller destinations is left out). Each bar is coloured by the effective tax rate {HOME_LABEL} "
              "multinationals actually pay in that place. Based on OECD country-by-country "
              f"data; {HOME_LABEL} multinationals only.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     out = OUTPUT_FIGURES / f"eu_missing_profit_shares{file_suffix}_{min(years)}_{max(years)}.png"
     plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
@@ -3214,7 +3215,7 @@ def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15, i
              "share of the profit missing from the EU that year. The tax rate shown is the average effective rate "
              f"companies pay there over the period. Based on OECD country-by-country data; {HOME_LABEL} "
              "multinationals only.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     out2 = OUTPUT_FIGURES / f"eu_missing_profit_shares_yearly{file_suffix}_{min(years)}_{max(years)}.png"
     plt.savefig(_longpath(out2), dpi=300, bbox_inches="tight")
@@ -3376,7 +3377,7 @@ else:
              "difference between up and down is EU profit that leaves the EU altogether. The tax rate shown is the "
              "average effective rate paid in each haven. Based on OECD country-by-country data; "
              + HOME_LABEL + " multinationals only.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _f1 = OUTPUT_FIGURES / f"eu_profit_shifting_gap_{min(ps_years)}_{max(ps_years)}.png"
     plt.savefig(_longpath(_f1), dpi=300, bbox_inches="tight")
@@ -3418,7 +3419,7 @@ else:
              "on the left only because big 2021 book losses tip their multi-year total negative — their very low tax "
              "rates show they are really havens. Bubble size grows with the amount of profit involved. Based on OECD "
              f"country-by-country data; {HOME_LABEL} multinationals only.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _f2 = OUTPUT_FIGURES / f"eu_profit_vs_etr_scatter_{min(ps_years)}_{max(ps_years)}.png"
     plt.savefig(_longpath(_f2), dpi=300, bbox_inches="tight")
@@ -3491,7 +3492,7 @@ if "ps" in globals():
              "from one EU country into another, lower-tax EU country; bars going DOWN = all profit a fair "
              "activity-based formula would give EU countries but that companies book elsewhere in the world. Based on "
              "OECD country-by-country data; " + HOME_LABEL + " multinationals only.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _f1b = OUTPUT_FIGURES / f"eu_profit_shifting_gap_excl_LUX_MLT_{min(yrs)}_{max(yrs)}.png"
     plt.savefig(_longpath(_f1b), dpi=300, bbox_inches="tight")
@@ -3581,7 +3582,7 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
                  "(shifted IN); 'shifted out' = profit generated locally but booked elsewhere. A few low-ETR havens "
                  "absorb the over-reported profit while many EU countries are drained. ETR = period mean of the "
                  "5-year-rolling partner ETR. Baseline disaggregated CbCR; " + HOME_LABEL + " parents only.",
-                 ha="left", va="top", fontsize=9, wrap=True)
+                 ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out = OUTPUT_FIGURES / f"eu_profit_shifting_gap{file_suffix}{suffix}_{min(yrs)}_{max(yrs)}.png"
         plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
@@ -3618,7 +3619,7 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
                  "Note: x = cumulative net misalignment (reported − formulary-implied profit); right = shifted IN "
                  "(haven), left = shifted OUT (victim). y = ETR US MNEs actually pay. Havens cluster at low ETR. "
                  "Bubble size ∝ √|net misalignment|. Baseline disaggregated CbCR; " + HOME_LABEL + " parents only.",
-                 ha="left", va="top", fontsize=9, wrap=True)
+                 ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out = OUTPUT_FIGURES / f"eu_profit_vs_etr_scatter{file_suffix}{suffix}_{min(years)}_{max(years)}.png"
         plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
@@ -3738,7 +3739,7 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
                  "not counted). Because havens tax this profit so lightly, the tax they gain is far smaller than the "
                  f"tax the drained countries lose. Based on OECD country-by-country data; {HOME_LABEL} "
                  "multinationals only.",
-                 ha="left", va="top", fontsize=9, wrap=True)
+                 ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out = OUTPUT_FIGURES / f"eu_tax_revenue_gap{file_suffix}{suffix}_{min(yrs)}_{max(yrs)}.png"
         plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
@@ -3834,7 +3835,7 @@ else:
              f"Each line is the {HOME_LABEL} home region's share of {HOME_LABEL} multinationals' worldwide "
              "employees, payroll and sales — their real economic activity. The 2017 line marks the Tax Cuts and "
              "Jobs Act. Shares clipped at 0. Based on OECD country-by-country data.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _hs_path = OUTPUT_FIGURES / f"home_share_activity_vs_profit_{min(hs_years)}_{max(hs_years)}.png"
     plt.savefig(_longpath(_hs_path), dpi=300, bbox_inches="tight")
@@ -3898,7 +3899,7 @@ else:
              "tied to US tax-reform repatriation): in that year the formula would assign them more profit than is "
              "actually booked there, so they look 'drained'. Their very low effective tax rates show they are really "
              f"low-tax havens, not victims. Based on OECD country-by-country data; {HOME_LABEL} multinationals only.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _tl_path = OUTPUT_FIGURES / f"eu_country_tax_loss_{min(tl_years)}_{max(tl_years)}.png"
     plt.savefig(_longpath(_tl_path), dpi=300, bbox_inches="tight")
@@ -3928,7 +3929,7 @@ else:
              f"the profit a fair activity-based formula ({FIG_FORMULA_DESC}) would give them but that is booked "
              "elsewhere, multiplied by each country's headline corporate tax rate. The line is the running total "
              f"since the first year. Based on OECD country-by-country data; {HOME_LABEL} multinationals only.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _tlc_path = OUTPUT_FIGURES / f"eu_tax_loss_cumulative_{min(tl_years)}_{max(tl_years)}.png"
     plt.savefig(_longpath(_tlc_path), dpi=300, bbox_inches="tight")
@@ -4036,7 +4037,7 @@ else:
              f"out to about {_shares_txt}. The share of the trade tax passed upward is taken year by year from "
              f"{_uf_src}. Each bar is one year's loss; the figure above it is that year's total. Based on {HOME_LABEL} "
              "multinationals only; baseline country-by-country data.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _de_path = OUTPUT_FIGURES / f"germany_tax_loss_by_level_{min(de_years)}_{max(de_years)}.png"
     plt.savefig(_longpath(_de_path), dpi=300, bbox_inches="tight")
@@ -4063,7 +4064,7 @@ else:
              "Germany's combined corporate tax rate is shared between them (the split method is explained on the "
              "year-by-year figure). Municipalities (Kommunen) lose the largest share because they collect the local "
              f"trade tax. Based on {HOME_LABEL} multinationals only.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _dec_path = OUTPUT_FIGURES / f"germany_tax_loss_by_level_cumulative_{min(de_years)}_{max(de_years)}.png"
     plt.savefig(_longpath(_dec_path), dpi=300, bbox_inches="tight")
@@ -4131,7 +4132,7 @@ else:
                  f"{min(de_years)}–{max(de_years)} — about {100 * _muni_eur / _DAYCARE:.0f}% of the size of the "
                  "daycare backlog. The blue bar is the investment German municipalities still need to make in daycare "
                  "and nurseries (KfW Kommunalpanel survey). All amounts are in real 2022 euros.")
-    fig.text(0.01, -0.02, _note, ha="left", va="top", fontsize=9, wrap=True)
+    fig.text(0.01, -0.02, _note, ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _km_path = OUTPUT_FIGURES / f"germany_kommunen_loss_vs_daycare_{min(de_years)}_{max(de_years)}.png"
     plt.savefig(_longpath(_km_path), dpi=300, bbox_inches="tight")
@@ -4184,7 +4185,7 @@ else:
                   f"{min(de_years)}–{max(de_years)} — about {100 * _laender_eur / _SCHOOL:.0f}% of the size of the "
                   "school-building backlog. The blue bar is the investment German schools still need (KfW "
                   "Kommunalpanel survey). All amounts are in real 2022 euros.")
-    fig.text(0.01, -0.02, _lnote, ha="left", va="top", fontsize=9, wrap=True)
+    fig.text(0.01, -0.02, _lnote, ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _ld_path = OUTPUT_FIGURES / f"germany_laender_loss_vs_schools_{min(de_years)}_{max(de_years)}.png"
     plt.savefig(_longpath(_ld_path), dpi=300, bbox_inches="tight")
@@ -4239,7 +4240,7 @@ else:
         _ax.spines[["top", "right"]].set_visible(False)
     axes[0].set_ylabel("2022 EUR bn")
     fig.suptitle(f"What each level of German government loses to {HOME_LABEL} multinationals — "
-                 "and the investment it could fund", fontsize=14, fontweight="bold",
+                 "and the investment it could fund", fontsize=18, fontweight="bold",
                  x=0.012, ha="left", color=PALETTE["ink"])
     fig.text(0.01, -0.02,
              f"Each panel is one level of German government. The red bar is the corporate tax it loses to {HOME_LABEL} "
@@ -4248,7 +4249,7 @@ else:
              "responsible for — school buildings for the states, daycare for municipalities (KfW Kommunalpanel); the "
              "federal government has no comparable single backlog. Each panel has its own scale. All amounts in real "
              "2022 euros; based on OECD country-by-country data.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _lvN_path = OUTPUT_FIGURES / f"germany_levels_vs_needs_{min(de_years)}_{max(de_years)}.png"
     plt.savefig(_longpath(_lvN_path), dpi=300, bbox_inches="tight")
@@ -4316,7 +4317,7 @@ else:
              f"Note: Each line = the EU-27's share of {HOME_LABEL}-MNE worldwide employees, tangible assets, "
              "payroll and sales — the real economic activity. The 2017 line marks the Tax Cuts and Jobs Act. "
              "Y-axis fitted to the data; factors clipped at 0. Baseline disaggregated CbCR.",
-             ha="left", va="top", fontsize=9, wrap=True)
+             ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _eus_path = OUTPUT_FIGURES / f"eu_share_activity_{min(_eyrs)}_{max(_eyrs)}.png"
     plt.savefig(_longpath(_eus_path), dpi=300, bbox_inches="tight")
@@ -4424,7 +4425,7 @@ if not PARENT_SET:
                  "data identify a company's headquarters country, not the individual firm. Each HQ's own home country "
                  "is left out so the comparison is like-for-like (the US, with a non-EU home, is unaffected and is the "
                  "clear #1)." + _flag_txt + " Based on OECD country-by-country data.",
-                 ha="left", va="top", fontsize=9, wrap=True)
+                 ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         _hqa = OUTPUT_FIGURES / f"eu_loss_by_hq_{min(_hq_years)}_{max(_hq_years)}.png"
         plt.savefig(_longpath(_hqa), dpi=300, bbox_inches="tight")
@@ -4462,7 +4463,7 @@ if not PARENT_SET:
                  "year's total. It leaves out each headquarters' own home country, so the comparison is like-for-like. "
                  "The US share jumps in 2021, reflecting one-off profit repatriation by US firms after the 2017 US tax "
                  "reform (discussed in the report text). Based on OECD country-by-country data.",
-                 ha="left", va="top", fontsize=9, wrap=True)
+                 ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         _hqb = OUTPUT_FIGURES / f"eu_loss_us_share_{min(_hq_years)}_{max(_hq_years)}.png"
         plt.savefig(_longpath(_hqb), dpi=300, bbox_inches="tight")

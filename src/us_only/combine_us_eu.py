@@ -38,27 +38,28 @@ TCJA_GREY = "#6f6f6f"
 
 
 def add_tcja_marker(ax, xpos=2017, label=True):
-    """Vertical dashed 2017 'Tax Cuts and Jobs Act' marker (house style)."""
-    ax.axvline(xpos, color=TCJA_GREY, linestyle="--", linewidth=2.0, zorder=1)
+    """Vertical dashed 2017 'Tax Cuts and Jobs Act' marker, matching the
+    TCJA-folder figures (5_figures_python.py: REFLINE line, GREY 12pt label)."""
+    ax.axvline(xpos, color="#9aa3b2", linestyle=(0, (5, 3)), linewidth=1.2, zorder=1)
     if label:
-        ax.annotate("Tax Cuts and Jobs Act", xy=(xpos, 0.99),
-                    xycoords=("data", "axes fraction"), xytext=(5, 0),
-                    textcoords="offset points", ha="left", va="top",
-                    fontsize=10.5, fontweight="bold", color=TCJA_GREY)
+        ax.text(xpos, 0.975, "  Tax Cuts and Jobs Act", transform=ax.get_xaxis_transform(),
+                color="#666666", fontsize=12, va="top", ha="left")
 
 
-SUBTITLE_BLUE = "#2e7d9e"
+SUBTITLE_BLUE = "#5c7090"
 
 
-def house_style(ax, title, subtitle=None, title_size=16, sub_size=12):
-    """Left-aligned bold title + teal-blue subtitle, top/right spines removed
+def house_style(ax, title, subtitle=None, title_size=20, sub_size=14):
+    """Left-aligned bold title + slate subtitle, top/right spines removed
     (see 4_docs/figure_style_guide.md §7)."""
+    import textwrap
     ax.spines[["top", "right"]].set_visible(False)
-    ax.text(0.0, 1.13 if subtitle else 1.04, title, transform=ax.transAxes,
-            fontsize=title_size, fontweight="bold", color=PALETTE["ink"], va="bottom", ha="left")
+    ax.text(0.0, 1.14 if subtitle else 1.04, "\n".join(textwrap.wrap(title, 52)),
+            transform=ax.transAxes, fontsize=title_size, fontweight="bold",
+            color=PALETTE["ink"], va="bottom", ha="left", linespacing=1.1)
     if subtitle:
-        ax.text(0.0, 1.03, subtitle, transform=ax.transAxes, fontsize=sub_size,
-                color=SUBTITLE_BLUE, va="bottom", ha="left")
+        ax.text(0.0, 1.03, "\n".join(textwrap.wrap(subtitle, 95)), transform=ax.transAxes,
+                fontsize=sub_size, color=SUBTITLE_BLUE, va="bottom", ha="left", linespacing=1.2)
 
 
 def fig_title(fig, axes, title, subtitle=None):
@@ -207,8 +208,8 @@ def main():
             ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
             ax.legend(frameon=False)
             ax.spines[["top", "right"]].set_visible(False)
-        fig.suptitle(suptitle, fontsize=15, fontweight="bold", x=0.012, ha="left", color=PALETTE["ink"])
-        fig.text(0.01, -0.02, note, ha="left", va="top", fontsize=9, wrap=True)
+        fig.suptitle(suptitle, fontsize=18, fontweight="bold", x=0.012, ha="left", color=PALETTE["ink"])
+        fig.text(0.01, -0.02, note, ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out = figures_dir / f"{fname}_{min(years)}_{max(years)}.png"
         plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
@@ -259,13 +260,13 @@ def main():
             ax.legend(frameon=False)
             ax.spines[["top", "right"]].set_visible(False)
         fig.suptitle("US vs EU multinationals: where activity sits vs where profit is booked, "
-                     f"{min(years)}–{max(years)}", fontsize=15, fontweight="bold",
+                     f"{min(years)}–{max(years)}", fontsize=18, fontweight="bold",
                      x=0.012, ha="left", color=PALETTE["ink"])
         fig.text(0.01, -0.02,
                  "Note: Home region = the group's parent jurisdiction(s) (USA; EU-27). Left = share of worldwide "
                  "employees located at home (real activity); right = share of worldwide profit booked at home. "
                  "Baseline disaggregated CbCR.",
-                 ha="left", va="top", fontsize=9, wrap=True)
+                 ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out_hs = figures_dir / f"combined_home_share_us_eu_{min(years)}_{max(years)}.png"
         plt.savefig(_longpath(out_hs), dpi=300, bbox_inches="tight")
@@ -323,7 +324,7 @@ def main():
                  f"(Kita) investment backlog (€{DAYCARE_BACKLOG_EUR_BN:.1f}bn, KfW Kommunalpanel). For context, total "
                  f"municipal debt is €{KOMMUNEN_DEBT_EUR_BN:.0f}bn (Destatis, end-2023). Amounts in real 2022 euros; "
                  "based on OECD country-by-country data.",
-                 ha="left", va="top", fontsize=9, wrap=True)
+                 ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out_k = figures_dir / f"germany_kommunen_loss_vs_needs_{min(years)}_{max(years)}.png"
         plt.savefig(_longpath(out_k), dpi=300, bbox_inches="tight")
@@ -354,7 +355,7 @@ def main():
                      f"ALL multinationals (any headquarters) over {min(years)}–{max(years)} ({_basis}). Total "
                      "municipal debt = German municipalities' core-budget debt (Destatis, end-2023). Amounts in real "
                      "2022 euros; based on OECD country-by-country data.",
-                     ha="left", va="top", fontsize=9, wrap=True)
+                     ha="left", va="top", fontsize=11, color="#666666", wrap=True)
             plt.tight_layout()
             out_kd = figures_dir / f"germany_kommunen_all_loss_vs_debt_{min(years)}_{max(years)}.png"
             plt.savefig(_longpath(out_kd), dpi=300, bbox_inches="tight")
