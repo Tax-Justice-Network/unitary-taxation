@@ -179,9 +179,10 @@ def main():
 
     # Two-panel comparison (absolute left, share of profit right), reused for
     # ALL activity and for profit shifted OUT OF the EU only.
-    _NOTE_BASE = (f"Baseline disaggregated CbCR, {FIG_FORMULA_DESC}. "
-                  "Share = ÷ total positive reported profit of the group. "
-                  "US = US-parented MNEs; EU = EU-27-parented MNEs.")
+    _NOTE_BASE = (f"Based on OECD country-by-country data and a fair activity-based formula ({FIG_FORMULA_DESC}). "
+                  "The share is measured against the group's total reported profit. "
+                  "US = US-headquartered multinationals; EU = EU-27-headquartered multinationals. "
+                  "All amounts are in real 2022 euros.")
 
     def _two_panel(metric, pct, title_abs, suptitle, note, fname):
         fig, axes = plt.subplots(1, 2, figsize=(16, 6.5))
@@ -219,15 +220,15 @@ def main():
         "shifted_bn", "shifted_pct_of_profit",
         "Total profit shifted (booked away from where earned)\nALL activity, any destination (incl. EU havens)",
         f"US vs EU multinationals: total profit shifting (all activity), {min(years)}–{max(years)}",
-        f"Note: 'Profit shifted' = total positive misalignment (profit booked beyond the {FIG_FORMULA_LABEL}-implied split), to "
-        "any destination. " + _NOTE_BASE,
+        "'Profit shifted' = all the profit companies book beyond what a fair activity-based formula would give "
+        "each country, sent to any destination (including EU havens). " + _NOTE_BASE,
         "combined_profit_shifted_us_eu")
     _two_panel(
         "eu_out_bn", "eu_out_pct_of_profit",
         "Profit shifted OUT OF the EU\n(generated in EU-27 countries, booked elsewhere)",
         f"US vs EU multinationals: profit shifted out of the EU, {min(years)}–{max(years)}",
-        f"Note: 'Shifted out of the EU' = sum over EU-27 partner countries of profit a {FIG_FORMULA_LABEL} split would assign them "
-        "but that is booked elsewhere (their negative misalignment). " + _NOTE_BASE,
+        "'Shifted out of the EU' = the profit a fair activity-based formula would give EU-27 countries but that "
+        "companies book elsewhere instead. " + _NOTE_BASE,
         "combined_profit_shifted_out_of_eu_us_eu")
     for label, g in data.items():
         print(f"  {label}: all-shifted {g['shifted_bn'].iloc[0]:,.0f}->{g['shifted_bn'].iloc[-1]:,.0f}bn | "
@@ -313,14 +314,15 @@ def main():
                     f"Municipal (Kommunen) tax lost vs the daycare investment backlog, "
                     f"cumulative {min(years)}–{max(years)}")
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
-        _basis = ("all misalignment (ETR max = ∞)" if ETR_TAG == "inf"
-                  else f"haven-only (ETR max = {float(_etr_env):.0%})")
+        _basis = ("counting all shifted profit, whatever the destination's tax rate" if ETR_TAG == "inf"
+                  else f"counting only profit shifted into low-tax havens (below {float(_etr_env):.0%})")
         fig.text(0.01, -0.02,
-                 f"Note: Bars = municipal (Kommunen) share of Germany's modelled corporate-tax loss to US/EU MNEs, "
-                 f"cumulative {min(years)}–{max(years)}, in real 2022 euros;basis: {_basis}. The ≈€"
-                 f"{muni_eur.get('US', 0):.0f}bn lost to US MNEs alone ≈ the entire national daycare (Kita) investment "
-                 f"backlog (€{DAYCARE_BACKLOG_EUR_BN:.1f}bn, KfW Kommunalpanel). For context, total municipal debt is "
-                 f"€{KOMMUNEN_DEBT_EUR_BN:.0f}bn (Destatis end-2023). Baseline disaggregated CbCR.",
+                 "Bars = the part of Germany's lost corporate tax that falls on municipalities (Kommunen), caused by "
+                 f"US and EU multinationals over {min(years)}–{max(years)} ({_basis}). The ≈€"
+                 f"{muni_eur.get('US', 0):.0f}bn lost to US firms alone is about the size of Germany's entire daycare "
+                 f"(Kita) investment backlog (€{DAYCARE_BACKLOG_EUR_BN:.1f}bn, KfW Kommunalpanel). For context, total "
+                 f"municipal debt is €{KOMMUNEN_DEBT_EUR_BN:.0f}bn (Destatis, end-2023). Amounts in real 2022 euros; "
+                 "based on OECD country-by-country data.",
                  ha="left", va="top", fontsize=9, wrap=True)
         plt.tight_layout()
         out_k = figures_dir / f"germany_kommunen_loss_vs_needs_{min(years)}_{max(years)}.png"
@@ -348,10 +350,10 @@ def main():
                         f"cumulative {min(years)}–{max(years)}")
             ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
             fig.text(0.01, -0.02,
-                     f"Note: Municipal (Kommunen) share of Germany's modelled corporate-tax loss to ALL "
-                     f"multinationals (any HQ), cumulative {min(years)}–{max(years)}, in real 2022 euros;"
-                     f"basis: {_basis}. Total municipal debt = Destatis core municipal budgets (Kernhaushalte), "
-                     "end-2023. Baseline disaggregated CbCR.",
+                     "The part of Germany's lost corporate tax that falls on municipalities (Kommunen), caused by "
+                     f"ALL multinationals (any headquarters) over {min(years)}–{max(years)} ({_basis}). Total "
+                     "municipal debt = German municipalities' core-budget debt (Destatis, end-2023). Amounts in real "
+                     "2022 euros; based on OECD country-by-country data.",
                      ha="left", va="top", fontsize=9, wrap=True)
             plt.tight_layout()
             out_kd = figures_dir / f"germany_kommunen_all_loss_vs_debt_{min(years)}_{max(years)}.png"

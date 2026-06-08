@@ -2640,8 +2640,12 @@ else:
     # group. Produced both for the full EU-27 and excluding Luxembourg (whose
     # −$87bn 2021 loss otherwise dominates the winners line).
     GROUP_META = {
-        "benefits_from_ut": ("Winners — benefit from UT (net negative)", "#28a186"),
-        "loses_under_ut":   ("Losers — lose under UT (net positive)", "#e42728"),
+        # Current-shifting framing (per the report): a country with net-positive
+        # misalignment holds MORE profit than its real activity warrants — a
+        # "winner"/haven; net-negative means profit earned there is booked
+        # elsewhere — a drained "loser". (Key names are historical.)
+        "benefits_from_ut": ("Losers — profit earned here is booked elsewhere", PALETTE["navy"]),
+        "loses_under_ut":   ("Winners — low-tax countries that receive shifted-in profit", PALETTE["red"]),
     }
 
     def _make_eu_group_lines(exclude=frozenset(), suffix="", title_extra=""):
@@ -2685,10 +2689,13 @@ else:
         _excl_txt = f" (EU-27 excl. {', '.join(sorted(exclude))})" if exclude else " (EU-27)"
         fig.text(
             0.01, -0.02,
-            "Note: Net misalignment summed within each group per year. Negative (winners) = profit a unitary "
-            f"({FIG_FORMULA_DESC}) split would ADD to these EU countries; positive (losers) = profit they "
-            f"would LOSE. Group membership fixed by cumulative net misalignment over the period{_excl_txt}. "
-            "Baseline disaggregated CbCR; " + HOME_LABEL + " parents only.",
+            "Each line adds up, across one set of EU countries, the gap between the profit companies actually book "
+            f"there and the profit a fair formula based on real business activity ({FIG_FORMULA_DESC}) would give them. "
+            "'Winners' (the red line, above zero) are low-tax countries left with MORE profit than their real activity "
+            "justifies — profit shifted in from elsewhere. 'Losers' (the blue line, below zero) are countries left "
+            "with LESS, because profit earned there is booked in the havens instead. Each country is placed in one "
+            f"group by its total over the whole period{_excl_txt}. Based on OECD country-by-country data; "
+            f"{HOME_LABEL} multinationals only.",
             ha="left", va="top", fontsize=9, wrap=True,
         )
         plt.tight_layout()
@@ -2710,8 +2717,8 @@ else:
     print(
         f"\n[EU figure] aggregated winners/losers lines saved:\n"
         f"  {_agg_all}\n  {_agg_excl}\n"
-        f"  Winners (net negative): {_n_benefit} EU countries | "
-        f"Losers (net positive): {_n_lose} EU countries\n"
+        f"  Winners (net positive, havens): {_n_lose} EU countries | "
+        f"Losers (net negative, drained): {_n_benefit} EU countries\n"
         f"  Data: eu_net_misalignment_by_year.csv + eu_net_misalignment_classification.csv"
     )
 
@@ -2757,8 +2764,12 @@ def _build_eu_lines_for_formula(formula_name, file_suffix, formula_desc, title_s
     )
     years = sorted(int(y) for y in panel["year"].dropna().unique())
     meta = {
-        "benefits_from_ut": ("Winners — benefit from UT (net negative)", "#28a186"),
-        "loses_under_ut":   ("Losers — lose under UT (net positive)", "#e42728"),
+        # Current-shifting framing (per the report): a country with net-positive
+        # misalignment holds MORE profit than its real activity warrants — a
+        # "winner"/haven; net-negative means profit earned there is booked
+        # elsewhere — a drained "loser". (Key names are historical.)
+        "benefits_from_ut": ("Losers — profit earned here is booked elsewhere", PALETTE["navy"]),
+        "loses_under_ut":   ("Winners — low-tax countries that receive shifted-in profit", PALETTE["red"]),
     }
 
     def _plot(exclude=frozenset(), suffix="", extra=""):
@@ -3154,11 +3165,12 @@ def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15):
     cb = fig.colorbar(sm, ax=ax, pad=0.02, fraction=0.045)
     cb.set_label(f"ETR {HOME_LABEL} MNEs pay there, % (period mean, 5yr-rolling)", fontsize=9)
     fig.text(0.01, -0.02,
-             f"Note: Top {top_n} destinations of profit a unitary ({FIG_FORMULA_DESC}) split would assign to EU "
-             f"countries but that {HOME_LABEL} MNEs book elsewhere (bilateral attribution, cumulative "
-             f"{min(years)}-{max(years)}); they cover {covered:.0f}% of all EU-missing profit (long tail omitted). "
-             f"Bars coloured by the ETR {HOME_LABEL} MNEs pay in each destination; '(EU)' = EU member. "
-             f"Baseline disaggregated CbCR; {HOME_LABEL} parents only.",
+             f"The {top_n} places where {HOME_LABEL} multinationals book the profit that — by a fair formula based on "
+             f"real business activity ({FIG_FORMULA_DESC}) — should be taxed in EU countries instead. Together they "
+             f"hold {covered:.0f}% of all the profit missing from the EU over {min(years)}–{max(years)} (a long tail "
+             f"of smaller destinations is left out). Each bar is coloured by the effective tax rate {HOME_LABEL} "
+             "multinationals actually pay in that place; '(EU)' marks EU members. Based on OECD country-by-country "
+             f"data; {HOME_LABEL} multinationals only.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     out = OUTPUT_FIGURES / f"eu_missing_profit_shares{file_suffix}_{min(years)}_{max(years)}.png"
@@ -3198,9 +3210,10 @@ def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15):
     ax.legend(title="Booked in (ETR = period mean)", ncol=1, fontsize=8,
               loc="center left", bbox_to_anchor=(1.005, 0.5))
     fig.text(0.01, -0.02,
-             "Note: Each bar is one year, normalised to 100% over the 10 largest cumulative destinations; a segment "
-             "is that destination's share of the top-10 EU-missing profit that year. ETR = period mean of the "
-             f"5yr-rolling partner ETR. Baseline disaggregated CbCR; {HOME_LABEL} parents only.",
+             "Each bar is one year, scaled to 100% across the 10 biggest destinations; a segment is that destination's "
+             "share of the profit missing from the EU that year. The tax rate shown is the average effective rate "
+             f"companies pay there over the period. Based on OECD country-by-country data; {HOME_LABEL} "
+             "multinationals only.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     out2 = OUTPUT_FIGURES / f"eu_missing_profit_shares_yearly{file_suffix}_{min(years)}_{max(years)}.png"
@@ -3353,11 +3366,12 @@ else:
     ax.legend(title="EU profit re-booked in (ETR = period mean)",
               ncol=2, fontsize=9, loc="upper left")
     fig.text(0.01, -0.02,
-             "Note: GAINS (up) count only profit shifted OUT OF EU countries and re-booked in EU havens (intra-EU, "
-             "via bilateral attribution) — not over-reporting sourced from the rest of the world. DOWN = profit a "
-             f"{FIG_FORMULA_LABEL} split would assign to EU countries but that is booked elsewhere (to any destination); the gap "
-             "between up and down is EU profit that leaves the EU entirely. ETR = period mean of the 5yr-rolling "
-             "partner ETR. Baseline disaggregated CbCR; " + HOME_LABEL + " parents only.",
+             "The bars going UP show profit shifted out of one EU country and re-booked in another, lower-tax EU "
+             "country (so it stays inside the EU). The bars going DOWN show all the profit a fair activity-based "
+             "formula would give EU countries but that companies book somewhere else — anywhere in the world. The "
+             "difference between up and down is EU profit that leaves the EU altogether. The tax rate shown is the "
+             "average effective rate paid in each haven. Based on OECD country-by-country data; "
+             + HOME_LABEL + " multinationals only.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _f1 = OUTPUT_FIGURES / f"eu_profit_shifting_gap_{min(ps_years)}_{max(ps_years)}.png"
@@ -3393,11 +3407,13 @@ else:
                label="Loser — profit generated here is shifted out"),
     ], loc="upper right", fontsize=9)
     fig.text(0.01, -0.02,
-             f"Note: x = cumulative (2016–2022) net misalignment (reported − {FIG_FORMULA_LABEL}-implied profit); "
-             "right = profit shifted IN (haven), left = shifted OUT (victim). y = ETR US MNEs actually pay there. "
-             "Havens cluster at low ETR. LUX and MLT sit on the left only because large 2021 book losses make their "
-             "cumulative net negative — their very low ETR shows they are havens too. Bubble size ∝ √|net misalignment|. "
-             "Baseline disaggregated CbCR; " + HOME_LABEL + " parents only.",
+             "Each bubble is an EU country. Left–right shows, over 2016–2022, how much more or less profit is booked "
+             "there than a fair activity-based formula would assign: to the RIGHT = extra profit shifted IN (a haven), "
+             f"to the LEFT = profit drained OUT (a victim). Up–down is the effective tax rate {HOME_LABEL} "
+             "multinationals actually pay there. Havens cluster at the bottom (low tax). Luxembourg and Malta appear "
+             "on the left only because big 2021 book losses tip their multi-year total negative — their very low tax "
+             "rates show they are really havens. Bubble size grows with the amount of profit involved. Based on OECD "
+             f"country-by-country data; {HOME_LABEL} multinationals only.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _f2 = OUTPUT_FIGURES / f"eu_profit_vs_etr_scatter_{min(ps_years)}_{max(ps_years)}.png"
@@ -3468,9 +3484,10 @@ if "ps" in globals():
     ax.legend(title="EU profit re-booked in (ETR = period mean)",
               ncol=2, fontsize=9, loc="upper left")
     fig.text(0.01, -0.02,
-             "Note: As the main gap chart but excl. Luxembourg & Malta. GAINS (up) = profit shifted out of EU "
-             "countries and re-booked in EU havens (intra-EU); DOWN = profit shifted out of the EU to any "
-             "destination. Baseline disaggregated CbCR; " + HOME_LABEL + " parents only.",
+             "The same chart as the main one, but leaving out Luxembourg and Malta. Bars going UP = profit shifted "
+             "from one EU country into another, lower-tax EU country; bars going DOWN = all profit a fair "
+             "activity-based formula would give EU countries but that companies book elsewhere in the world. Based on "
+             "OECD country-by-country data; " + HOME_LABEL + " multinationals only.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _f1b = OUTPUT_FIGURES / f"eu_profit_shifting_gap_excl_LUX_MLT_{min(yrs)}_{max(yrs)}.png"
@@ -3712,11 +3729,13 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         ax.legend(title="Tax revenue gained in (ETR = period mean)", ncol=2, fontsize=9, loc="upper left")
         fig.text(0.01, -0.02,
-                 f"Note: Tax revenue LOST = profit a {FIG_FORMULA_LABEL} split assigns to an EU country but that is booked "
-                 f"elsewhere, × that country's statutory CIT. Tax revenue GAINED = profit shifted OUT OF EU countries "
-                 f"and re-booked in an EU haven (intra-EU, bilateral) × the ETR {HOME_LABEL} MNEs pay there — gains "
-                 f"from harming the rest of the world are excluded. Because havens tax that profit at a very low ETR, "
-                 f"the tax gained is far smaller than the tax lost. Baseline disaggregated CbCR; {HOME_LABEL} parents only.",
+                 "Tax LOST (down) = the profit a fair activity-based formula would give an EU country but that "
+                 "companies book elsewhere, multiplied by that country's headline corporate tax rate. Tax GAINED (up) "
+                 "= the profit shifted out of EU countries into an EU haven, multiplied by the much lower rate "
+                 f"{HOME_LABEL} multinationals actually pay in that haven (gains from draining non-EU countries are "
+                 "not counted). Because havens tax this profit so lightly, the tax they gain is far smaller than the "
+                 f"tax the drained countries lose. Based on OECD country-by-country data; {HOME_LABEL} "
+                 "multinationals only.",
                  ha="left", va="top", fontsize=9, wrap=True)
         plt.tight_layout()
         out = OUTPUT_FIGURES / f"eu_tax_revenue_gap{file_suffix}{suffix}_{min(yrs)}_{max(yrs)}.png"
@@ -3873,12 +3892,12 @@ else:
     ax.grid(True, axis="x", linewidth=0.3, alpha=0.5)
     ax.margins(x=0.12)
     fig.text(0.01, -0.02,
-             f"Note: Tax revenue lost = profit a unitary ({FIG_FORMULA_DESC}) split would assign to the country "
-             f"but that {HOME_LABEL} MNEs book elsewhere, × the country's statutory CIT rate. ⚠ Luxembourg & Malta "
-             "(amber) sit near the top only because of large 2021 reported book losses (plausibly TCJA-driven "
-             "repatriation/restructuring): in that year their formulary-implied profit exceeds what is booked there, "
-             "so they register as 'losing' profit. Their very low effective tax rates show they are really low-tax "
-             f"havens, not drained victims. Baseline disaggregated CbCR; {HOME_LABEL} parents only.",
+             f"Tax lost = the profit a fair activity-based formula ({FIG_FORMULA_DESC}) would give the country but "
+             f"that {HOME_LABEL} multinationals book elsewhere, multiplied by the country's headline corporate tax "
+             "rate. ⚠ Luxembourg & Malta (amber) sit near the top only because of large 2021 book losses (likely "
+             "tied to US tax-reform repatriation): in that year the formula would assign them more profit than is "
+             "actually booked there, so they look 'drained'. Their very low effective tax rates show they are really "
+             f"low-tax havens, not victims. Based on OECD country-by-country data; {HOME_LABEL} multinationals only.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _tl_path = OUTPUT_FIGURES / f"eu_country_tax_loss_{min(tl_years)}_{max(tl_years)}.png"
@@ -3906,10 +3925,11 @@ else:
                 f"(total €{_cum.iloc[-1]:,.0f}bn)")
     ax.legend(loc="upper left", fontsize=9, frameon=False)
     fig.text(0.01, -0.02,
-             f"Note: Bars = EU-27 tax revenue lost each year to {HOME_LABEL} multinationals' profit shifting (profit "
-             f"a unitary ({FIG_FORMULA_DESC}) split assigns to EU countries but is booked elsewhere, × each country's "
-             "statutory CIT). Line = running total since the first year. The 2017 line marks the Tax Cuts and Jobs "
-             f"Act. Baseline disaggregated CbCR; {HOME_LABEL} parents only.",
+             f"Each bar is the tax EU-27 countries lose in one year to {HOME_LABEL} multinationals' profit shifting — "
+             f"the profit a fair activity-based formula ({FIG_FORMULA_DESC}) would give them but that is booked "
+             "elsewhere, multiplied by each country's headline corporate tax rate. The line is the running total "
+             "since the first year. The 2017 line marks the Tax Cuts and Jobs Act. Based on OECD country-by-country "
+             f"data; {HOME_LABEL} multinationals only.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _tlc_path = OUTPUT_FIGURES / f"eu_tax_loss_cumulative_{min(tl_years)}_{max(tl_years)}.png"
@@ -4302,9 +4322,10 @@ if not PARENT_SET:
         ax.grid(True, axis="x", linewidth=0.3, alpha=0.5)
         ax.margins(x=0.16)
         fig.text(0.01, -0.02,
-                 f"Note: Each bar = profit a unitary ({FIG_FORMULA_DESC}) split would assign to EU-27 countries but "
-                 "that MNEs headquartered in this jurisdiction book elsewhere (the EU-partner negative misalignment), "
-                 "cumulative. CbCR is aggregated by parent country → HQ-jurisdiction level, not individual firms. "
+                 f"Each bar = profit that a fair activity-based formula ({FIG_FORMULA_DESC}) would give EU-27 "
+                 "countries but that multinationals headquartered in this country book somewhere else instead "
+                 "(summed over 2016–2022). The data identify a company's headquarters country, not the individual "
+                 "firm. "
                  "Excludes each HQ's OWN domestic cell, so EU-headquartered groups aren't flattered by self-shifting "
                  "(the US home is non-EU, so its total is unaffected); on that basis the US (red) is the clear #1 at "
                  f"~{_us_share:.0f}%. Including domestic self-shifting, Belgium would rank #2 (its notional-interest "
