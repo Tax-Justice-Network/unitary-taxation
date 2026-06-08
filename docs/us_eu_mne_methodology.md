@@ -116,10 +116,20 @@ quantity, read in status-quo terms.
   misalignment, attributed to the parent group; CbCR is aggregated by parent
   country, so HQ-jurisdiction level, not individual firms). `eu_loss_by_hq` ranks
   the top-15 HQs (US highlighted); `eu_loss_us_share` stacks US-HQ vs all other
-  HQs per year with the US fraction labelled. On CCCTB/∞ the **US is the single
-  largest HQ but only ≈15%** of the all-HQ total (Belgium a close #2); the US
-  share peaks in 2021 (≈30%, TCJA repatriation). Table: `eu_loss_by_hq.csv`
-  (parent, profit shifted, tax loss, share).
+  HQs per year with the US fraction labelled. Table: `eu_loss_by_hq.csv` (parent,
+  profit shifted, tax loss, share).
+  - **Excludes each HQ's own domestic cell** (`iso_partner == iso_parent`) — a
+    deliberate fix. Including it, an EU-headquartered group's *domestic*
+    under-reporting counts as "EU harm" while a non-EU HQ's domestic (e.g.
+    US→US) does not, which inflated EU-parented HQs. The worst case was
+    **Belgium**: on the inclusive basis it ranked #2 (~$334bn) but **60% of that
+    was BEL→BEL self-shifting** — its notional-interest-deduction regime gives
+    huge domestic tangible assets (~$100bn) and sales vs ~$8–13bn reported
+    profit, so CCCTB reads Belgium as massively self-draining (concentrated
+    2016–19, pre-NID-reform). Cross-border only makes the ranking apples-to-apples.
+  - On the cross-border basis the **US is the clear #1**: ≈20% (CCCTB/∞),
+    rising to ≈20–25% under the 0.15 haven filter; the US share peaks in 2021
+    (TCJA repatriation). The other ~80% is the long tail of all other HQs.
 - **Germany by government level** (`germany_tax_loss_by_level*`) — see below.
 - **Kommunen loss vs daycare** (`germany_kommunen_loss_vs_daycare*`) and **Länder
   loss vs schools** (`germany_laender_loss_vs_schools*`) — per-level benchmark

@@ -46,6 +46,30 @@ def add_tcja_marker(ax, xpos=2017, label=True):
                     textcoords="offset points", ha="left", va="top",
                     fontsize=8, color=TCJA_GREY)
 
+
+SUBTITLE_BLUE = "#2e7d9e"
+
+
+def house_style(ax, title, subtitle=None, title_size=15, sub_size=11):
+    """Left-aligned bold title + teal-blue subtitle, top/right spines removed
+    (see 4_docs/figure_style_guide.md §7)."""
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.text(0.0, 1.13 if subtitle else 1.04, title, transform=ax.transAxes,
+            fontsize=title_size, fontweight="bold", color=PALETTE["ink"], va="bottom", ha="left")
+    if subtitle:
+        ax.text(0.0, 1.03, subtitle, transform=ax.transAxes, fontsize=sub_size,
+                color=SUBTITLE_BLUE, va="bottom", ha="left")
+
+
+def fig_title(fig, axes, title, subtitle=None):
+    """House-style title for a multi-panel figure: left-aligned bold title (and
+    optional subtitle) at the top-left, top/right spines removed on every panel."""
+    for ax in axes:
+        ax.spines[["top", "right"]].set_visible(False)
+    fig.text(0.01, 1.0, title, fontsize=15, fontweight="bold", color=PALETTE["ink"], va="bottom", ha="left")
+    if subtitle:
+        fig.text(0.01, 0.965, subtitle, fontsize=11, color=SUBTITLE_BLUE, va="bottom", ha="left")
+
 # Apportionment formula for the figures. Must match the FIG_FORMULA the estimate
 # script was run with: 'ccctb' (default) reads the CCCTB topics; SOTJ
 # (employees_payroll) reads the `_sotj` topics and tags the combined output to
@@ -177,8 +201,9 @@ def main():
             ax.set_xticklabels(years)
             ax.set_xlabel("Year")
             ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
-            ax.legend()
-        fig.suptitle(suptitle, fontsize=14, fontweight="bold")
+            ax.legend(frameon=False)
+            ax.spines[["top", "right"]].set_visible(False)
+        fig.suptitle(suptitle, fontsize=15, fontweight="bold", x=0.012, ha="left", color=PALETTE["ink"])
         fig.text(0.01, -0.02, note, ha="left", va="top", fontsize=9, wrap=True)
         plt.tight_layout()
         out = figures_dir / f"{fname}_{min(years)}_{max(years)}.png"
@@ -227,9 +252,11 @@ def main():
             ax.set_xlabel("Year")
             add_tcja_marker(ax)
             ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
-            ax.legend()
+            ax.legend(frameon=False)
+            ax.spines[["top", "right"]].set_visible(False)
         fig.suptitle("US vs EU multinationals: where activity sits vs where profit is booked, "
-                     f"{min(years)}–{max(years)}", fontsize=14, fontweight="bold")
+                     f"{min(years)}–{max(years)}", fontsize=15, fontweight="bold",
+                     x=0.012, ha="left", color=PALETTE["ink"])
         fig.text(0.01, -0.02,
                  "Note: Home region = the group's parent jurisdiction(s) (USA; EU-27). Left = share of worldwide "
                  "employees located at home (real activity); right = share of worldwide profit booked at home. "
@@ -279,8 +306,9 @@ def main():
                         ha="right", va="bottom", fontsize=8, color=col)
         ax.set_ylabel("EUR bn")
         ax.set_ylim(0, max(DAYCARE_BACKLOG_EUR_BN * 1.6, max(vals) * 1.3))
-        ax.set_title("German municipal tax lost to profit shifting vs municipal investment backlogs\n"
-                     f"Cumulative Kommunen loss {min(years)}–{max(years)} vs KfW Kommunalpanel backlogs", fontsize=12)
+        house_style(ax, "What German municipalities lose to profit shifting",
+                    f"Municipal (Kommunen) tax lost vs the daycare investment backlog, "
+                    f"cumulative {min(years)}–{max(years)}")
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         _basis = ("all misalignment (ETR max = ∞)" if ETR_TAG == "inf"
                   else f"haven-only (ETR max = {float(_etr_env):.0%})")
@@ -312,8 +340,9 @@ def main():
                             textcoords="offset points", xytext=(0, 3), ha="center",
                             fontsize=10, fontweight="bold")
             ax.set_ylabel("EUR bn")
-            ax.set_title("German municipal tax lost to ALL multinationals' profit shifting\n"
-                         f"vs total municipal debt, cumulative {min(years)}–{max(years)}", fontsize=12)
+            house_style(ax, "German municipalities' loss to all multinationals vs their debt",
+                        f"Municipal (Kommunen) tax lost to ALL multinationals vs total municipal debt, "
+                        f"cumulative {min(years)}–{max(years)}")
             ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
             fig.text(0.01, -0.02,
                      f"Note: Municipal (Kommunen) share of Germany's modelled corporate-tax loss to ALL "
