@@ -50,7 +50,7 @@ def add_tcja_marker(ax, xpos=2017, label=True):
 SUBTITLE_BLUE = "#2e7d9e"
 
 
-def house_style(ax, title, subtitle=None, title_size=15, sub_size=11):
+def house_style(ax, title, subtitle=None, title_size=16, sub_size=12):
     """Left-aligned bold title + teal-blue subtitle, top/right spines removed
     (see 4_docs/figure_style_guide.md §7)."""
     ax.spines[["top", "right"]].set_visible(False)

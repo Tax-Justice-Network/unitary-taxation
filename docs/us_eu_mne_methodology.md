@@ -130,6 +130,13 @@ quantity, read in status-quo terms.
   - On the cross-border basis the **US is the clear #1**: ≈20% (CCCTB/∞),
     rising to ≈20–25% under the 0.15 haven filter; the US share peaks in 2021
     (TCJA repatriation). The other ~80% is the long tail of all other HQs.
+  - **Bad reporters are flagged.** HQs whose EU-loss is mostly from imputed
+    (`is_distributed == 1`) rows — i.e. countries that file only regional
+    aggregates and whose country split is modelled by step 2, not directly
+    reported — are drawn **hatched with a `*`** (e.g. the **UK is #7 at ≈€68bn
+    but 100% imputed**; also Sweden, Netherlands). The figure uses full country
+    names. The US, a full reporter, is solid. `eu_loss_by_hq.csv` carries an
+    `imputed_frac` column.
 - **Germany by government level** (`germany_tax_loss_by_level*`) — see below.
 - **Kommunen loss vs daycare** (`germany_kommunen_loss_vs_daycare*`) and **Länder
   loss vs schools** (`germany_laender_loss_vs_schools*`) — per-level benchmark

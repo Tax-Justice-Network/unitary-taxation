@@ -80,7 +80,7 @@ def add_tcja_marker(ax, label=True, va="top", y=0.99):
 SUBTITLE_BLUE = "#2e7d9e"   # teal-blue subtitle, matching the TCJA-folder figures
 
 
-def house_style(ax, title, subtitle=None, title_size=15, sub_size=11):
+def house_style(ax, title, subtitle=None, title_size=16, sub_size=12):
     """Apply the report's polished house style (see 4_docs/figure_style_guide.md
     §7 and the TCJA-folder Python figures): left-aligned **bold** title with a
     teal-blue subtitle above the axes, and top/right spines removed for the open
@@ -2680,7 +2680,6 @@ else:
         ax.set_xlabel("Year")
         ax.set_ylabel("Aggregate net misalignment of " + HOME_LABEL + "-MNE profit, 2022 EUR bn")
         ax.set_xticks(_eu_years)
-        add_tcja_marker(ax)
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         house_style(ax, f"EU winners and losers from {HOME_LABEL} multinationals' profit shifting",
                     f"Profit booked into low-tax havens (winners) vs drained from where it is earned (losers)"
@@ -3121,7 +3120,8 @@ def _bilateral_shifted_profit(misalignment_df):
     )["shifted_profit_musd"].sum()
 
 
-def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15):
+def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15, iso2name=None):
+    iso2name = iso2name or {}
     """Top-N destinations of EU-missing profit, by SHARE of the cumulative total,
     with the ETR each destination charges. Restricts to the largest destinations
     (drops the long 'Other' tail); bars are coloured by ETR so the 'profit goes
@@ -3141,7 +3141,7 @@ def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15):
     shares = [100.0 * dest_tot[d] / grand for d in order]
     bn = [dest_tot[d] / 1000.0 for d in order]
     etrs = [etr_by_iso.get(d, np.nan) for d in order]
-    labels = [f"{d} (EU)" if d in EU27 else d for d in order]
+    labels = [iso2name.get(d, d) for d in order]
 
     norm = Normalize(vmin=0, vmax=25)              # ETR % colour scale
     cmap = plt.get_cmap("RdYlGn")                  # low ETR -> red, high -> green
@@ -3169,7 +3169,7 @@ def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15):
              f"real business activity ({FIG_FORMULA_DESC}) — should be taxed in EU countries instead. Together they "
              f"hold {covered:.0f}% of all the profit missing from the EU over {min(years)}–{max(years)} (a long tail "
              f"of smaller destinations is left out). Each bar is coloured by the effective tax rate {HOME_LABEL} "
-             "multinationals actually pay in that place; '(EU)' marks EU members. Based on OECD country-by-country "
+             "multinationals actually pay in that place. Based on OECD country-by-country "
              f"data; {HOME_LABEL} multinationals only.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
@@ -3196,7 +3196,7 @@ def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15):
     for i, d in enumerate(top10):
         vals = ysh[d].fillna(0.0).to_numpy() if d in ysh.columns else np.zeros(len(years))
         etr_d = etr_by_iso.get(d, float("nan"))
-        lbl = (f"{d} (EU, ETR {etr_d:.0f}%)" if d in EU27 else f"{d} (ETR {etr_d:.0f}%)")
+        lbl = f"{iso2name.get(d, d)} (ETR {etr_d:.0f}%)"
         ax.bar(years, vals, bottom=bottoms, label=lbl, color=cmap(i % 20),
                edgecolor="white", linewidth=0.4, width=0.8)
         bottoms += vals
@@ -3232,6 +3232,10 @@ else:
     _mis_file = _bil_src.iloc[0]["misalignment_file"]
     _mis = pd.read_csv(_longpath(_mis_file))
     bilateral = _bilateral_shifted_profit(_mis)
+    # ISO -> full country name (for figure labels), from the data itself.
+    iso2name = (_mis.dropna(subset=["iso_partner", "partner_jurisdiction"])
+                .drop_duplicates("iso_partner")
+                .set_index("iso_partner")["partner_jurisdiction"].to_dict())
 
     # Profit MISSING from EU = bilateral flows whose sufferer (iso_affected) is
     # in the EU. iso_responsible is where US MNEs book it instead.
@@ -3251,7 +3255,7 @@ else:
                                          errors="coerce") * 100.0)
             .groupby("iso_partner")["_e"].mean().to_dict()
         )
-        eu_missing_share_chart(eu_missing, etr_by_iso, "", "")
+        eu_missing_share_chart(eu_missing, etr_by_iso, "", "", iso2name=iso2name)
 
 
 # %% [8b] excl-Luxembourg variant of the "profit missing from the EU" chart (item 2).
@@ -3268,7 +3272,8 @@ if "bilateral" in globals() and not bilateral.empty:
         em.sort_values(["year", "shifted_profit_musd"], ascending=[True, False]).to_csv(
             OUTPUT_TABLES / f"eu_missing_profit_bilateral{file_suffix}.csv", index=False
         )
-        eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra)
+        eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra,
+                               iso2name=iso2name if "iso2name" in globals() else None)
 
     _build_eu_missing(frozenset({"LUX"}), "_excl_LUX", " (excl. Luxembourg)")
 
@@ -3361,7 +3366,6 @@ else:
     ax.set_xlabel("Year")
     ax.set_ylabel("" + HOME_LABEL + "-MNE profit shifted, 2022 EUR bn")
     ax.set_xticks(ps_years)
-    add_tcja_marker(ax)
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
     ax.legend(title="EU profit re-booked in (ETR = period mean)",
               ncol=2, fontsize=9, loc="upper left")
@@ -3479,7 +3483,6 @@ if "ps" in globals():
     ax.set_xlabel("Year")
     ax.set_ylabel("" + HOME_LABEL + "-MNE profit shifted, 2022 EUR bn")
     ax.set_xticks(yrs)
-    add_tcja_marker(ax)
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
     ax.legend(title="EU profit re-booked in (ETR = period mean)",
               ncol=2, fontsize=9, loc="upper left")
@@ -3725,7 +3728,6 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
         ax.set_xlabel("Year")
         ax.set_ylabel("Tax revenue, 2022 EUR bn")
         ax.set_xticks(yrs)
-        add_tcja_marker(ax)
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         ax.legend(title="Tax revenue gained in (ETR = period mean)", ncol=2, fontsize=9, loc="upper left")
         fig.text(0.01, -0.02,
@@ -3815,15 +3817,16 @@ else:
         last = share[name].iloc[-1]
         ax.annotate(f"{last:.0f}%", (hs_years[-1], last), textcoords="offset points",
                     xytext=(6, 0), fontsize=8, color=color, va="center")
-    # Y-axis from 0 so the shares are read against the full 0–100% range.
-    _hi = np.nanmax(share[list(styles)].to_numpy(dtype=float))
-    ax.set_ylim(0, min(100, np.ceil((_hi + 3) / 5) * 5))
+    ax.set_ylim(35, 100)
     add_tcja_marker(ax)
     ax.set_xlabel("Year")
     ax.set_ylabel(f"{HOME_LABEL} share of {HOME_LABEL}-MNE worldwide total, %")
     ax.set_xticks(hs_years)
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
-    house_style(ax, f"{HOME_LABEL} multinationals keep their real activity at home",
+    _hs_title = ("Employment, payroll and sales were unaffected by the Tax Cuts and Jobs Act"
+                 if HOME_LABEL == "US" else
+                 f"{HOME_LABEL} multinationals keep their real activity at home")
+    house_style(ax, _hs_title,
                 f"{HOME_LABEL} share of {HOME_LABEL}-MNE worldwide employees, payroll & sales, "
                 f"{min(hs_years)}–{max(hs_years)}")
     ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=9, frameon=False)
@@ -3912,7 +3915,6 @@ else:
     for _x, _yv in zip(tl_years, _cum.to_numpy()):
         ax.annotate(f"€{_yv:,.0f}bn", (_x, _yv), textcoords="offset points", xytext=(0, 6),
                     ha="center", fontsize=8, color=PALETTE["ink"], fontweight="bold")
-    add_tcja_marker(ax)
     ax.set_xlabel("Year")
     ax.set_ylabel("Tax revenue lost, 2022 EUR bn")
     ax.set_xticks(tl_years)
@@ -3925,8 +3927,7 @@ else:
              f"Each bar is the tax EU-27 countries lose in one year to {HOME_LABEL} multinationals' profit shifting — "
              f"the profit a fair activity-based formula ({FIG_FORMULA_DESC}) would give them but that is booked "
              "elsewhere, multiplied by each country's headline corporate tax rate. The line is the running total "
-             "since the first year. The 2017 line marks the Tax Cuts and Jobs Act. Based on OECD country-by-country "
-             f"data; {HOME_LABEL} multinationals only.",
+             f"since the first year. Based on OECD country-by-country data; {HOME_LABEL} multinationals only.",
              ha="left", va="top", fontsize=9, wrap=True)
     plt.tight_layout()
     _tlc_path = OUTPUT_FIGURES / f"eu_tax_loss_cumulative_{min(tl_years)}_{max(tl_years)}.png"
@@ -4189,6 +4190,70 @@ else:
     plt.savefig(_longpath(_ld_path), dpi=300, bbox_inches="tight")
     plt.close()
 
+    # (c) Combined: all three levels of government and their spending comparisons
+    # in ONE figure (1×3 panels, each with its own scale so the €68bn school
+    # backlog doesn't dwarf the others). Per panel: the loss (red), the all-MNE
+    # global loss (dashed box), and the spending need that level owns (slate).
+    # The federal level has no comparable single backlog, so it shows the loss
+    # alone.
+    _glvl = {}
+    if PARENT_SET:
+        _gpc = OUTPUT_TABLES.parent.parent / ("all_multinationals" + _OUTPUT_TOPIC[len(HOME_TOPIC):]) \
+            / "tables" / "germany_tax_loss_by_level.csv"
+        if _gpc.exists():
+            _gdc = pd.read_csv(_longpath(_gpc))
+            for _lv in LEVELS:
+                _rrc = _gdc[_gdc["level"] == _lv]
+                if not _rrc.empty:
+                    _glvl[_lv] = float(_rrc["tax_loss_bn_total"].iloc[0]) / _USD_EUR
+    _panels = [
+        ("Federal (Bund)", de_totals["Federal (Bund)"] / _USD_EUR, None, None),
+        ("State (Länder)", _laender_eur, _SCHOOL, "School building\ninvestment backlog"),
+        ("Municipal (Kommunen)", _muni_eur, _DAYCARE, "Daycare/Kita\ninvestment backlog"),
+    ]
+    fig, axes = plt.subplots(1, 3, figsize=(15, 6))
+    for _ax, (_lv, _loss, _bench, _blbl) in zip(axes, _panels):
+        _lab = [f"Lost to\n{HOME_LABEL} MNEs"]
+        _val = [_loss]
+        _col = [PALETTE["red"]]
+        if _bench is not None:
+            _lab.append(_blbl)
+            _val.append(_bench)
+            _col.append(PALETTE["slate"])
+        _bb = _ax.bar(_lab, _val, color=_col, edgecolor="white", width=0.6)
+        for _bar, _v in zip(_bb, _val):
+            _ax.annotate(f"€{_v:,.1f}bn", (_bar.get_x() + _bar.get_width() / 2, _v),
+                         textcoords="offset points", xytext=(0, 3), ha="center", fontsize=9, fontweight="bold")
+        _ymax = max(_val)
+        _gl = _glvl.get(_lv)
+        if _gl is not None:
+            _lb0 = _bb[0]
+            _ax.add_patch(plt.Rectangle((_lb0.get_x(), 0), _lb0.get_width(), _gl, fill=False,
+                                        edgecolor=PALETTE["ink"], linestyle="--", linewidth=1.4, zorder=5))
+            _ax.annotate(f"€{_gl:,.0f}bn\nall MNEs", (_lb0.get_x() + _lb0.get_width() / 2, _gl),
+                         textcoords="offset points", xytext=(0, 3), ha="center", fontsize=8, color=PALETTE["ink"])
+            _ymax = max(_ymax, _gl)
+        _ax.set_ylim(0, _ymax * 1.25)
+        _ax.set_title(_lv, fontsize=12, fontweight="bold", color=PALETTE["ink"])
+        _ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+        _ax.spines[["top", "right"]].set_visible(False)
+    axes[0].set_ylabel("2022 EUR bn")
+    fig.suptitle(f"What each level of German government loses to {HOME_LABEL} multinationals — "
+                 "and the investment it could fund", fontsize=14, fontweight="bold",
+                 x=0.012, ha="left", color=PALETTE["ink"])
+    fig.text(0.01, -0.02,
+             f"Each panel is one level of German government. The red bar is the corporate tax it loses to {HOME_LABEL} "
+             f"multinationals over {min(de_years)}–{max(de_years)}; the dashed box is the larger amount lost to ALL "
+             "the world's multinationals. The slate bar (states and municipalities) is the investment that level is "
+             "responsible for — school buildings for the states, daycare for municipalities (KfW Kommunalpanel); the "
+             "federal government has no comparable single backlog. Each panel has its own scale. All amounts in real "
+             "2022 euros; based on OECD country-by-country data.",
+             ha="left", va="top", fontsize=9, wrap=True)
+    plt.tight_layout()
+    _lvN_path = OUTPUT_FIGURES / f"germany_levels_vs_needs_{min(de_years)}_{max(de_years)}.png"
+    plt.savefig(_longpath(_lvN_path), dpi=300, bbox_inches="tight")
+    plt.close()
+
     _de_top = ", ".join(f"{lvl.split(' ')[0]} €{de_totals[lvl]:,.1f}bn" for lvl in LEVELS)
     print(f"\n[EU country tax loss] saved: {_tl_path}\n"
           f"  Top losers (2022 EUR bn): "
@@ -4298,6 +4363,20 @@ if not PARENT_SET:
                  .sort_values("shifted_bn", ascending=False).reset_index(drop=True))
         _grand = by_hq["shifted_bn"].sum()
         by_hq["share_pct"] = 100 * by_hq["shifted_bn"] / _grand if _grand else np.nan
+        # Fraction of each HQ's loss from imputed (disaggregated) rows. "Bad
+        # reporters" file only regional aggregates, so their country split is
+        # modelled by step 2, not directly reported.
+        if "is_distributed" in _hqeu.columns:
+            _hqeu["_imp_bn"] = np.where(pd.to_numeric(_hqeu["is_distributed"], errors="coerce") == 1,
+                                        _hqeu["shifted_bn"], 0.0)
+            _impd = _hqeu.groupby("iso_parent").agg(_i=("_imp_bn", "sum"), _t=("shifted_bn", "sum"))
+            _imp_frac = (_impd["_i"] / _impd["_t"].replace(0, np.nan)).to_dict()
+        else:
+            _imp_frac = {}
+        by_hq["imputed_frac"] = by_hq["iso_parent"].map(_imp_frac).fillna(0.0)
+        # ISO -> full country name for the labels (from the data).
+        _hq_name = (_hqm.dropna(subset=["iso_partner", "partner_jurisdiction"])
+                    .drop_duplicates("iso_partner").set_index("iso_partner")["partner_jurisdiction"].to_dict())
         by_hq.to_csv(OUTPUT_TABLES / "eu_loss_by_hq.csv", index=False)
         _us_share = (float(by_hq.loc[by_hq["iso_parent"] == "USA", "share_pct"].iloc[0])
                      if "USA" in by_hq["iso_parent"].values else 0.0)
@@ -4305,28 +4384,46 @@ if not PARENT_SET:
                     if "USA" in by_hq["iso_parent"].values else -1)
 
         # --- Figure A: ranking of HQ jurisdictions causing EU losses ---
-        _topn = by_hq.head(15).iloc[::-1]
-        fig, ax = plt.subplots(figsize=(10, 7))
-        _cols = [PALETTE["red"] if iso == "USA" else PALETTE["navy"] for iso in _topn["iso_parent"]]
-        ax.barh(_topn["iso_parent"], _topn["shifted_bn"], color=_cols, edgecolor="white")
-        for yi, (v, iso, sh) in enumerate(zip(_topn["shifted_bn"], _topn["iso_parent"], _topn["share_pct"])):
-            ax.annotate(f"€{v:,.0f}bn ({sh:.0f}%)", (v, yi), textcoords="offset points", xytext=(4, 0),
-                        va="center", fontsize=8, color=PALETTE["red"] if iso == "USA" else PALETTE["ink"])
+        # Bad reporters (mostly-imputed country split) are hatched and marked *.
+        _BADREP = 0.5
+        _topn = by_hq.head(15).iloc[::-1].reset_index(drop=True)
+        fig, ax = plt.subplots(figsize=(10.5, 7))
+        _yp = list(range(len(_topn)))
+        _bars = ax.barh(_yp, _topn["shifted_bn"].to_numpy(),
+                        color=[PALETTE["red"] if iso == "USA" else PALETTE["navy"]
+                               for iso in _topn["iso_parent"]], edgecolor="white")
+        _ylabels = []
+        for _bar, _r in zip(_bars, _topn.itertuples(index=False)):
+            _nm = _hq_name.get(_r.iso_parent, _r.iso_parent)
+            if _r.imputed_frac >= _BADREP:
+                _bar.set_hatch("////")
+                _bar.set_alpha(0.6)
+                _nm = _nm + " *"
+            _ylabels.append(_nm)
+        ax.set_yticks(_yp)
+        ax.set_yticklabels(_ylabels)
+        for yi, _r in enumerate(_topn.itertuples(index=False)):
+            ax.annotate(f"€{_r.shifted_bn:,.0f}bn ({_r.share_pct:.0f}%)", (_r.shifted_bn, yi),
+                        textcoords="offset points", xytext=(4, 0), va="center", fontsize=8,
+                        color=PALETTE["red"] if _r.iso_parent == "USA" else PALETTE["ink"])
         ax.set_xlabel(f"Profit shifted out of other EU-27 countries, 2022 EUR bn (cumulative {min(_hq_years)}–{max(_hq_years)})")
         house_style(ax, "US multinationals drain the most profit out of the EU",
-                    f"By headquarters jurisdiction (excl. each HQ's own domestic) — US is #{_us_rank} at "
+                    f"By headquarters country (excl. each HQ's own home country) — the US is #{_us_rank} at "
                     f"{_us_share:.0f}% of the all-HQ total, cumulative {min(_hq_years)}–{max(_hq_years)}")
         ax.grid(True, axis="x", linewidth=0.3, alpha=0.5)
-        ax.margins(x=0.16)
+        ax.margins(x=0.18)
+        _flagged = [_hq_name.get(r.iso_parent, r.iso_parent)
+                    for r in by_hq.head(15).itertuples(index=False) if r.imputed_frac >= _BADREP]
+        _flag_txt = ((" ⚠ Hatched bars marked '*' are 'bad reporters' (" + ", ".join(_flagged[:6])
+                      + ") that file only regional totals — their country split is modelled by our disaggregation "
+                      "step, not directly reported, so those figures are weaker than for full reporters like the US.")
+                     if _flagged else "")
         fig.text(0.01, -0.02,
                  f"Each bar = profit that a fair activity-based formula ({FIG_FORMULA_DESC}) would give EU-27 "
-                 "countries but that multinationals headquartered in this country book somewhere else instead "
-                 "(summed over 2016–2022). The data identify a company's headquarters country, not the individual "
-                 "firm. "
-                 "Excludes each HQ's OWN domestic cell, so EU-headquartered groups aren't flattered by self-shifting "
-                 "(the US home is non-EU, so its total is unaffected); on that basis the US (red) is the clear #1 at "
-                 f"~{_us_share:.0f}%. Including domestic self-shifting, Belgium would rank #2 (its notional-interest "
-                 "regime gives huge domestic assets vs low reported profit). Baseline disaggregated CbCR.",
+                 "countries but that multinationals headquartered there book somewhere else instead (2016–2022). The "
+                 "data identify a company's headquarters country, not the individual firm. Each HQ's own home country "
+                 "is left out so the comparison is like-for-like (the US, with a non-EU home, is unaffected and is the "
+                 "clear #1)." + _flag_txt + " Based on OECD country-by-country data.",
                  ha="left", va="top", fontsize=9, wrap=True)
         plt.tight_layout()
         _hqa = OUTPUT_FIGURES / f"eu_loss_by_hq_{min(_hq_years)}_{max(_hq_years)}.png"
@@ -4350,7 +4447,6 @@ if not PARENT_SET:
                 ax.annotate(f"US {100 * _byyr['US'].iloc[i] / _tot_yr.iloc[i]:.0f}%",
                             (y, _tot_yr.iloc[i]), textcoords="offset points", xytext=(0, 3),
                             ha="center", fontsize=8, color=PALETTE["red"], fontweight="bold")
-        add_tcja_marker(ax)
         ax.set_xlabel("Year")
         ax.set_ylabel("Profit shifted out of EU-27, 2022 EUR bn")
         ax.set_xticks(_hq_years)
@@ -4360,12 +4456,12 @@ if not PARENT_SET:
                     f"{min(_hq_years)}–{max(_hq_years)}")
         ax.legend(loc="upper left", fontsize=9, frameon=False)
         fig.text(0.01, -0.02,
-                 "Note: Bars = profit shifted out of EU-27 countries each year (profit a unitary "
-                 f"({FIG_FORMULA_DESC}) split assigns to EU-27 but is booked elsewhere), split by whether the MNE's "
-                 "HQ is the US (red) or any other jurisdiction (slate); label = US share of that year's total. "
-                 "Excludes each HQ's own domestic cell (cross-border EU harm only). The 2017 line marks the Tax Cuts "
-                 "and Jobs Act; the 2021 jump in the US share reflects one-off profit repatriation by US firms after "
-                 "that reform (discussed in the report text). Baseline disaggregated CbCR.",
+                 "Each bar is the profit shifted out of EU-27 countries that year — the profit a fair activity-based "
+                 "formula would give them but that companies book elsewhere — split by whether the company's "
+                 "headquarters is in the US (red) or any other country (slate); the label is the US share of that "
+                 "year's total. It leaves out each headquarters' own home country, so the comparison is like-for-like. "
+                 "The US share jumps in 2021, reflecting one-off profit repatriation by US firms after the 2017 US tax "
+                 "reform (discussed in the report text). Based on OECD country-by-country data.",
                  ha="left", va="top", fontsize=9, wrap=True)
         plt.tight_layout()
         _hqb = OUTPUT_FIGURES / f"eu_loss_us_share_{min(_hq_years)}_{max(_hq_years)}.png"
