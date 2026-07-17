@@ -13,26 +13,46 @@ average = deflated sum ÷ 6.
 
 ## 1. Outstanding IMF credit (Global South)
 
-- **Data**: World Bank International Debt Statistics indicator
-  **`DT.DOD.DIMF.CD`** — *Use of IMF credit (DOD, current US$)*, the
-  outstanding **stock** of credit owed to the IMF, per country-year. This is
-  the same stock concept as the IMF's "Total IMF Credit Outstanding" page
-  (<https://www.imf.org/external/np/fin/tad/balmov2.aspx?type=TOTAL>), which
-  blocks scripted access (Akamai) — hence the WB mirror.
-- **Cache**: `data/raw/imf_credit_outstanding_wb.csv` (fetched 2026-07-17,
-  2019–2025 window; 120 debtor countries with data, latest year mostly 2024).
-  Delete the file and re-run 9t to refresh. WB regional/aggregate rows are
-  dropped (iso3 filtered against pycountry).
-- **Method**: latest non-null stock per country, converted from its (nominal)
-  stock year to 2025 USD with the config GDP deflator. `years_to_repay` =
-  stock ÷ annual UT gain; undefined (flagged) where the country has no net
-  gain. Aggregate rows cover all IDS debtors *with UT estimates* and each
-  `wb_income_group`.
-- **Decisions** (user, 2026-07-17): IMF credit **stock only**. Explored and
-  rejected: IMF debt service `DT.TDS.DIMF.CD` (~$45bn/yr), all-creditor debt
-  service `DT.TDS.DECT.CD` (~$1.29tn/yr, gains ≈13%), all-creditor stock
-  `DT.DOD.DECT.CD` (~$8.9tn, too diluted). Scope = all IDS debtors (not only
-  LIC/LMIC).
+- **HEADLINE data**: the IMF's own **"Total IMF Credit Outstanding"** table
+  (<https://www.imf.org/external/np/fin/tad/balmov2.aspx?type=TOTAL>),
+  hand-downloaded (the page blocks scripts) to
+  `data/raw/debt_data/balmov2.txt` — snapshot **as of 2026-07-16**, 84
+  borrowing members, total **SDR 122.7bn**. SDR-denominated; converted at
+  **1.3626 USD/SDR** (market rate of the snapshot date via open.er-api.com;
+  the official IMF rate page is also bot-blocked, market proxy agrees to
+  <0.1%) → **≈ $167bn**. This is **actual IMF lending** (GRA + PRGT credit
+  outstanding) and **excludes SDR allocations**.
+- **Why allocations are excluded from the headline**: the WB IDS series
+  `DT.DOD.DIMF.CD` ("use of IMF credit") has, since the IDS 2022 revision
+  (BPM6 treatment), INCLUDED cumulative SDR allocations — unconditional,
+  quota-proportional liquidity distributions (2009, 2021) with **no repayment
+  obligation ever**. For members without programs (China $47bn, India $22bn,
+  Brazil $18bn) the WB figure is *entirely* allocations. A "years to repay
+  the IMF" framing is only meaningful for the credit that is actually repaid.
+- **Cross-check / memo columns**: the WB IDS **dimensional** API
+  (`/v2/sources/6/.../series/...`) still serves both `DT.DOD.DIMF.CD` and the
+  archived `DT.DOD.DSDR.CD` (*SDR allocations*); their difference = credit
+  outstanding. Cached (2019–2025, fetched 2026-07-17) in
+  `data/raw/imf_credit_outstanding_wb.csv`; delete the file and re-run 9t to
+  refresh. Verification: CHN/IND/BRA net to ~0; ARG end-2024 nets to $40.6bn
+  (its EFF) vs $58.0bn in the 2026 TAD snapshot (the 2025-26 program
+  augmentations) — timing differences only. The table carries
+  `wb_credit_excl_sdr_bn`, `sdr_alloc_bn`, `imf_liab_incl_sdr_bn` as memo.
+- **Method**: TAD credit per country (countries not in the TAD list owe 0);
+  `years_to_repay` = credit ÷ annual UT gain; undefined (flagged) where the
+  country has no net gain. Aggregates cover all Global South countries with
+  estimates (Russia drops out: no IMF debt and no longer an IDS reporter —
+  its inclusion would only *shrink* the pooled ratio, so exclusion is
+  conservative) plus per-`wb_income_group` rows; country mean/median over
+  borrowers with credit > $10M and positive gains.
+- **Headline result**: ≈ **1.0 year** of Global South UT gains ($170bn/yr)
+  clears the entire $167bn owed to the IMF (allocations-inclusive footnote:
+  $382bn, 2.2 years). Median borrower ≈ 6.4 years.
+- **Decisions** (user, 2026-07-17): IMF credit **stock only**, excl. SDR
+  allocations. Explored and rejected: IMF debt service `DT.TDS.DIMF.CD`
+  (~$45bn/yr, gains = 4.0×), all-creditor debt service `DT.TDS.DECT.CD`
+  (~$1.29tn/yr, gains ≈13%), all-creditor stock `DT.DOD.DECT.CD` (~$8.9tn,
+  too diluted). Scope = all Global South countries (not only LIC/LMIC).
 
 ## 2. Marshall Plan aid (European recipients)
 

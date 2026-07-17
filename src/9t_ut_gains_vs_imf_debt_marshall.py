@@ -4,11 +4,14 @@
 Two context comparisons for the headline unitary-taxation estimates (framed as
 revenue GAINS from UT reform, not losses):
 
-1. Global South vs outstanding IMF credit — for every World Bank IDS debtor
-   country: how many years of its annual UT revenue gain would clear its
-   outstanding IMF credit ("years to repay")? Debt source: WB indicator
-   DT.DOD.DIMF.CD ("Use of IMF credit, DOD, current US$") — the same stock the
-   IMF's "Total IMF Credit Outstanding" page shows, but scriptable. Cached in
+1. Global South vs outstanding IMF credit — how many years of a country's
+   annual UT revenue gain would clear its outstanding IMF credit ("years to
+   repay")? HEADLINE stock = the official IMF "Total IMF Credit Outstanding"
+   snapshot (data/raw/debt_data/balmov2.txt, hand-downloaded — the page blocks
+   scripts; SDR x SDR_USD). This is ACTUAL IMF lending, excl. SDR allocations.
+   Cross-check/memo columns from the WB IDS dimensional API: DT.DOD.DIMF.CD
+   ("use of IMF credit", which since the IDS 2022 revision INCLUDES SDR
+   allocations), DT.DOD.DSDR.CD (allocations), and their difference. Cached in
    data/raw/imf_credit_outstanding_wb.csv (auto-refetched if deleted).
 
 2. Marshall Plan recipients — the 16 recipient economies' cumulative UT gain
@@ -57,11 +60,46 @@ DEFL = config.deflator_to_base()               # year -> factor to constant 2025
 HEADLINE, ETR, RATE, THRESH = "sales_employees_destmnedds", "domfor", "loss_cit_gain_etr", "inf"
 
 IMF_CACHE = _ROOT / "data" / "raw" / "imf_credit_outstanding_wb.csv"
-IMF_API = ("https://api.worldbank.org/v2/country/all/indicator/DT.DOD.DIMF.CD"
-           "?format=json&per_page=20000&date=2019:2025")
+# IDS dimensional endpoint (source=6): serves BOTH the headline "use of IMF
+# credit" (which since the IDS 2022 revision INCLUDES SDR allocations) and the
+# separate SDR-allocations series, so true credit outstanding = difference.
+IMF_API = ("https://api.worldbank.org/v2/sources/6/country/all/series/{series}"
+           "/counterpart-area/WLD/time/YR2019;YR2020;YR2021;YR2022;YR2023;YR2024;YR2025"
+           "?format=json&per_page=5000&page={page}")
 MARSHALL_CSV = _ROOT / "data" / "raw" / "marshall_plan_aid.csv"
 CPI_CSV = _ROOT / "data" / "raw" / "us_cpi_annual.csv"
 CPI_ANCHOR_YEAR = 1950                          # mid-period of 1948-52 disbursement
+
+# Official IMF TAD "Total IMF Credit Outstanding" snapshot, hand-downloaded
+# (the page blocks scripts). SDR-denominated; converted at the market SDR/USD
+# rate of the snapshot date (open.er-api.com, 2026-07-17 — the official IMF
+# rate page is also bot-blocked; the market proxy agrees to <0.1%).
+TAD_TXT = _ROOT / "data" / "raw" / "debt_data" / "balmov2.txt"
+TAD_ASOF = "2026-07-16"
+SDR_USD = 1.3626
+# IMF member names in the TAD file that pycountry cannot resolve directly
+_TAD_ISO_OVERRIDES = {
+    "Afghanistan, Islamic Republic of": "AFG", "Armenia, Republic of": "ARM",
+    "Azerbaijan, Republic of": "AZE", "Bahrain, Kingdom of": "BHR",
+    "Bolivia": "BOL", "Cabo Verde": "CPV", "Central African Republic": "CAF",
+    "Congo, Democratic Republic of": "COD", "Congo, Republic of": "COG",
+    "Cote d'Ivoire": "CIV", "Croatia, Republic of": "HRV",
+    "Czech Republic": "CZE", "Egypt, Arab Republic of": "EGY",
+    "Estonia, Republic of": "EST", "Ethiopia, The Federal Democratic Republic of": "ETH",
+    "Gambia, The": "GMB", "Iran, Islamic Republic of": "IRN",
+    "Korea, Republic of": "KOR", "Kosovo, Republic of": "XKX", "Kosovo": "XKX",
+    "Sao Tome & Principe": "STP",
+    "Kyrgyz Republic": "KGZ", "Lao People's Democratic Republic": "LAO",
+    "Macedonia, former Yugoslav Republic of": "MKD",
+    "North Macedonia, Republic of": "MKD", "Moldova, Republic of": "MDA",
+    "Sao Tome and Principe, Democratic Republic of": "STP",
+    "Sao Tome and Principe": "STP", "Serbia, Republic of": "SRB",
+    "Slovak Republic": "SVK", "South Sudan, Republic of": "SSD",
+    "St. Lucia": "LCA", "St. Vincent and the Grenadines": "VCT",
+    "Tanzania, United Republic of": "TZA", "Turkiye, Republic of": "TUR",
+    "Venezuela, Republica Bolivariana de": "VEN", "Vietnam": "VNM",
+    "Yemen, Republic of": "YEM",
+}
 
 TABLES, FIGURES = config.output_dirs("context_comparisons")
 
@@ -96,43 +134,102 @@ def load_gains():
 
 
 # ── part 1: outstanding IMF credit ───────────────────────────────────────────
+def _fetch_ids_series(series):
+    """Full (iso3, year) -> value panel from the IDS dimensional endpoint."""
+    out, page = {}, 1
+    while True:
+        with urllib.request.urlopen(IMF_API.format(series=series, page=page)) as r:
+            src = json.load(r).get("source", {})
+        for ob in src.get("data", []):
+            ids = {vr["concept"].lower(): vr["id"] for vr in ob.get("variable", [])}
+            names = {vr["concept"].lower(): vr.get("value") for vr in ob.get("variable", [])}
+            if ob.get("value") is not None:
+                out[(ids["country"], int(ids["time"].replace("YR", "")))] = (
+                    ob["value"], names.get("country"))
+        if page * 5000 >= int(src.get("count", 0) or 0) or not src.get("data"):
+            return out
+        page += 1
+
+
 def load_imf_credit():
-    """Latest non-null IMF credit stock per country (current USD -> 2025 USD)."""
+    """Latest per-country IMF position (current USD -> 2025 USD): true credit
+    outstanding (HEADLINE, excl. SDR allocations) + allocations-inclusive memo."""
     if not IMF_CACHE.exists():
-        print(f"cache missing — fetching {IMF_API}")
-        with urllib.request.urlopen(IMF_API) as r:
-            meta, rows = json.load(r)
+        print("cache missing — refetching from the WB IDS API")
+        dimf = _fetch_ids_series("DT.DOD.DIMF.CD")     # incl. SDR allocations
+        dsdr = _fetch_ids_series("DT.DOD.DSDR.CD")     # SDR allocations
         import pycountry
         iso_ok = {c.alpha_3 for c in pycountry.countries}
-        recs = [(x["countryiso3code"], x["country"]["value"], int(x["date"]), x["value"])
-                for x in rows if x["countryiso3code"] in iso_ok]
-        recs.sort()
-        hdr = ("# Use of IMF credit (DOD, current US$) — WB IDS DT.DOD.DIMF.CD; see\n"
-               "# docs/imf_marshall_comparison_sources.md. Refetched by 9t.\n")
+        rows = [(iso, name, yr, v, dsdr.get((iso, yr), (None,))[0],
+                 v - dsdr[(iso, yr)][0] if (iso, yr) in dsdr else None)
+                for (iso, yr), (v, name) in sorted(dimf.items()) if iso in iso_ok]
+        hdr = ("# Liabilities to the IMF — WB IDS (source=6): DT.DOD.DIMF.CD (incl. SDR\n"
+               "# allocations since IDS 2022) / DT.DOD.DSDR.CD / difference = true credit.\n"
+               "# See docs/imf_marshall_comparison_sources.md. Refetched by 9t.\n")
         with open(IMF_CACHE, "w", newline="", encoding="utf-8") as f:
             f.write(hdr)
-            pd.DataFrame(recs, columns=["iso3", "country_name", "year", "imf_credit_usd"]
-                         ).to_csv(f, index=False)
+            pd.DataFrame(rows, columns=["iso3", "country_name", "year",
+                                        "imf_liab_incl_sdr_usd", "sdr_allocations_usd",
+                                        "imf_credit_excl_sdr_usd"]).to_csv(f, index=False)
     d = pd.read_csv(IMF_CACHE, comment="#")
-    d = d.dropna(subset=["imf_credit_usd"])
+    d = d.dropna(subset=["imf_credit_excl_sdr_usd"])
     d = d.sort_values("year").groupby("iso3", as_index=False).last()   # latest year
-    # express the (nominal, stock-year) credit in constant 2025 USD
-    d["imf_credit_bn"] = d.apply(
-        lambda r: r["imf_credit_usd"] * DEFL.get(int(r["year"]), 1.0) / 1e9, axis=1)
+    # express the (nominal, stock-year) positions in constant 2025 USD
+    f = d["year"].astype(int).map(lambda y: DEFL.get(y, 1.0))
+    d["imf_credit_bn"] = d["imf_credit_excl_sdr_usd"] * f / 1e9        # HEADLINE
+    d["sdr_alloc_bn"] = d["sdr_allocations_usd"] * f / 1e9
+    d["imf_liab_incl_sdr_bn"] = d["imf_liab_incl_sdr_usd"] * f / 1e9
     return d.rename(columns={"year": "credit_year"})[
-        ["iso3", "country_name", "credit_year", "imf_credit_bn"]]
+        ["iso3", "country_name", "credit_year", "imf_credit_bn",
+         "sdr_alloc_bn", "imf_liab_incl_sdr_bn"]]
+
+
+def load_imf_tad():
+    """Official TAD snapshot: per-country IMF credit outstanding, SDR -> bn USD."""
+    import csv as _csv
+    rows = []
+    with open(TAD_TXT, encoding="utf-8-sig") as f:
+        for parts in _csv.reader(f, delimiter="\t"):
+            if len(parts) >= 5:
+                v = parts[4].replace(",", "").strip()
+                if v.replace(".", "").isdigit() and parts[0].strip() != "Total":
+                    rows.append((parts[0].strip(), float(v)))
+    d = pd.DataFrame(rows, columns=["member", "sdr"])
+
+    def _iso(name):
+        if name in _TAD_ISO_OVERRIDES:
+            return _TAD_ISO_OVERRIDES[name]
+        try:
+            import pycountry
+            hit = pycountry.countries.lookup(name.split(",")[0].strip())
+            return hit.alpha_3
+        except Exception:
+            return None
+    d["iso3"] = d["member"].map(_iso)
+    unmatched = d[d["iso3"].isna()]
+    if len(unmatched):
+        print("WARNING - unmatched TAD members:", list(unmatched["member"]))
+    d["imf_credit_bn"] = d["sdr"] * SDR_USD / 1e9
+    return d.dropna(subset=["iso3"])[["iso3", "imf_credit_bn"]]
 
 
 def part1_imf(gains):
-    imf = load_imf_credit()
-    m = imf.merge(gains, on="iso3", how="left")
+    tad = load_imf_tad()                       # HEADLINE stock (official, current)
+    wb = load_imf_credit().rename(columns={"imf_credit_bn": "wb_credit_excl_sdr_bn"})
+    # scope: every Global South country with an estimate OR an IMF debt;
+    # countries not in the TAD list owe the IMF nothing (credit = 0)
+    m = wb.merge(tad, on="iso3", how="outer").merge(gains, on="iso3", how="left")
+    m["imf_credit_bn"] = m["imf_credit_bn"].fillna(0.0)
+    m = m[m["gain_bn"].notna() | (m["imf_credit_bn"] > 0)]
     m["country"] = m["iso3"].map(cname)
     m["years_to_repay"] = np.where(m["gain_bn"] > 0,
                                    m["imf_credit_bn"] / m["gain_bn"], np.nan)
     m["gain_negative_or_zero"] = (m["gain_bn"] <= 0) | m["gain_bn"].isna()
 
-    cols = ["country", "iso3", "wb_income_group", "credit_year",
-            "imf_credit_bn", "gain_bn", "years_to_repay", "gain_negative_or_zero"]
+    cols = ["country", "iso3", "wb_income_group",
+            "imf_credit_bn", "gain_bn", "years_to_repay",
+            "wb_credit_excl_sdr_bn", "sdr_alloc_bn", "imf_liab_incl_sdr_bn",
+            "credit_year", "gain_negative_or_zero"]
     out = m[cols].sort_values("imf_credit_bn", ascending=False)
 
     # aggregates: all IDS debtors with estimates, and per income group. The
@@ -142,23 +239,31 @@ def part1_imf(gains):
     # (Haiti ~1,700 yrs), so the median is the quotable "typical country".
     agg_rows = []
     scope = m.dropna(subset=["gain_bn"])
-    for label, sub in ([("ALL IDS debtor countries", scope)] +
+    for label, sub in ([("ALL Global South countries", scope)] +
                        [(f"income group: {g}", scope[scope.wb_income_group == g])
                         for g in sorted(scope.wb_income_group.dropna().unique())]):
         credit, gain = sub["imf_credit_bn"].sum(), sub["gain_bn"].sum()
-        yc = sub.loc[(sub["gain_bn"] > 0) & (sub["imf_credit_bn"] > 0),
+        # country averages: positive gain AND a real credit position (> $10M —
+        # excludes the ~zero rows of countries without IMF programs)
+        yc = sub.loc[(sub["gain_bn"] > 0) & (sub["imf_credit_bn"] > 0.01),
                      "years_to_repay"]
         agg_rows.append(dict(country=label, iso3="", wb_income_group="",
-                             credit_year="", imf_credit_bn=credit, gain_bn=gain,
+                             credit_year="", imf_credit_bn=credit,
+                             sdr_alloc_bn=sub["sdr_alloc_bn"].sum(),
+                             imf_liab_incl_sdr_bn=sub["imf_liab_incl_sdr_bn"].sum(),
+                             gain_bn=gain,
                              years_to_repay=(credit / gain if gain > 0 else np.nan),
                              years_to_repay_country_median=yc.median(),
                              years_to_repay_country_mean=yc.mean(),
                              n_countries_in_avg=len(yc),
                              gain_negative_or_zero=gain <= 0))
     out = pd.concat([pd.DataFrame(agg_rows), out], ignore_index=True).round(2)
-    out = out[cols[:7] + ["years_to_repay_country_median",
-                          "years_to_repay_country_mean", "n_countries_in_avg",
-                          "gain_negative_or_zero"]]
+    out = out[["country", "iso3", "wb_income_group",
+               "imf_credit_bn", "gain_bn", "years_to_repay",
+               "years_to_repay_country_median", "years_to_repay_country_mean",
+               "n_countries_in_avg",
+               "wb_credit_excl_sdr_bn", "sdr_alloc_bn", "imf_liab_incl_sdr_bn",
+               "credit_year", "gain_negative_or_zero"]]
     f = TABLES / "ut_gains_vs_imf_credit.csv"
     out.to_csv(f, index=False)
     print(f"wrote {f}")
@@ -180,16 +285,18 @@ def part1_imf(gains):
     ax.invert_yaxis()
     all_credit = scope["imf_credit_bn"].sum()
     all_gain = scope["gain_bn"].sum()
-    note = ("Note: the 15 countries with the largest outstanding IMF credit (World Bank "
-            "International Debt Statistics,\nlatest year, mostly 2024) among those gaining "
-            "from unitary taxation. Bars show outstanding IMF credit divided\nby the "
-            "country's average yearly revenue gain under unitary taxation (2016–2022 excl. "
-            "2020, 2025 USD).\nAcross all low- and middle-income debtor countries, "
-            f"{all_credit / all_gain:,.1f} years of gains (${all_gain:,.0f}bn/yr) would "
-            f"clear the\nentire ${all_credit:,.0f}bn owed to the IMF.")
-    if len(dropped):
+    note = ("Note: the 15 countries with the largest IMF credit outstanding (IMF Financial "
+            f"Data, as of {TAD_ASOF};\nSDR converted at {SDR_USD} USD/SDR) among those "
+            "gaining from unitary taxation. Credit outstanding is actual\nIMF lending and "
+            "excludes SDR allocations. Bars show credit divided by the country's average "
+            "yearly revenue\ngain under unitary taxation (2016–2022 excl. 2020, 2025 USD). "
+            f"Across all Global South countries,\n{all_credit / all_gain:,.1f} years of "
+            f"gains (\\${all_gain:,.0f}bn/yr) would clear the entire "
+            f"\\${all_credit:,.0f}bn owed to the IMF.")
+    big_dropped = dropped[dropped["imf_credit_bn"] > 1]
+    if len(big_dropped):
         note += ("\nNot shown (no net gain under unitary taxation): "
-                 + ", ".join(dropped["country"].head(5)) + ".")
+                 + ", ".join(big_dropped["country"].head(5)) + ".")
     fig.text(0.01, -0.02, note, fontsize=8.5, va="top")
     plt.tight_layout()
     f = FIGURES / "fig_ut_gains_vs_imf_credit.png"
