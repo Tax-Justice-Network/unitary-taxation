@@ -189,8 +189,13 @@ def part1_imf(gains):
 # ── part 2: the Marshall Plan ────────────────────────────────────────────────
 def part2_marshall(gains):
     aid = pd.read_csv(MARSHALL_CSV, comment="#")
-    cpi = pd.read_csv(CPI_CSV, comment="#").set_index("year")["cpi_u"]
-    cpi_factor = cpi[config.BASE_YEAR] / cpi[CPI_ANCHOR_YEAR]
+    px = pd.read_csv(CPI_CSV, comment="#").set_index("year")
+    cpi_factor = px.loc[config.BASE_YEAR, "cpi_u"] / px.loc[CPI_ANCHOR_YEAR, "cpi_u"]
+    # sensitivity: the pipeline-consistent index (US GDP deflator, same series as
+    # config.US_GDP_DEFLATOR_2017100). CPI gives the plan its LARGEST 2025-USD
+    # value, so the CPI headline is the conservative ratio.
+    gdpdef_factor = (px.loc[config.BASE_YEAR, "gdpdef_2017100"]
+                     / px.loc[CPI_ANCHOR_YEAR, "gdpdef_2017100"])
 
     by_iso = gains.set_index("iso3")["gain_bn"]
 
@@ -204,7 +209,10 @@ def part2_marshall(gains):
     for src, dst in [("aid_total_musd", "aid_total_2025bn"),
                      ("grants_musd", "aid_grants_2025bn")]:
         aid[dst] = aid[src] * cpi_factor / 1e3
+    aid["aid_total_2025bn_gdpdef"] = aid["aid_total_musd"] * gdpdef_factor / 1e3
     aid["marshall_plans_per_6yr"] = aid["cum_gain_bn"] / aid["aid_total_2025bn"]
+    aid["marshall_plans_per_6yr_gdpdef"] = (aid["cum_gain_bn"]
+                                            / aid["aid_total_2025bn_gdpdef"])
     aid["years_per_marshall_plan"] = np.where(
         aid["gain_bn"] > 0, aid["aid_total_2025bn"] / aid["gain_bn"], np.nan)
     aid["years_per_marshall_plan_grants"] = np.where(
@@ -212,19 +220,24 @@ def part2_marshall(gains):
 
     # aggregate: every recipient (Regional aid counts in the denominator)
     tot_aid, tot_grants = aid["aid_total_2025bn"].sum(), aid["aid_grants_2025bn"].sum()
+    tot_aid_gdpdef = aid["aid_total_2025bn_gdpdef"].sum()
     tot_gain = aid["gain_bn"].sum(skipna=True)            # Regional row is NaN
     agg = dict(recipient="ALL RECIPIENTS (aggregate)", iso3="",
                aid_total_musd=aid["aid_total_musd"].sum(),
                grants_musd=aid["grants_musd"].sum(),
                aid_total_2025bn=tot_aid, aid_grants_2025bn=tot_grants,
+               aid_total_2025bn_gdpdef=tot_aid_gdpdef,
                gain_bn=tot_gain, cum_gain_bn=tot_gain * N_YEARS,
                marshall_plans_per_6yr=tot_gain * N_YEARS / tot_aid,
+               marshall_plans_per_6yr_gdpdef=tot_gain * N_YEARS / tot_aid_gdpdef,
                years_per_marshall_plan=tot_aid / tot_gain,
                years_per_marshall_plan_grants=tot_grants / tot_gain)
     out = pd.concat([pd.DataFrame([agg]), aid], ignore_index=True)
     keep = ["recipient", "iso3", "aid_total_musd", "grants_musd", "loans_musd",
-            "aid_total_2025bn", "aid_grants_2025bn", "gain_bn", "cum_gain_bn",
-            "marshall_plans_per_6yr", "years_per_marshall_plan",
+            "aid_total_2025bn", "aid_grants_2025bn", "aid_total_2025bn_gdpdef",
+            "gain_bn", "cum_gain_bn",
+            "marshall_plans_per_6yr", "marshall_plans_per_6yr_gdpdef",
+            "years_per_marshall_plan",
             "years_per_marshall_plan_grants", "confidence", "note"]
     out = out[[c for c in keep if c in out.columns]].round(2)
     f = TABLES / "ut_gains_vs_marshall_plan.csv"
@@ -246,8 +259,13 @@ def part2_marshall(gains):
             f"${tot_aid:,.0f}bn in 2025 dollars (US CPI). Under unitary taxation the same "
             f"countries would together gain\n${tot_gain:,.1f}bn per year "
             f"(average 2016–2022 excl. 2020) — a full Marshall Plan roughly every "
-            f"{tot_aid / tot_gain:,.1f} years.\nCountry gains and losses (Ireland and the "
-            "Netherlands lose) are netted within the group.")
+            f"{tot_aid / tot_gain:,.1f} years, i.e.\n"
+            f"{tot_gain * N_YEARS / tot_aid:,.1f} Marshall Plans over the six years "
+            "analysed. Country gains and losses (Ireland and the Netherlands lose)\n"
+            "are netted within the group. CPI is the conservative valuation: with the "
+            "US GDP deflator — the index used\nfor all other figures — the plan is "
+            f"${tot_aid_gdpdef:,.0f}bn and the group gains "
+            f"{tot_gain * N_YEARS / tot_aid_gdpdef:,.1f} Marshall Plans in six years.")
     fig.text(0.01, -0.02, note, fontsize=8.5, va="top")
     plt.tight_layout()
     f = FIGURES / "fig_ut_gains_vs_marshall_aggregate.png"

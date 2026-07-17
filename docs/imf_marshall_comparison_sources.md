@@ -71,6 +71,17 @@ average = deflated sum ÷ 6.
   $13,325.8M ≈ **$178bn** in 2025 USD; grants-only $11,610.7M ≈ $155bn.
   The pipeline's own `US_GDP_DEFLATOR_2017100` starts in 2016 and cannot
   reach 1948; CPI is also the adjustment most popular sources quote.
+- **Index-consistency sensitivity**: the estimates side uses the US GDP
+  deflator, so the CPI-adjusted plan is an index mismatch — a **deliberate,
+  conservative** one. With the GDP deflator (BEA/FRED `A191RD3A086NBEA`,
+  1950 = 12.195, 2025 = 128.979, factor ≈ **10.58**, now a column in
+  `us_cpi_annual.csv`) the plan is only ≈ **$141bn**, and the group's
+  six-year gain equals **2.95** Marshall Plans (vs the CPI headline 2.34;
+  one plan every 2.0 vs 2.6 years). Carried in the table as
+  `aid_total_2025bn_gdpdef` / `marshall_plans_per_6yr_gdpdef` and in the
+  aggregate-figure note. CPI remains the headline (gives the plan its
+  largest 2025-USD value, so the ratio cannot be accused of inflation-
+  trickery).
 - **Framing** (user, 2026-07-17): headline = the **aggregate** across all 16
   recipient economies, so haven-side losses (IRL, NLD, DNK, NOR) net out
   within the group: recipients gain ≈$69bn/yr → cumulative ≈$416bn over the
