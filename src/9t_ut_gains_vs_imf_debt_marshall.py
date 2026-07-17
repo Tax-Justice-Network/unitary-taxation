@@ -69,6 +69,9 @@ IMF_API = ("https://api.worldbank.org/v2/sources/6/country/all/series/{series}"
 MARSHALL_CSV = _ROOT / "data" / "raw" / "marshall_plan_aid.csv"
 CPI_CSV = _ROOT / "data" / "raw" / "us_cpi_annual.csv"
 CPI_ANCHOR_YEAR = 1950                          # mid-period of 1948-52 disbursement
+# "Global South" = Group of 77 (the collective-framing denominator). China is a
+# full member; the group is styled "G77 and China".
+G77_CSV = _ROOT / "data" / "raw" / "g77_members.csv"
 
 # Official IMF TAD "Total IMF Credit Outstanding" snapshot, hand-downloaded
 # (the page blocks scripts). SDR-denominated; converted at the market SDR/USD
@@ -214,67 +217,55 @@ def load_imf_tad():
 
 
 def part1_imf(gains):
-    tad = load_imf_tad()                       # HEADLINE stock (official, current)
-    wb = load_imf_credit().rename(columns={"imf_credit_bn": "wb_credit_excl_sdr_bn"})
-    # scope: every Global South country with an estimate OR an IMF debt;
-    # countries not in the TAD list owe the IMF nothing (credit = 0)
-    m = wb.merge(tad, on="iso3", how="outer").merge(gains, on="iso3", how="left")
-    m["imf_credit_bn"] = m["imf_credit_bn"].fillna(0.0)
-    m = m[m["gain_bn"].notna() | (m["imf_credit_bn"] > 0)]
-    m["country"] = m["iso3"].map(cname)
+    tad = load_imf_tad()                       # HEADLINE stock (official IMF, current)
+    # console cross-check only: WB IDS credit-excl-SDR total vs the TAD total
+    # (different vintages, so approximate — keeps the cached WB series exercised)
+    try:
+        wb = load_imf_credit()
+        print(f"  cross-check: WB-IDS credit-excl-SDR total ${wb['imf_credit_bn'].sum():.0f}bn"
+              f" vs official TAD ${tad['imf_credit_bn'].sum():.0f}bn (vintages differ)")
+    except Exception as e:
+        print("  (WB cross-check skipped:", e, ")")
+
+    # affected = IMF borrower (in the TAD list) that appears in our UT analysis
+    m = tad.merge(gains, on="iso3", how="left")
+    m["country_name"] = m["iso3"].map(cname)
     m["years_to_repay"] = np.where(m["gain_bn"] > 0,
                                    m["imf_credit_bn"] / m["gain_bn"], np.nan)
-    m["gain_negative_or_zero"] = (m["gain_bn"] <= 0) | m["gain_bn"].isna()
+    aff = m[m["gain_bn"].notna()].copy()
 
-    cols = ["country", "iso3", "wb_income_group",
-            "imf_credit_bn", "gain_bn", "years_to_repay",
-            "wb_credit_excl_sdr_bn", "sdr_alloc_bn", "imf_liab_incl_sdr_bn",
-            "credit_year", "gain_negative_or_zero"]
-    out = m[cols].sort_values("imf_credit_bn", ascending=False)
-
-    # aggregates: all IDS debtors with estimates, and per income group. The
-    # pooled ratio (sum credit / sum gain) is the headline; the unweighted
-    # country mean/median (only countries with positive gain AND debt) are
-    # carried alongside — the mean explodes on near-zero-gain countries
-    # (Haiti ~1,700 yrs), so the median is the quotable "typical country".
-    agg_rows = []
-    scope = m.dropna(subset=["gain_bn"])
-    for label, sub in ([("ALL Global South countries", scope)] +
-                       [(f"income group: {g}", scope[scope.wb_income_group == g])
-                        for g in sorted(scope.wb_income_group.dropna().unique())]):
-        credit, gain = sub["imf_credit_bn"].sum(), sub["gain_bn"].sum()
-        # country averages: positive gain AND a real credit position (> $10M —
-        # excludes the ~zero rows of countries without IMF programs)
-        yc = sub.loc[(sub["gain_bn"] > 0) & (sub["imf_credit_bn"] > 0.01),
-                     "years_to_repay"]
-        agg_rows.append(dict(country=label, iso3="", wb_income_group="",
-                             credit_year="", imf_credit_bn=credit,
-                             sdr_alloc_bn=sub["sdr_alloc_bn"].sum(),
-                             imf_liab_incl_sdr_bn=sub["imf_liab_incl_sdr_bn"].sum(),
-                             gain_bn=gain,
-                             years_to_repay=(credit / gain if gain > 0 else np.nan),
-                             years_to_repay_country_median=yc.median(),
-                             years_to_repay_country_mean=yc.mean(),
-                             n_countries_in_avg=len(yc),
-                             gain_negative_or_zero=gain <= 0))
-    out = pd.concat([pd.DataFrame(agg_rows), out], ignore_index=True).round(2)
-    out = out[["country", "iso3", "wb_income_group",
-               "imf_credit_bn", "gain_bn", "years_to_repay",
-               "years_to_repay_country_median", "years_to_repay_country_mean",
-               "n_countries_in_avg",
-               "wb_credit_excl_sdr_bn", "sdr_alloc_bn", "imf_liab_incl_sdr_bn",
-               "credit_year", "gain_negative_or_zero"]]
+    # ── the deliverable: a pure country-level table (credit-only, no SDR) ──
+    ct = (aff.rename(columns={"wb_income_group": "income_group",
+                              "imf_credit_bn": "imf_credit_outstanding_bn",
+                              "gain_bn": "ut_revenue_gain_bn"})
+             [["country_name", "iso3", "income_group",
+               "imf_credit_outstanding_bn", "ut_revenue_gain_bn", "years_to_repay"]]
+             .sort_values("imf_credit_outstanding_bn", ascending=False).round(2))
     f = TABLES / "ut_gains_vs_imf_credit.csv"
-    out.to_csv(f, index=False)
-    print(f"wrote {f}")
-    print(out.head(8).to_string(index=False))
+    ct.to_csv(f, index=False)
+    print(f"wrote {f}  ({len(ct)} countries)")
 
-    # figure: the largest IMF debtors with a positive UT gain
-    top = (m[(m.gain_bn > 0)].sort_values("imf_credit_bn", ascending=False)
+    # aggregates — console + figure note only, NOT a deliverable table.
+    # Two population-consistent statements:
+    #  (a) borrower self-financing: pooled/median over the IMF borrowers only;
+    #  (b) G77 collective: the whole bloc's UT gains vs the whole bloc's IMF debt.
+    all_credit, all_gain = aff["imf_credit_bn"].sum(), aff["gain_bn"].sum()
+    yc = aff.loc[aff["gain_bn"] > 0, "years_to_repay"]
+    g77 = set(pd.read_csv(G77_CSV, comment="#")["iso3"])
+    g77_gain = gains.loc[gains["iso3"].isin(g77), "gain_bn"].sum()
+    g77_credit = tad.loc[tad["iso3"].isin(g77), "imf_credit_bn"].sum()
+    print(f"  IMF borrower self-financing: weighted(pooled) {all_credit / all_gain:.2f} | "
+          f"median {yc.median():.2f} | mean {yc.mean():.2f} (n={len(yc)}); "
+          f"borrowers' credit ${all_credit:.0f}bn, gain ${all_gain:.0f}bn/yr")
+    print(f"  G77 collective: gains ${g77_gain:.0f}bn/yr vs IMF credit ${g77_credit:.0f}bn "
+          f"-> {g77_credit / g77_gain:.2f} years")
+
+    # figure: the largest borrowers with a positive UT gain
+    top = (aff[aff.gain_bn > 0].sort_values("imf_credit_bn", ascending=False)
            .head(15).sort_values("years_to_repay"))
-    dropped = m[(m.gain_bn <= 0)].sort_values("imf_credit_bn", ascending=False)
+    dropped = aff[aff.gain_bn <= 0].sort_values("imf_credit_bn", ascending=False)
     fig, ax = plt.subplots(figsize=(9, 6.5))
-    bars = ax.barh(top["country"], top["years_to_repay"], color=POSITIVE)
+    bars = ax.barh(top["country_name"], top["years_to_repay"], color=POSITIVE)
     ax.bar_label(bars,
                  labels=[f" {y:,.1f} yrs  (owes ${c:,.1f}bn)"
                          for y, c in zip(top["years_to_repay"], top["imf_credit_bn"])],
@@ -283,20 +274,19 @@ def part1_imf(gains):
                   "entire outstanding IMF credit", fontsize=11)
     ax.margins(x=0.28)
     ax.invert_yaxis()
-    all_credit = scope["imf_credit_bn"].sum()
-    all_gain = scope["gain_bn"].sum()
     note = ("Note: the 15 countries with the largest IMF credit outstanding (IMF Financial "
             f"Data, as of {TAD_ASOF};\nSDR converted at {SDR_USD} USD/SDR) among those "
             "gaining from unitary taxation. Credit outstanding is actual\nIMF lending and "
             "excludes SDR allocations. Bars show credit divided by the country's average "
             "yearly revenue\ngain under unitary taxation (2016–2022 excl. 2020, 2025 USD). "
-            f"Across all Global South countries,\n{all_credit / all_gain:,.1f} years of "
-            f"gains (\\${all_gain:,.0f}bn/yr) would clear the entire "
-            f"\\${all_credit:,.0f}bn owed to the IMF.")
+            f"The Group of 77 as a bloc gains \\${g77_gain:,.0f}bn per year — about the "
+            f"\\${g77_credit:,.0f}bn it owes\nthe IMF, so roughly one year of gains would "
+            f"clear the bloc's IMF debt; the median individual borrower would\ntake "
+            f"{yc.median():,.0f} years using its own gains.")
     big_dropped = dropped[dropped["imf_credit_bn"] > 1]
     if len(big_dropped):
         note += ("\nNot shown (no net gain under unitary taxation): "
-                 + ", ".join(big_dropped["country"].head(5)) + ".")
+                 + ", ".join(big_dropped["country_name"].head(5)) + ".")
     fig.text(0.01, -0.02, note, fontsize=8.5, va="top")
     plt.tight_layout()
     f = FIGURES / "fig_ut_gains_vs_imf_credit.png"
@@ -317,12 +307,19 @@ def part2_marshall(gains):
                      / px.loc[CPI_ANCHOR_YEAR, "gdpdef_2017100"])
 
     by_iso = gains.set_index("iso3")["gain_bn"]
+    ig_by_iso = gains.set_index("iso3")["wb_income_group"]
 
     def gain_for(iso3):
         if pd.isna(iso3) or iso3 == "":
             return np.nan                       # Regional row
         return sum(by_iso.get(p, np.nan) for p in str(iso3).split("+"))
 
+    def ig_for(iso3):
+        if pd.isna(iso3) or iso3 == "":
+            return ""
+        return ig_by_iso.get(str(iso3).split("+")[0], "")
+
+    aid["income_group"] = aid["iso3"].apply(ig_for)
     aid["gain_bn"] = aid["iso3"].apply(gain_for)          # annual avg, bn 2025 USD
     aid["cum_gain_bn"] = aid["gain_bn"] * N_YEARS
     for src, dst in [("aid_total_musd", "aid_total_2025bn"),
@@ -330,47 +327,44 @@ def part2_marshall(gains):
         aid[dst] = aid[src] * cpi_factor / 1e3
     aid["aid_total_2025bn_gdpdef"] = aid["aid_total_musd"] * gdpdef_factor / 1e3
     aid["marshall_plans_per_6yr"] = aid["cum_gain_bn"] / aid["aid_total_2025bn"]
-    aid["marshall_plans_per_6yr_gdpdef"] = (aid["cum_gain_bn"]
-                                            / aid["aid_total_2025bn_gdpdef"])
     aid["years_per_marshall_plan"] = np.where(
         aid["gain_bn"] > 0, aid["aid_total_2025bn"] / aid["gain_bn"], np.nan)
-    aid["years_per_marshall_plan_grants"] = np.where(
-        aid["gain_bn"] > 0, aid["aid_grants_2025bn"] / aid["gain_bn"], np.nan)
 
-    # aggregate: every recipient (Regional aid counts in the denominator)
+    # group totals (Regional aid counts in the denominator; its gain is NaN)
     tot_aid, tot_grants = aid["aid_total_2025bn"].sum(), aid["aid_grants_2025bn"].sum()
     tot_aid_gdpdef = aid["aid_total_2025bn_gdpdef"].sum()
-    tot_gain = aid["gain_bn"].sum(skipna=True)            # Regional row is NaN
-    # country mean/median of years-per-plan across recipients that gain
-    # (losers never accumulate a plan; they enter only the pooled aggregate)
-    ypc = aid.loc[aid["gain_bn"] > 0, "years_per_marshall_plan"].dropna()
-    agg = dict(recipient="ALL RECIPIENTS (aggregate)", iso3="",
-               aid_total_musd=aid["aid_total_musd"].sum(),
-               grants_musd=aid["grants_musd"].sum(),
-               aid_total_2025bn=tot_aid, aid_grants_2025bn=tot_grants,
-               aid_total_2025bn_gdpdef=tot_aid_gdpdef,
-               gain_bn=tot_gain, cum_gain_bn=tot_gain * N_YEARS,
-               marshall_plans_per_6yr=tot_gain * N_YEARS / tot_aid,
-               marshall_plans_per_6yr_gdpdef=tot_gain * N_YEARS / tot_aid_gdpdef,
-               years_per_marshall_plan=tot_aid / tot_gain,
-               years_per_marshall_plan_grants=tot_grants / tot_gain,
-               years_per_plan_country_median=ypc.median(),
-               years_per_plan_country_mean=ypc.mean(),
-               n_countries_in_avg=len(ypc))
-    out = pd.concat([pd.DataFrame([agg]), aid], ignore_index=True)
-    keep = ["recipient", "iso3", "aid_total_musd", "grants_musd", "loans_musd",
-            "aid_total_2025bn", "aid_grants_2025bn", "aid_total_2025bn_gdpdef",
-            "gain_bn", "cum_gain_bn",
-            "marshall_plans_per_6yr", "marshall_plans_per_6yr_gdpdef",
-            "years_per_marshall_plan",
-            "years_per_marshall_plan_grants",
-            "years_per_plan_country_median", "years_per_plan_country_mean",
-            "n_countries_in_avg", "confidence", "note"]
-    out = out[[c for c in keep if c in out.columns]].round(2)
+    tot_gain = aid["gain_bn"].sum(skipna=True)
+
+    # ── main deliverable: pure country-level table (recipients + income group) ─
+    ct = (aid[aid["iso3"].notna() & (aid["iso3"] != "")]
+          .rename(columns={"aid_total_2025bn": "marshall_aid_2025bn",
+                           "aid_grants_2025bn": "marshall_aid_grants_2025bn",
+                           "aid_total_2025bn_gdpdef": "marshall_aid_2025bn_gdpdef",
+                           "gain_bn": "ut_gain_annual_bn",
+                           "cum_gain_bn": "ut_gain_6yr_bn"})
+          [["recipient", "iso3", "income_group",
+            "marshall_aid_2025bn", "marshall_aid_grants_2025bn",
+            "marshall_aid_2025bn_gdpdef",
+            "ut_gain_annual_bn", "ut_gain_6yr_bn",
+            "marshall_plans_per_6yr", "years_per_marshall_plan"]]
+          .sort_values("ut_gain_6yr_bn", ascending=False).round(2))
     f = TABLES / "ut_gains_vs_marshall_plan.csv"
-    out.to_csv(f, index=False)
-    print(f"wrote {f}")
-    print(out.head(4).to_string(index=False))
+    ct.to_csv(f, index=False)
+    print(f"wrote {f}  ({len(ct)} recipients)")
+    print(ct.to_string(index=False))
+
+    # aggregates — console + figure note only, NOT a deliverable table. The
+    # three averages (weighted/pooled, median, mean) over recipients that gain
+    # (losers never accumulate a plan). Headline = the pooled aggregate.
+    ypc = aid.loc[aid["gain_bn"] > 0, "years_per_marshall_plan"].dropna()
+    ppc = aid.loc[aid["gain_bn"] > 0, "marshall_plans_per_6yr"].dropna()
+    print(f"  Marshall plans-per-6yr (total, CPI): weighted(pooled) "
+          f"{tot_gain * N_YEARS / tot_aid:.2f} | median {ppc.median():.2f} | "
+          f"mean {ppc.mean():.2f} (n={len(ypc)})")
+    print(f"  Marshall years-per-plan  (total, CPI): weighted {tot_aid / tot_gain:.2f} | "
+          f"median {ypc.median():.2f} | mean {ypc.mean():.2f}")
+    print(f"    weighted plans-per-6yr — grants-only {tot_gain * N_YEARS / tot_grants:.2f}, "
+          f"GDP-deflator {tot_gain * N_YEARS / tot_aid_gdpdef:.2f}")
 
     # ── figure 1 (headline): aggregate — the plan vs what UT delivers ────────
     fig, ax = plt.subplots(figsize=(8, 5))

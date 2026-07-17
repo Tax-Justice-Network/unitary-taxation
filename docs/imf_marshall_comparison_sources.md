@@ -45,9 +45,27 @@ average = deflated sum ÷ 6.
   its inclusion would only *shrink* the pooled ratio, so exclusion is
   conservative) plus per-`wb_income_group` rows; country mean/median over
   borrowers with credit > $10M and positive gains.
-- **Headline result**: ≈ **1.0 year** of Global South UT gains ($170bn/yr)
-  clears the entire $167bn owed to the IMF (allocations-inclusive footnote:
-  $382bn, 2.2 years). Median borrower ≈ 6.4 years.
+- **Two population-consistent headline framings** (numerator and denominator
+  over the *same* set of countries):
+  - **G77 collective** (the "Global South" bloc, `data/raw/g77_members.csv`):
+    the G77 gains **≈$151bn/yr** and owes the IMF **≈$150bn** → **≈1.0 year**
+    of the bloc's gains would clear its entire IMF debt. Robust to variants:
+    0.99 incl. China, 1.13 excl. China, 0.93 excl. the hub members.
+  - **Borrower self-financing** (only the ~82 countries that actually
+    borrow): their *own* gains ($27bn/yr) vs their credit ($167bn) →
+    **6.1 years** pooled, **6.4** median (mean 53 is outlier-driven — ignore).
+  The two differ only in population: the big UT gainers (India $45bn, China
+  $18bn, Brazil $18bn) barely borrow from the IMF, so including them (G77
+  bloc) shrinks the ratio to ~1 year. Both are correct; pick per framing.
+  Allocations-inclusive footnote: total liability $382bn, 2.2 years.
+- **"Global South" = Group of 77** (`data/raw/g77_members.csv`, 134 members,
+  source <https://www.g77.org/doc/members.html>, retrieved 2026-07-17; China
+  is a full member). Preferred over WB income groups because it is an explicit
+  political bloc rather than an income threshold. NB it includes high-income
+  Gulf states (SAU/QAT/ARE/KWT) and several investment-hub jurisdictions
+  (ARE/PAN/MUS/BHS/SGP/SYC/BHR) — the `is_china` flag and the hub membership
+  let you strip either. Largest IMF borrowers NOT in the G77: Ukraine
+  ($14.2bn), Serbia, Moldova, Georgia.
 - **Decisions** (user, 2026-07-17): IMF credit **stock only**, excl. SDR
   allocations. Explored and rejected: IMF debt service `DT.TDS.DIMF.CD`
   (~$45bn/yr, gains = 4.0×), all-creditor debt service `DT.TDS.DECT.CD`
