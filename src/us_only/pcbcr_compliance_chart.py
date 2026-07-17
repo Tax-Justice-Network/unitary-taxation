@@ -79,7 +79,8 @@ fig.suptitle("Public country-by-country reporting: US multinationals under-repor
 fig.text(0.01, -0.02,
          "Source: Fair Tax Foundation analyses of EU public-CbCR filings (1 Jul 2025, 137 reports; 12 Jan 2026, "
          "190 reports). 'Good application' = solid implementation of the directive; 'single-country only' = filing "
-         "only the Romania row. See docs/pcbcr_us_noncompliance.md.",
+         "only the Romania row. See docs/pcbcr_us_noncompliance.md. Details on the data and methods can be found "
+         "in the accompanying methodology note.",
          ha="left", va="top", fontsize=9, wrap=True)
 
 plt.tight_layout()

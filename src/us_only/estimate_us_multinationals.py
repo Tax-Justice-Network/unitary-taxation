@@ -67,13 +67,17 @@ plt.rcParams.update({
 
 
 def add_tcja_marker(ax, label=True, va="top", y=0.99):
-    """Single labelled vertical dashed line at 2017 ("Tax Cuts and Jobs Act"),
-    per the house style guide — the one policy marker used on the over-time
-    figures. Drawn behind the data; label spelled out in full, no abbreviation."""
-    ax.axvline(2017, color="#9aa3b2", linestyle=(0, (5, 3)), linewidth=1.2, zorder=1)
+    """Shaded band over the years with the Tax Cuts and Jobs Act in effect
+    (2018 onwards), per the house style guide — the one policy marker used on
+    the over-time figures. Drawn behind the data. Charts that plot profits or
+    taxes as areas keep a vertical line instead (drawn locally)."""
+    _x1 = ax.get_xlim()[1]
+    ax.axvspan(2017.5, _x1, color="#f2f4f8", zorder=0)
+    ax.set_xlim(right=_x1)
     if label:
-        ax.text(2017, 0.975, "  Tax Cuts and Jobs Act", transform=ax.get_xaxis_transform(),
-                color="#666666", fontsize=12, va="top", ha="left")
+        ax.text((2017.5 + _x1) / 2, 0.975, "TCJA in effect",
+                transform=ax.get_xaxis_transform(),
+                color="#5c7090", fontsize=12, va="top", ha="center")
 
 
 SUBTITLE_BLUE = "#5c7090"   # slate subtitle, matching the TCJA-folder figures (5_figures_python.py)
@@ -180,6 +184,7 @@ FIG_FORMULA = os.environ.get("FIG_FORMULA", "ccctb").strip()
 _FIG_FORMULA_META = {
     "ccctb": ("CCCTB: 1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll", "CCCTB", ""),
     "employees_payroll": ("SOTJ: 50% employees, 50% payroll", "SOTJ", "_sotj"),
+    "sales_employees": ("50% sales, 50% employees", "sales-employees", "_salesemp"),
 }
 if FIG_FORMULA not in _FIG_FORMULA_META:
     raise ValueError(f"FIG_FORMULA must be one of {list(_FIG_FORMULA_META)}; got {FIG_FORMULA!r}")
@@ -223,20 +228,27 @@ ETR_THRESHOLDS = [_ETR_MAX]
 # and reverted per request.
 THRESHOLD_ETR_COL = None
 
-# ── Currency: convert nominal USD to REAL 2022 EUR ──────────────────────────
+# Appended to every figure note (user request 2026-07-15).
+METHOD_NOTE = (" Details on the data and methods can be found in the accompanying methodology note.")
+
+
+# ── Currency: convert nominal USD to REAL 2025 EUR ──────────────────────────
 # Each reporting year's nominal-USD monetary value is converted at that year's
 # average EUR/USD rate (ECB euro reference rates, annual average) and reflated
-# to 2022 prices with the euro-area HICP (Eurostat prc_hicp_aind, 2015=100).
-# USD_TO_EUR2022[year] = real-2022-EUR per nominal-USD-of-that-year. Applied per
-# row to the profit & tax columns at load (see load_input_samples), so every
-# downstream profit/tax figure and table is in real 2022 euros. Ratios (ETRs,
-# economic-activity shares) are unaffected.
+# to EUR_BASE_YEAR prices with the euro-area HICP (Eurostat prc_hicp_aind,
+# 2015=100). USD_TO_EUR_BASE[year] = real-base-year-EUR per nominal-USD-of-that-
+# year. Applied per row to the profit & tax columns at load (see
+# load_input_samples), so every downstream profit/tax figure and table is in
+# real 2025 euros. Ratios (ETRs, economic-activity shares) are unaffected.
+EUR_BASE_YEAR = 2025
 _FX_USD_PER_EUR = {2016: 1.1069, 2017: 1.1297, 2018: 1.1810, 2019: 1.1195,
-                   2020: 1.1422, 2021: 1.1827, 2022: 1.0530}
-_HICP_EA = {2016: 100.2, 2017: 101.8, 2018: 103.6, 2019: 104.8,
-            2020: 105.1, 2021: 107.8, 2022: 116.8}
-USD_TO_EUR2022 = {y: (1.0 / _FX_USD_PER_EUR[y]) * (_HICP_EA[2022] / _HICP_EA[y])
-                  for y in _FX_USD_PER_EUR}
+                   2020: 1.1422, 2021: 1.1827, 2022: 1.0530, 2023: 1.0813,
+                   2024: 1.0824, 2025: 1.1300}
+_HICP_EA = {2016: 100.23, 2017: 101.78, 2018: 103.56, 2019: 104.80,
+            2020: 105.06, 2021: 107.78, 2022: 116.82, 2023: 123.15,
+            2024: 126.07, 2025: 128.75}
+USD_TO_EUR_BASE = {y: (1.0 / _FX_USD_PER_EUR[y]) * (_HICP_EA[EUR_BASE_YEAR] / _HICP_EA[y])
+                   for y in _FX_USD_PER_EUR}
 
 OUTPUT_TABLES, OUTPUT_FIGURES = output_dirs(_OUTPUT_TOPIC)
 # OUTPUT_ROOT keeps backward-compatible naming as the per-sample tables root.
@@ -244,6 +256,11 @@ OUTPUT_ROOT = OUTPUT_TABLES
 
 # 1.2 Optional execution switches
 RUN_BILATERALS = False
+
+import re  # noqa: E402  (used by the LUX-2021 neutralisation below)
+# Neutralise Luxembourg's anomalous 2021 one-off restructuring loss in the
+# estimates (TJN "quiet tax war" report). See the loop in section [5].
+ZERO_LUX_2021 = True
 
 
 # %% [1.3] Formula specifications
@@ -1067,12 +1084,12 @@ def load_input_samples():
                   f"leaving {len(df):,} rows for {n_parents_after} parents.")
         df = coerce_numeric_columns(df, numeric_cols)
 
-        # Nominal USD -> real 2022 EUR (per reporting year) for the monetary
-        # columns, so every profit/tax figure and table is in 2022 euros.
+        # Nominal USD -> real 2025 EUR (per reporting year) for the monetary
+        # columns, so every profit/tax figure and table is in 2025 euros.
         # Economic-activity factors stay as-is (only ratios/shares use them) and
         # ETR columns are precomputed ratios, so both are left untouched.
         if "year" in df.columns:
-            _eurf = pd.to_numeric(df["year"], errors="coerce").map(USD_TO_EUR2022)
+            _eurf = pd.to_numeric(df["year"], errors="coerce").map(USD_TO_EUR_BASE)
             for _mc in (PROFIT_VAR, TAX_VAR):
                 if _mc in df.columns:
                     df[_mc] = pd.to_numeric(df[_mc], errors="coerce") * _eurf
@@ -1811,9 +1828,9 @@ for sample_name, df in samples.items():
                 ].iloc[0]
 
                 print(
-                    f"  {year}: shifted {global_row['total_shifted_musd']:,.0f}M EUR(2022) | "
-                    f"tax loss {global_row['total_tax_loss_musd']:,.0f}M EUR(2022) | "
-                    f"tax gain {global_row['total_tax_gain_musd']:,.0f}M EUR(2022)"
+                    f"  {year}: shifted {global_row['total_shifted_musd']:,.0f}M EUR(2025) | "
+                    f"tax loss {global_row['total_tax_loss_musd']:,.0f}M EUR(2025) | "
+                    f"tax gain {global_row['total_tax_gain_musd']:,.0f}M EUR(2025)"
                 )
             else:
                 print(f"  {year}: no data")
@@ -1836,6 +1853,21 @@ for sample_name, df in samples.items():
         country_all_years = order_country_columns(country_all_years)
         misalignment_all_years = order_misalignment_columns(misalignment_all_years)
         aggregate_df = order_aggregate_columns(aggregate_df)
+
+        # --- Neutralise Luxembourg's anomalous 2021 one-off (TJN "quiet tax war"
+        # report decision). The 2021 LUX figures are dominated by a one-off
+        # restructuring artifact (negative_misalignment ~$79bn / tax loss ~$20bn).
+        # Set LUX's 2021 result quantities (misalignment + loss/gain) to zero so
+        # the estimates are not distorted by it. Affects all formulas/rate modes.
+        if ZERO_LUX_2021:
+            _zp = re.compile(r"misalign|tax_revenue_loss|tax_revenue_gain|revenue_gain_from_ut")
+            for _df in (country_all_years, misalignment_all_years):
+                if not _df.empty and {"iso_partner", "year"} <= set(_df.columns):
+                    _m = (_df["iso_partner"] == "LUX") & (
+                        pd.to_numeric(_df["year"], errors="coerce") == 2021)
+                    _cols = [c for c in _df.columns if _zp.search(c)]
+                    if _cols:
+                        _df.loc[_m, _cols] = 0.0
 
         country_file = output_dir / f"country_estimates__{file_stub}.csv"
         misalignment_file = output_dir / f"misalignment__{file_stub}.csv"
@@ -2403,9 +2435,9 @@ def make_two_panel_figure(
 
     bn_wide.plot(kind="bar", ax=axes[0])
     axes[0].axhline(0, linewidth=1)
-    axes[0].set_title("2022 EUR bn")
+    axes[0].set_title("EUR bn (inflation-adjusted, 2025 prices)")
     axes[0].set_xlabel("")
-    axes[0].set_ylabel("Change, 2022 EUR bn")
+    axes[0].set_ylabel("Change, EUR bn (inflation-adjusted, 2025 prices)")
     axes[0].tick_params(axis="x", rotation=25)
     axes[0].legend_.remove()
 
@@ -2449,10 +2481,10 @@ def save_excel_summary(
                 "Figure 4",
             ],
             "caption": [
-                f"Change in taxable profits under formulary apportionment, by income group and formula, aggregated over {_span}. Panel A shows 2022 EUR bn; Panel B shows the change as a percentage of current positive taxable profits.",
-                f"Change in taxable profits under formulary apportionment, excluding COD, UGA, BFA, LBR, NGA, EGY and AGO ({_span}). Panel A shows 2022 EUR bn; Panel B shows the change as a percentage of current positive taxable profits.",
-                f"Net revenue gain/loss from formulary apportionment using the 25th percentile ETR for gains and CIT for losses, by income group and formula, aggregated over {_span}. Panel A shows 2022 EUR bn; Panel B shows the change as a percentage of current positive tax paid.",
-                f"Net revenue gain/loss from formulary apportionment using the minimum ETR for gains and CIT for losses, by income group and formula, aggregated over {_span}. Panel A shows 2022 EUR bn; Panel B shows the change as a percentage of current positive tax paid.",
+                f"Change in taxable profits under formulary apportionment, by income group and formula, aggregated over {_span}. Panel A shows EUR bn (inflation-adjusted, 2025 prices); Panel B shows the change as a percentage of current positive taxable profits.",
+                f"Change in taxable profits under formulary apportionment, excluding COD, UGA, BFA, LBR, NGA, EGY and AGO ({_span}). Panel A shows EUR bn (inflation-adjusted, 2025 prices); Panel B shows the change as a percentage of current positive taxable profits.",
+                f"Net revenue gain/loss from formulary apportionment using the 25th percentile ETR for gains and CIT for losses, by income group and formula, aggregated over {_span}. Panel A shows EUR bn (inflation-adjusted, 2025 prices); Panel B shows the change as a percentage of current positive tax paid.",
+                f"Net revenue gain/loss from formulary apportionment using the minimum ETR for gains and CIT for losses, by income group and formula, aggregated over {_span}. Panel A shows EUR bn (inflation-adjusted, 2025 prices); Panel B shows the change as a percentage of current positive tax paid.",
             ],
         }
     )
@@ -2679,7 +2711,7 @@ else:
 
         ax.axhline(0, color="black", linewidth=0.8)
         ax.set_xlabel("Year")
-        ax.set_ylabel("Aggregate net misalignment of " + HOME_LABEL + "-MNE profit, 2022 EUR bn")
+        ax.set_ylabel("Aggregate net misalignment of " + HOME_LABEL + "-MNE profit, EUR bn (inflation-adjusted, 2025 prices)")
         ax.set_xticks(_eu_years)
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         house_style(ax, f"EU winners and losers from {HOME_LABEL} multinationals' profit shifting",
@@ -2790,7 +2822,7 @@ def _build_eu_lines_for_formula(formula_name, file_suffix, formula_desc, title_s
                         color=color, fontweight="bold", va="center")
         ax.axhline(0, color="black", linewidth=0.8)
         ax.set_xlabel("Year")
-        ax.set_ylabel("Aggregate net misalignment of " + HOME_LABEL + "-MNE profit, 2022 EUR bn")
+        ax.set_ylabel("Aggregate net misalignment of " + HOME_LABEL + "-MNE profit, EUR bn (inflation-adjusted, 2025 prices)")
         ax.set_xticks(years)
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         house_style(ax, f"EU winners and losers from {HOME_LABEL} multinationals' profit shifting",
@@ -2801,7 +2833,7 @@ def _build_eu_lines_for_formula(formula_name, file_suffix, formula_desc, title_s
                  "Note: Net misalignment summed within each group per year. Negative (winners) = profit a unitary "
                  f"({formula_desc}) split would ADD to these EU countries; positive (losers) = profit they would "
                  f"LOSE. Group membership fixed by cumulative net misalignment over the period{et}. Baseline "
-                 "disaggregated CbCR; " + HOME_LABEL + " parents only.",
+                 "disaggregated CbCR; " + HOME_LABEL + " parents only." + METHOD_NOTE,
                  ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out = OUTPUT_FIGURES / f"eu_net_misalignment_aggregated{file_suffix}{suffix}_{min(years)}_{max(years)}.png"
@@ -3171,7 +3203,7 @@ def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15, i
              f"hold {covered:.0f}% of all the profit missing from the EU over {min(years)}–{max(years)} (a long tail "
              f"of smaller destinations is left out). Each bar is coloured by the effective tax rate {HOME_LABEL} "
              "multinationals actually pay in that place. Based on OECD country-by-country "
-             f"data; {HOME_LABEL} multinationals only.",
+             f"data; {HOME_LABEL} multinationals only." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     out = OUTPUT_FIGURES / f"eu_missing_profit_shares{file_suffix}_{min(years)}_{max(years)}.png"
@@ -3214,7 +3246,7 @@ def eu_missing_share_chart(em, etr_by_iso, file_suffix, title_extra, top_n=15, i
              "Each bar is one year, scaled to 100% across the 10 biggest destinations; a segment is that destination's "
              "share of the profit missing from the EU that year. The tax rate shown is the average effective rate "
              f"companies pay there over the period. Based on OECD country-by-country data; {HOME_LABEL} "
-             "multinationals only.",
+             "multinationals only." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     out2 = OUTPUT_FIGURES / f"eu_missing_profit_shares_yearly{file_suffix}_{min(years)}_{max(years)}.png"
@@ -3365,7 +3397,7 @@ else:
                 f"EU profit booked into EU havens (up) vs drained out of the EU (down), "
                 f"{min(ps_years)}–{max(ps_years)}")
     ax.set_xlabel("Year")
-    ax.set_ylabel("" + HOME_LABEL + "-MNE profit shifted, 2022 EUR bn")
+    ax.set_ylabel("" + HOME_LABEL + "-MNE profit shifted, EUR bn (inflation-adjusted, 2025 prices)")
     ax.set_xticks(ps_years)
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
     ax.legend(title="EU profit re-booked in (ETR = period mean)",
@@ -3376,7 +3408,7 @@ else:
              "formula would give EU countries but that companies book somewhere else — anywhere in the world. The "
              "difference between up and down is EU profit that leaves the EU altogether. The tax rate shown is the "
              "average effective rate paid in each haven. Based on OECD country-by-country data; "
-             + HOME_LABEL + " multinationals only.",
+             + HOME_LABEL + " multinationals only." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _f1 = OUTPUT_FIGURES / f"eu_profit_shifting_gap_{min(ps_years)}_{max(ps_years)}.png"
@@ -3398,7 +3430,7 @@ else:
     ax.axhline(15, color="grey", linestyle="--", linewidth=1)
     ax.annotate("15% global minimum-tax reference", (ax.get_xlim()[0], 15),
                 xytext=(5, 4), textcoords="offset points", fontsize=8, color="grey")
-    ax.set_xlabel("Cumulative net misalignment, 2022 EUR bn   "
+    ax.set_xlabel("Cumulative net misalignment, EUR bn (inflation-adjusted, 2025 prices)   "
                   "(→ profit shifted IN / haven    ← profit shifted OUT / victim)")
     ax.set_ylabel("Effective tax rate paid by " + HOME_LABEL + " MNEs, %  (period mean, 5yr-rolling)")
     house_style(ax, f"{HOME_LABEL} multinationals book EU profit where the tax rate is lowest",
@@ -3418,7 +3450,7 @@ else:
              "multinationals actually pay there. Havens cluster at the bottom (low tax). Luxembourg and Malta appear "
              "on the left only because big 2021 book losses tip their multi-year total negative — their very low tax "
              "rates show they are really havens. Bubble size grows with the amount of profit involved. Based on OECD "
-             f"country-by-country data; {HOME_LABEL} multinationals only.",
+             f"country-by-country data; {HOME_LABEL} multinationals only." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _f2 = OUTPUT_FIGURES / f"eu_profit_vs_etr_scatter_{min(ps_years)}_{max(ps_years)}.png"
@@ -3482,7 +3514,7 @@ if "ps" in globals():
                 f"Excluding Luxembourg & Malta; profit booked into EU havens (up) vs drained out of the EU (down), "
                 f"{min(yrs)}–{max(yrs)}")
     ax.set_xlabel("Year")
-    ax.set_ylabel("" + HOME_LABEL + "-MNE profit shifted, 2022 EUR bn")
+    ax.set_ylabel("" + HOME_LABEL + "-MNE profit shifted, EUR bn (inflation-adjusted, 2025 prices)")
     ax.set_xticks(yrs)
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
     ax.legend(title="EU profit re-booked in (ETR = period mean)",
@@ -3491,7 +3523,7 @@ if "ps" in globals():
              "The same chart as the main one, but leaving out Luxembourg and Malta. Bars going UP = profit shifted "
              "from one EU country into another, lower-tax EU country; bars going DOWN = all profit a fair "
              "activity-based formula would give EU countries but that companies book elsewhere in the world. Based on "
-             "OECD country-by-country data; " + HOME_LABEL + " multinationals only.",
+             "OECD country-by-country data; " + HOME_LABEL + " multinationals only." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _f1b = OUTPUT_FIGURES / f"eu_profit_shifting_gap_excl_LUX_MLT_{min(yrs)}_{max(yrs)}.png"
@@ -3572,7 +3604,7 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
                      f"{title_suffix}{extra}\nProfit over-reported (up) vs shifted out (down), "
                      f"{min(yrs)}–{max(yrs)}", fontsize=12)
         ax.set_xlabel("Year")
-        ax.set_ylabel("" + HOME_LABEL + "-MNE profit misalignment, 2022 EUR bn")
+        ax.set_ylabel("" + HOME_LABEL + "-MNE profit misalignment, EUR bn (inflation-adjusted, 2025 prices)")
         ax.set_xticks(yrs)
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         ax.legend(title="Profit over-reported in (ETR = period mean, 5yr-rolling)",
@@ -3581,7 +3613,7 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
                  "Note: 'Over-reported' = " + HOME_LABEL + "-MNE profit booked beyond what the apportionment formula implies "
                  "(shifted IN); 'shifted out' = profit generated locally but booked elsewhere. A few low-ETR havens "
                  "absorb the over-reported profit while many EU countries are drained. ETR = period mean of the "
-                 "5-year-rolling partner ETR. Baseline disaggregated CbCR; " + HOME_LABEL + " parents only.",
+                 "5-year-rolling partner ETR. Baseline disaggregated CbCR; " + HOME_LABEL + " parents only." + METHOD_NOTE,
                  ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out = OUTPUT_FIGURES / f"eu_profit_shifting_gap{file_suffix}{suffix}_{min(yrs)}_{max(yrs)}.png"
@@ -3602,7 +3634,7 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
                             textcoords="offset points", xytext=(5, 3), fontsize=8)
         ax.axvline(0, color="black", linewidth=0.8)
         ax.axhline(15, color="grey", linestyle="--", linewidth=1)
-        ax.set_xlabel("Cumulative net misalignment, 2022 EUR bn   "
+        ax.set_xlabel("Cumulative net misalignment, EUR bn (inflation-adjusted, 2025 prices)   "
                       "(→ profit shifted IN / haven    ← profit shifted OUT / victim)")
         ax.set_ylabel("Effective tax rate paid by " + HOME_LABEL + " MNEs, %  (period mean, 5yr-rolling)")
         ax.set_title("" + HOME_LABEL + "-MNE profit is booked where the tax rate is lowest"
@@ -3618,7 +3650,7 @@ def build_exploitation_for_formula(formula_name, file_suffix, title_suffix):
         fig.text(0.01, -0.02,
                  "Note: x = cumulative net misalignment (reported − formulary-implied profit); right = shifted IN "
                  "(haven), left = shifted OUT (victim). y = ETR US MNEs actually pay. Havens cluster at low ETR. "
-                 "Bubble size ∝ √|net misalignment|. Baseline disaggregated CbCR; " + HOME_LABEL + " parents only.",
+                 "Bubble size ∝ √|net misalignment|. Baseline disaggregated CbCR; " + HOME_LABEL + " parents only." + METHOD_NOTE,
                  ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out = OUTPUT_FIGURES / f"eu_profit_vs_etr_scatter{file_suffix}{suffix}_{min(years)}_{max(years)}.png"
@@ -3727,7 +3759,7 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
                     f"Tax gained in a few low-tax EU havens (up) vs lost by the many drained countries (down)"
                     f"{title_suffix}{extra}, {min(yrs)}–{max(yrs)}")
         ax.set_xlabel("Year")
-        ax.set_ylabel("Tax revenue, 2022 EUR bn")
+        ax.set_ylabel("Tax revenue, EUR bn (inflation-adjusted, 2025 prices)")
         ax.set_xticks(yrs)
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         ax.legend(title="Tax revenue gained in (ETR = period mean)", ncol=2, fontsize=9, loc="upper left")
@@ -3738,7 +3770,7 @@ def build_tax_revenue_gap(formula_name, file_suffix, title_suffix):
                  f"{HOME_LABEL} multinationals actually pay in that haven (gains from draining non-EU countries are "
                  "not counted). Because havens tax this profit so lightly, the tax they gain is far smaller than the "
                  f"tax the drained countries lose. Based on OECD country-by-country data; {HOME_LABEL} "
-                 "multinationals only.",
+                 "multinationals only." + METHOD_NOTE,
                  ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out = OUTPUT_FIGURES / f"eu_tax_revenue_gap{file_suffix}{suffix}_{min(yrs)}_{max(yrs)}.png"
@@ -3806,18 +3838,26 @@ else:
     # excluded from this figure (kept in the CSV for the combined chart), and so
     # is tangible assets (per request, to keep the chart uncluttered).
     # The Left palette, hero red first (see figure_style_guide.md); all solid.
+    # lw 3.0 compensates for the larger canvas (12x7 vs the usual 9x6.5), so
+    # lines match the visual weight of the other charts. Values are labelled
+    # at 2017 (the TCJA baseline) and at the last year (user request 2026-07-16).
     styles = {
-        "Employees": (PALETTE["red"], "-", 2.4),
-        "Payroll":   (PALETTE["teal"], "-", 2.4),
-        "Sales":     (PALETTE["slate"], "-", 2.4),
+        "Employees": (PALETTE["red"], "-", 3.0),
+        "Payroll":   (PALETTE["teal"], "-", 3.0),
+        "Sales":     (PALETTE["slate"], "-", 3.0),
     }
     fig, ax = plt.subplots(figsize=(12, 7))
     for name, (color, ls, lw) in styles.items():
-        ax.plot(share["year"], share[name], marker="o", markersize=5, linewidth=lw,
+        ax.plot(share["year"], share[name], marker="o", markersize=6.5, linewidth=lw,
                 linestyle=ls, color=color, label=name)
         last = share[name].iloc[-1]
         ax.annotate(f"{last:.0f}%", (hs_years[-1], last), textcoords="offset points",
-                    xytext=(6, 0), fontsize=8, color=color, va="center")
+                    xytext=(8, 0), fontsize=10.5, fontweight="bold", color=color, va="center")
+        if 2017 in hs_years:
+            _v17 = float(share.loc[share["year"] == 2017, name].iloc[0])
+            ax.annotate(f"{_v17:.0f}%", (2017, _v17), textcoords="offset points",
+                        xytext=(-6, 9), fontsize=10.5, fontweight="bold", color=color,
+                        ha="right", va="bottom")
     ax.set_ylim(35, 100)
     add_tcja_marker(ax)
     ax.set_xlabel("Year")
@@ -3833,8 +3873,8 @@ else:
     ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=9, frameon=False)
     fig.text(0.01, -0.02,
              f"Each line is the {HOME_LABEL} home region's share of {HOME_LABEL} multinationals' worldwide "
-             "employees, payroll and sales — their real economic activity. The 2017 line marks the Tax Cuts and "
-             "Jobs Act. Shares clipped at 0. Based on OECD country-by-country data.",
+             "employees, payroll and sales — their real economic activity. The shaded area marks the years with "
+             "the Tax Cuts and Jobs Act in effect. Shares clipped at 0. Based on OECD country-by-country data." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _hs_path = OUTPUT_FIGURES / f"home_share_activity_vs_profit_{min(hs_years)}_{max(hs_years)}.png"
@@ -3887,7 +3927,7 @@ else:
         ax.annotate(f"€{v:,.1f}bn{_suffix}", (v, yi), textcoords="offset points", xytext=(4, 0),
                     va="center", fontsize=8,
                     color=PALETTE["amber"] if iso in _LUX_FLAG else PALETTE["ink"])
-    ax.set_xlabel(f"Tax revenue lost, 2022 EUR bn (cumulative {min(tl_years)}–{max(tl_years)})")
+    ax.set_xlabel(f"Tax revenue lost, EUR bn (inflation-adjusted, 2025 prices) (cumulative {min(tl_years)}–{max(tl_years)})")
     house_style(ax, f"What each EU country loses to {HOME_LABEL} multinationals",
                 f"Tax revenue lost to profit shifting, cumulative {min(tl_years)}–{max(tl_years)}")
     ax.grid(True, axis="x", linewidth=0.3, alpha=0.5)
@@ -3898,7 +3938,7 @@ else:
              "rate. ⚠ Luxembourg & Malta (amber) sit near the top only because of large 2021 book losses (likely "
              "tied to US tax-reform repatriation): in that year the formula would assign them more profit than is "
              "actually booked there, so they look 'drained'. Their very low effective tax rates show they are really "
-             f"low-tax havens, not victims. Based on OECD country-by-country data; {HOME_LABEL} multinationals only.",
+             f"low-tax havens, not victims. Based on OECD country-by-country data; {HOME_LABEL} multinationals only." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _tl_path = OUTPUT_FIGURES / f"eu_country_tax_loss_{min(tl_years)}_{max(tl_years)}.png"
@@ -3917,7 +3957,7 @@ else:
         ax.annotate(f"€{_yv:,.0f}bn", (_x, _yv), textcoords="offset points", xytext=(0, 6),
                     ha="center", fontsize=8, color=PALETTE["ink"], fontweight="bold")
     ax.set_xlabel("Year")
-    ax.set_ylabel("Tax revenue lost, 2022 EUR bn")
+    ax.set_ylabel("Tax revenue lost, EUR bn (inflation-adjusted, 2025 prices)")
     ax.set_xticks(tl_years)
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
     house_style(ax, f"The EU's mounting tax loss to {HOME_LABEL} multinationals",
@@ -3928,7 +3968,7 @@ else:
              f"Each bar is the tax EU-27 countries lose in one year to {HOME_LABEL} multinationals' profit shifting — "
              f"the profit a fair activity-based formula ({FIG_FORMULA_DESC}) would give them but that is booked "
              "elsewhere, multiplied by each country's headline corporate tax rate. The line is the running total "
-             f"since the first year. Based on OECD country-by-country data; {HOME_LABEL} multinationals only.",
+             f"since the first year. Based on OECD country-by-country data; {HOME_LABEL} multinationals only." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _tlc_path = OUTPUT_FIGURES / f"eu_tax_loss_cumulative_{min(tl_years)}_{max(tl_years)}.png"
@@ -3947,9 +3987,18 @@ else:
     # The Gewerbesteuerumlage fraction is read YEAR-BY-YEAR from the Destatis
     # Realsteuervergleich (GENESIS 71231-0001: trade-tax apportionment ÷ trade-tax
     # revenue) — it fell from ~16% (2016–19) to ~9% (2020–22) when the Fonds
-    # Deutsche Einheit umlage ended. The Bund/Länder split of the umlage (~41/59)
-    # is not in that table, so it remains a documented assumption.
-    _KST, _SOLZ, _UMLAGE_BUND = 0.15, 0.055 * 0.15, 0.41
+    # Deutsche Einheit umlage ended. The Bund/Länder split of the umlage follows
+    # the statutory Vervielfältiger in §6 Gemeindefinanzreformgesetz: Bund 14.5
+    # points throughout; the Länder point total was 20.5 + 29 (FDU/Solidarpakt
+    # increase, old Länder) through 2019 and 20.5 from 2020. So the Bund share is
+    # 14.5/64 ≈ 22.7% up to 2019 and 14.5/35 ≈ 41.4% from 2020. (Pre-2020 the new
+    # Länder had no FDU increase — share 41.4% — but the old Länder account for
+    # ~9/10 of trade-tax revenue, so their statutory value is applied; the
+    # difference moves the Bund/Länder line by well under one percentage point.)
+    _KST, _SOLZ = 0.15, 0.055 * 0.15
+
+    def _umlage_bund_share(y):
+        return 14.5 / 64.0 if y < 2020 else 14.5 / 35.0   # §6 GemFinRefG
 
     def _load_umlage_fracs():
         p = Path(data_raw) / "corporate_taxes_germany" / "71231-0001_en" / "71231-0001_en.csv"
@@ -3983,8 +4032,9 @@ else:
     de_level = {lvl: [] for lvl in LEVELS}    # per-year loss by level
     for y in de_years:
         uf = _umlage_fr.get(y, _umlage_default)
-        bund_rate = 0.5 * _KST + _SOLZ + _gewerbe * uf * _UMLAGE_BUND
-        laender_rate = 0.5 * _KST + _gewerbe * uf * (1.0 - _UMLAGE_BUND)
+        _ub = _umlage_bund_share(y)
+        bund_rate = 0.5 * _KST + _SOLZ + _gewerbe * uf * _ub
+        laender_rate = 0.5 * _KST + _gewerbe * uf * (1.0 - _ub)
         komm_rate = _gewerbe * (1.0 - uf)
         loss_y = float(de_by_year.get(y, 0.0))
         de_level["Federal (Bund)"].append(loss_y * bund_rate / _r if _r else 0.0)
@@ -4018,7 +4068,7 @@ else:
         ax.annotate(f"€{tot:,.1f}bn", (y, tot), textcoords="offset points", xytext=(0, 3),
                     ha="center", fontsize=8, fontweight="bold")
     ax.set_xlabel("Year")
-    ax.set_ylabel("Tax revenue lost, 2022 EUR bn")
+    ax.set_ylabel("Tax revenue lost, EUR bn (inflation-adjusted, 2025 prices)")
     ax.set_xticks(de_years)
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
     house_style(ax, "Germany's lost corporate tax, by level of government",
@@ -4036,7 +4086,7 @@ else:
              "the local trade tax — a part of which is passed back up to the federal and state governments. That works "
              f"out to about {_shares_txt}. The share of the trade tax passed upward is taken year by year from "
              f"{_uf_src}. Each bar is one year's loss; the figure above it is that year's total. Based on {HOME_LABEL} "
-             "multinationals only; baseline country-by-country data.",
+             "multinationals only; baseline country-by-country data." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _de_path = OUTPUT_FIGURES / f"germany_tax_loss_by_level_{min(de_years)}_{max(de_years)}.png"
@@ -4052,7 +4102,7 @@ else:
         ax.annotate(f"€{_v:,.1f}bn\n({GERMANY_LEVEL_SHARES[_lvl]*100:.0f}%)",
                     (_bar.get_x() + _bar.get_width() / 2, _v), textcoords="offset points",
                     xytext=(0, 3), ha="center", fontsize=10, fontweight="bold")
-    ax.set_ylabel("Tax revenue lost, 2022 EUR bn")
+    ax.set_ylabel("Tax revenue lost, EUR bn (inflation-adjusted, 2025 prices)")
     ax.set_ylim(0, max(_lv_vals) * 1.18)
     house_style(ax, "Which level of German government loses the most",
                 f"Total corporate tax lost to {HOME_LABEL} multinationals, "
@@ -4063,7 +4113,7 @@ else:
              f"{max(de_years)} (€{de_total:,.0f}bn), split between the three levels of government in proportion to how "
              "Germany's combined corporate tax rate is shared between them (the split method is explained on the "
              "year-by-year figure). Municipalities (Kommunen) lose the largest share because they collect the local "
-             f"trade tax. Based on {HOME_LABEL} multinationals only.",
+             f"trade tax. Based on {HOME_LABEL} multinationals only." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _dec_path = OUTPUT_FIGURES / f"germany_tax_loss_by_level_cumulative_{min(de_years)}_{max(de_years)}.png"
@@ -4071,124 +4121,334 @@ else:
     plt.close()
 
     # ---- Per-level benchmark figures (produced per home group, so the all-MNE
-    # versions land in all_multinationals/). All in real 2022 EUR. Daycare
+    # versions land in all_multinationals/). All in real 2025 EUR. Daycare
     # is a municipal matter; schools a Länder/state matter.
-    # Model values are already in real 2022 EUR (deflated at load), so no FX
+    # Model values are already in real 2025 EUR (deflated at load), so no FX
     # conversion is needed here (_USD_EUR kept as 1.0 for the divisions below).
-    # The benchmark backlogs/debt are recent nominal euro figures (KfW/Destatis),
-    # treated as ≈2022 euros.
-    _KOM_DEBT, _DAYCARE, _SCHOOL, _USD_EUR = 154.6, 10.5, 67.8, 1.0
+    # The benchmark backlogs/debt are recent nominal euro figures treated as
+    # ≈2025 euros: municipal debt €154.6bn (Destatis, end-2023); daycare/Kita
+    # backlog €11.2bn and school backlog €67.8bn (both KfW Kommunalpanel 2025,
+    # i.e. the end-2024 backlog; daycare was €10.5bn in the 2021 panel).
+    _KOM_DEBT, _DAYCARE, _SCHOOL, _USD_EUR = 154.6, 11.2, 67.8, 1.0
     _muni_eur = de_totals["Municipal (Kommunen)"] / _USD_EUR
     _laender_eur = de_totals["State (Länder)"] / _USD_EUR
 
-    # (a) Kommunen loss (left) vs the daycare/Kita investment backlog (right) —
-    # the municipal spending need it owns. On the per-group (US/EU) figures the
-    # all-MNE (global) municipal loss is overlaid as a dashed box, so the home
-    # group's loss is seen as part of the bigger total. (Total municipal debt,
-    # ~€155bn, is in the combined all-MNE debt figure instead.)
-    _global_muni_eur = None
-    if PARENT_SET:  # per-group figures only (the GLOBAL run's own bar IS the global)
-        _gtopic = "all_multinationals" + _OUTPUT_TOPIC[len(HOME_TOPIC):]
-        _gpath = OUTPUT_TABLES.parent.parent / _gtopic / "tables" / "germany_tax_loss_by_level.csv"
-        if _gpath.exists():
-            _gdf = pd.read_csv(_longpath(_gpath))
-            _grow = _gdf[_gdf["level"] == "Municipal (Kommunen)"]
-            if not _grow.empty:
-                _global_muni_eur = float(_grow["tax_loss_bn_total"].iloc[0]) / _USD_EUR
+    # (a) Cumulative Kommunen loss vs the daycare/Kita investment backlog — the
+    # municipal spending need it owns. The backlog does not have to be closed in
+    # one year, so the figure shows WHEN the accumulating losses would have paid
+    # for it: actual losses 2016–2022, then a dotted extrapolation until the
+    # cumulative line crosses the backlog. (Redesign 2026-07-15; the old two-bar
+    # version compared the same cumulative total to the backlog as levels.)
+    # Extrapolation (decision 2026-07-16): losses after the last data year scale
+    # with US multinationals' OBSERVED real worldwide profits (Compustat, through
+    # 2024; held at the last observed level thereafter), holding the average
+    # 2016–2022 "shifting intensity" (mean municipal loss / mean real profit)
+    # constant. US run only; falls back to a flat continuation at the pace of
+    # the two most recent data years if the Compustat table is unavailable.
+    _kom_vals = de_level["Municipal (Kommunen)"]
+    _kom_cum = np.cumsum(_kom_vals)
+    _pace = float(np.mean(_kom_vals[-2:]))
+    _last_y, _last_c = de_years[-1], float(_kom_cum[-1])
 
-    fig, ax = plt.subplots(figsize=(8, 6.5))
-    _labels = [f"Lost to {HOME_LABEL} multinationals\n({min(de_years)}–{max(de_years)})",
-               "Daycare/Kita investment backlog\n(KfW Kommunalpanel)"]
-    _vv = [_muni_eur, _DAYCARE]
-    _b = ax.bar(_labels, _vv, color=[PALETTE["red"], PALETTE["slate"]], edgecolor="white", width=0.6)
-    for _i, (_bar, _v) in enumerate(zip(_b, _vv)):
-        _pct = f"\n({100 * _v / _DAYCARE:.0f}% of backlog)" if _i == 0 else ""
-        ax.annotate(f"€{_v:,.1f}bn{_pct}", (_bar.get_x() + _bar.get_width() / 2, _v),
-                    textcoords="offset points", xytext=(0, 3), ha="center", fontsize=10, fontweight="bold")
-    _ymax = max(_vv)
-    if _global_muni_eur is not None:
-        _lb = _b[0]
-        ax.add_patch(plt.Rectangle((_lb.get_x(), 0), _lb.get_width(), _global_muni_eur, fill=False,
-                                   edgecolor=PALETTE["ink"], linestyle="--", linewidth=1.6, zorder=5))
-        ax.annotate(f"€{_global_muni_eur:,.0f}bn lost to\nALL multinationals",
-                    (_lb.get_x() + _lb.get_width() / 2, _global_muni_eur), textcoords="offset points",
-                    xytext=(0, 4), ha="center", fontsize=9, color=PALETTE["ink"])
-        _ymax = max(_ymax, _global_muni_eur)
-    ax.set_ylabel("EUR bn")
-    ax.set_ylim(0, _ymax * 1.22)
-    house_style(ax, f"What German municipalities lose to {HOME_LABEL} multinationals",
-                f"Municipal (Kommunen) tax lost vs the daycare investment backlog, "
-                f"cumulative {min(de_years)}–{max(de_years)}")
+    _loss_at, _ext_mode = None, "pace"
+    if HOME_TOPIC == "us_multinationals":
+        try:
+            _cmp_path = Path(os.environ.get(
+                "SHARED_OUTPUT_ROOT",
+                r"C:\Users\aliso\Tax Justice Network Ltd\TJN - Shared Documents"
+                r"\Research team\Projects one-off\2605 The quiet tax war\3_output",
+            )) / "1_tables" / "us_mnes_under_trump_all.csv"
+            _cmp = pd.read_csv(_longpath(_cmp_path)).set_index("year")
+            # nominal USD ($m) -> real-2025-EUR bn, per year
+            _P = {int(y): float(_cmp.loc[y, "profits_total"]) * USD_TO_EUR_BASE[int(y)] / 1e3
+                  for y in _cmp.index if int(y) in USD_TO_EUR_BASE
+                  and pd.notna(_cmp.loc[y, "profits_total"])}
+            _Pavg = float(np.mean([_P[y] for y in de_years if y in _P]))
+            _intensity = float(np.mean(_kom_vals)) / _Pavg
+            _P_last = _P[max(_P)]
+            _cmp_last_year = max(_P)
+            _loss_at = lambda y: _intensity * _P.get(y, _P_last)
+            _ext_mode = "profits"
+        except Exception:
+            _loss_at = None
+    if _loss_at is None:
+        _loss_at = lambda y: _pace
+
+    if _last_c >= _DAYCARE:                       # crossing inside the actual years
+        _j = int(np.argmax(_kom_cum >= _DAYCARE))
+        _cross_year = de_years[_j]
+        _prev_c = float(_kom_cum[_j - 1]) if _j else 0.0
+        _cross_x = de_years[_j] - 1 + (_DAYCARE - _prev_c) / (float(_kom_cum[_j]) - _prev_c)
+        _ext_x, _ext_v = [], []
+    else:                                         # crossing on the extrapolation
+        _ext_x, _ext_v = [_last_y], [_last_c]
+        _yy, _c = _last_y, _last_c
+        while _c < _DAYCARE and _yy < _last_y + 30:
+            _yy += 1
+            _c += _loss_at(_yy)
+            _ext_x.append(_yy); _ext_v.append(_c)
+        _cross_year = _yy
+        _cross_x = _yy - 1 + (_DAYCARE - _ext_v[-2]) / (_ext_v[-1] - _ext_v[-2])
+        _yy += 1                                   # one extra year of visual margin
+        _ext_x.append(_yy); _ext_v.append(_c + _loss_at(_yy))
+
+    fig, ax = plt.subplots(figsize=(9, 6.5))
+    ax.plot(de_years, _kom_cum, "-o", color=PALETTE["red"], lw=2.4, ms=5.5, zorder=4,
+            label=f"Actual losses, cumulative since {min(de_years)}")
+    ax.fill_between(de_years, 0, _kom_cum, color=PALETTE["red"], alpha=0.10, zorder=1)
+    if _ext_x:
+        if _ext_mode == "profits":
+            _ext_label = ("Losses scale with US multinationals' observed profits\n"
+                          f"(constant {min(de_years)}–{max(de_years)} shifting intensity; "
+                          f"profits observed to {_cmp_last_year})")
+        else:
+            _ext_label = (f"Continued at the {de_years[-2]}/{de_years[-1] % 100:02d} pace "
+                          f"(€{_pace:,.1f}bn a year)")
+        ax.plot(_ext_x, _ext_v, ":", color=PALETTE["red"], lw=2.2, zorder=3, label=_ext_label)
+    ax.axhline(_DAYCARE, color=PALETTE["slate"], ls="--", lw=1.8, zorder=2)
+    _xmax = (_ext_x[-1] if _ext_x else max(de_years)) + 0.3
+    ax.text(min(de_years) - 0.15, _DAYCARE, f"Daycare/Kita investment backlog: "
+            f"€{_DAYCARE:,.1f}bn (KfW Kommunalpanel 2025)",
+            va="bottom", ha="left", fontsize=10, color=PALETTE["slate"])
+    # Crossing point deliberately NOT annotated (2026-07-16): the "fully
+    # financed by {year}" claim is made in the report text, not in the figure.
+    ax.annotate(f"€{_last_c:,.1f}bn by {_last_y}\n({100 * _last_c / _DAYCARE:.0f}% of the backlog)",
+                (_last_y, _last_c), textcoords="offset points", xytext=(-12, 22),
+                ha="right", fontsize=9.5, color=PALETTE["red"])
+    ax.set_ylabel("Cumulative tax revenue lost, EUR bn (inflation-adjusted, 2025 prices)")
+    ax.set_xlim(min(de_years) - 0.3, _xmax)
+    ax.set_ylim(0, max(_DAYCARE, _last_c, (_ext_v[-1] if _ext_v else 0)) * 1.18)
+    ax.set_xticks(list(range(min(de_years), (_ext_x[-1] if _ext_x else max(de_years)) + 1)))
+    ax.legend(loc="upper left", fontsize=9.5, frameon=False)
+    house_style(ax, f"Recovered from {min(de_years)}, these losses would fund "
+                    f"Germany's daycare backlog",
+                f"Cumulative municipal (Kommunen) tax lost to {HOME_LABEL} multinationals "
+                f"vs the daycare investment backlog")
     ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
-    if _global_muni_eur is not None:
-        _note = (f"The red bar is the tax that German municipalities (Kommunen) lose to {HOME_LABEL} multinationals "
-                 f"over {min(de_years)}–{max(de_years)} — about {100 * _muni_eur / _DAYCARE:.0f}% of the size of the "
-                 f"daycare backlog. The dashed box shows the much larger amount municipalities lose to ALL the world's "
-                 f"multinationals combined (€{_global_muni_eur:,.0f}bn); {HOME_LABEL} firms are only one part of it. "
-                 "The blue bar is the investment German municipalities still need to make in daycare and nurseries "
-                 "(KfW Kommunalpanel survey). All amounts are in real 2022 euros.")
+    if _ext_x and _ext_mode == "profits":
+        _ext_note = (f", continued from there (dotted) assuming US multinationals keep shifting the same share "
+                     f"of their worldwide profits as on average over {min(de_years)}–{max(de_years)}: the "
+                     f"implied losses follow the profits US multinationals actually reported (Compustat, "
+                     f"inflation-adjusted) through {_cmp_last_year}, held at that level thereafter")
+    elif _ext_x:
+        _ext_note = (f", continued from there at the average pace of {de_years[-2]}–{de_years[-1]} "
+                     f"(€{_pace:,.1f}bn a year, dotted)")
     else:
-        _note = (f"The red bar is the tax that German municipalities (Kommunen) lose to all multinationals over "
-                 f"{min(de_years)}–{max(de_years)} — about {100 * _muni_eur / _DAYCARE:.0f}% of the size of the "
-                 "daycare backlog. The blue bar is the investment German municipalities still need to make in daycare "
-                 "and nurseries (KfW Kommunalpanel survey). All amounts are in real 2022 euros.")
-    fig.text(0.01, -0.02, _note, ha="left", va="top", fontsize=11, color="#666666", wrap=True)
+        _ext_note = ""
+    _note = (f"The red line is the tax that German municipalities (Kommunen) lose to {HOME_LABEL} multinationals, "
+             f"accumulated from {min(de_years)}: actual estimates up to {_last_y}" + _ext_note
+             + f". Had this money been recovered from {min(de_years)} on, it would have covered the entire "
+             f"investment municipalities still need to make in daycare and nurseries — €{_DAYCARE:,.1f}bn, "
+             f"KfW Kommunalpanel 2025 — by {_cross_year}. The backlog need not be closed in a single year, "
+             f"so the comparison is against the accumulating flow, not one year's loss. Based on {HOME_LABEL} "
+             "multinationals only. All amounts are inflation-adjusted and expressed in 2025 euros.")
+    fig.text(0.01, -0.02, _note + METHOD_NOTE, ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _km_path = OUTPUT_FIGURES / f"germany_kommunen_loss_vs_daycare_{min(de_years)}_{max(de_years)}.png"
     plt.savefig(_longpath(_km_path), dpi=300, bbox_inches="tight")
     plt.close()
 
-    # (b) Länder loss (left) vs the school-building investment backlog (right),
-    # with the all-MNE (global) Länder loss as a dashed box on the per-group figs.
-    _global_laender_eur = None
-    if PARENT_SET:
-        _gpath2 = OUTPUT_TABLES.parent.parent / ("all_multinationals" + _OUTPUT_TOPIC[len(HOME_TOPIC):]) \
-            / "tables" / "germany_tax_loss_by_level.csv"
-        if _gpath2.exists():
-            _g2 = pd.read_csv(_longpath(_gpath2))
-            _r2 = _g2[_g2["level"] == "State (Länder)"]
-            if not _r2.empty:
-                _global_laender_eur = float(_r2["tax_loss_bn_total"].iloc[0]) / _USD_EUR
-
-    fig, ax = plt.subplots(figsize=(8, 6.5))
-    _vv = [_laender_eur, _SCHOOL]
-    _b = ax.bar([f"Lost to {HOME_LABEL} multinationals\n({min(de_years)}–{max(de_years)})",
-                 "School investment backlog\n(KfW Kommunalpanel)"],
-                _vv, color=[PALETTE["red"], PALETTE["slate"]], edgecolor="white", width=0.6)
-    for _i, (_bar, _v) in enumerate(zip(_b, _vv)):
-        _pct = f"\n({100 * _v / _SCHOOL:.0f}% of backlog)" if _i == 0 else ""
-        ax.annotate(f"€{_v:,.1f}bn{_pct}", (_bar.get_x() + _bar.get_width() / 2, _v),
-                    textcoords="offset points", xytext=(0, 3), ha="center", fontsize=10, fontweight="bold")
-    _ymax = max(_vv)
-    if _global_laender_eur is not None:
-        _lb = _b[0]
-        ax.add_patch(plt.Rectangle((_lb.get_x(), 0), _lb.get_width(), _global_laender_eur, fill=False,
-                                   edgecolor=PALETTE["ink"], linestyle="--", linewidth=1.6, zorder=5))
-        ax.annotate(f"€{_global_laender_eur:,.0f}bn lost to\nALL multinationals",
-                    (_lb.get_x() + _lb.get_width() / 2, _global_laender_eur), textcoords="offset points",
-                    xytext=(0, 4), ha="center", fontsize=9, color=PALETTE["ink"])
-        _ymax = max(_ymax, _global_laender_eur)
-    ax.set_ylabel("EUR bn")
-    ax.set_ylim(0, _ymax * 1.22)
-    house_style(ax, f"What German states (Länder) lose to {HOME_LABEL} multinationals",
-                f"State tax lost vs the school-building investment backlog, "
-                f"cumulative {min(de_years)}–{max(de_years)}")
-    ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
-    if _global_laender_eur is not None:
-        _lnote = (f"The red bar is the tax that German states (Länder) lose to {HOME_LABEL} multinationals over "
-                  f"{min(de_years)}–{max(de_years)} — about {100 * _laender_eur / _SCHOOL:.0f}% of the size of the "
-                  f"school-building backlog. The dashed box shows the much larger amount lost to ALL the world's "
-                  f"multinationals combined (€{_global_laender_eur:,.0f}bn). The blue bar is the investment German "
-                  "schools still need (KfW Kommunalpanel survey). All amounts are in real 2022 euros.")
+    # (b) Cumulative FEDERAL (Bund) loss vs the DigitalPakt Schule (reworked
+    # 2026-07-16: the DigitalPakt is federal money, so the federal loss line is
+    # the attribution-clean comparison; the Länder comparison is now the
+    # Deutschlandticket, block (b3)). Benchmark: total federal funding of the
+    # DigitalPakt Schule 2019–2024, €6.5bn = €5bn base programme + three €500m
+    # top-ups (BMBF / digitalpaktschule.de). Extrapolation mirrors the daycare
+    # chart (profit-scaled shifting intensity; flat-pace fallback). The
+    # crossing is deliberately NOT annotated — the "funded by {year}" claim is
+    # made in the report text.
+    _DIGIPAKT = 6.5
+    _bnd_vals = de_level["Federal (Bund)"]
+    _bnd_cum = np.cumsum(_bnd_vals)
+    _bnd_pace = float(np.mean(_bnd_vals[-2:]))
+    _bnd_last_c = float(_bnd_cum[-1])
+    if _ext_mode == "profits":
+        _bnd_intensity = float(np.mean(_bnd_vals)) / _Pavg
+        _bnd_loss_at = lambda y: _bnd_intensity * _P.get(y, _P_last)
     else:
-        _lnote = (f"The red bar is the tax that German states (Länder) lose to all multinationals over "
-                  f"{min(de_years)}–{max(de_years)} — about {100 * _laender_eur / _SCHOOL:.0f}% of the size of the "
-                  "school-building backlog. The blue bar is the investment German schools still need (KfW "
-                  "Kommunalpanel survey). All amounts are in real 2022 euros.")
-    fig.text(0.01, -0.02, _lnote, ha="left", va="top", fontsize=11, color="#666666", wrap=True)
+        _bnd_loss_at = lambda y: _bnd_pace
+
+    if _bnd_last_c >= _DIGIPAKT:
+        _j = int(np.argmax(_bnd_cum >= _DIGIPAKT))
+        _bnd_cross_year = de_years[_j]
+        _bx, _bv = [], []
+    else:
+        _bx, _bv = [_last_y], [_bnd_last_c]
+        _yy, _c = _last_y, _bnd_last_c
+        while _c < _DIGIPAKT and _yy < _last_y + 30:
+            _yy += 1
+            _c += _bnd_loss_at(_yy)
+            _bx.append(_yy); _bv.append(_c)
+        _bnd_cross_year = _yy
+        _yy += 1
+        _bx.append(_yy); _bv.append(_c + _bnd_loss_at(_yy))
+
+    fig, ax = plt.subplots(figsize=(9, 6.5))
+    ax.plot(de_years, _bnd_cum, "-o", color=PALETTE["red"], lw=2.4, ms=5.5, zorder=4,
+            label=f"Actual losses, cumulative since {min(de_years)}")
+    ax.fill_between(de_years, 0, _bnd_cum, color=PALETTE["red"], alpha=0.10, zorder=1)
+    if _bx:
+        if _ext_mode == "profits":
+            _bnd_label = ("Losses scale with US multinationals' observed profits\n"
+                          f"(constant {min(de_years)}–{max(de_years)} shifting intensity; "
+                          f"profits observed to {_cmp_last_year})")
+        else:
+            _bnd_label = (f"Continued at the {de_years[-2]}/{de_years[-1] % 100:02d} pace "
+                          f"(€{_bnd_pace:,.1f}bn a year)")
+        ax.plot(_bx, _bv, ":", color=PALETTE["red"], lw=2.2, zorder=3, label=_bnd_label)
+    ax.axhline(_DIGIPAKT, color=PALETTE["slate"], ls="--", lw=1.8, zorder=2)
+    ax.text(min(de_years) - 0.15, _DIGIPAKT, f"DigitalPakt Schule 2019–2024: "
+            f"€{_DIGIPAKT:,.1f}bn total federal funding",
+            va="bottom", ha="left", fontsize=10, color=PALETTE["slate"])
+    ax.annotate(f"€{_bnd_last_c:,.1f}bn by {_last_y}\n({100 * _bnd_last_c / _DIGIPAKT:.0f}% of the DigitalPakt)",
+                (_last_y, _bnd_last_c), textcoords="offset points", xytext=(-12, 22),
+                ha="right", fontsize=9.5, color=PALETTE["red"])
+    ax.set_ylabel("Cumulative tax revenue lost, EUR bn (inflation-adjusted, 2025 prices)")
+    _bxmax = (_bx[-1] if _bx else max(de_years)) + 0.3
+    ax.set_xlim(min(de_years) - 0.3, _bxmax)
+    ax.set_ylim(0, max(_DIGIPAKT, _bnd_last_c, (_bv[-1] if _bv else 0)) * 1.18)
+    ax.set_xticks(list(range(min(de_years), (_bx[-1] if _bx else max(de_years)) + 1)))
+    ax.legend(loc="upper left", fontsize=9.5, frameon=False)
+    house_style(ax, f"Recovered from {min(de_years)}, these losses would fund "
+                    f"the entire DigitalPakt Schule",
+                f"Cumulative federal (Bund) tax lost to {HOME_LABEL} multinationals "
+                f"vs Germany's flagship school-digitisation programme")
+    ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+    if _bx and _ext_mode == "profits":
+        _bnd_ext_note = (f", continued from there (dotted) assuming US multinationals keep shifting the same share "
+                         f"of their worldwide profits as on average over {min(de_years)}–{max(de_years)} (profits "
+                         f"observed through {_cmp_last_year}, held constant thereafter)")
+    elif _bx:
+        _bnd_ext_note = (f", continued from there at the average pace of {de_years[-2]}–{de_years[-1]} "
+                         f"(€{_bnd_pace:,.1f}bn a year, dotted)")
+    else:
+        _bnd_ext_note = ""
+    _bnote = (f"The red line is the tax that Germany's federal government (Bund) loses to {HOME_LABEL} "
+              f"multinationals, accumulated from {min(de_years)}: actual estimates up to {_last_y}" + _bnd_ext_note
+              + f". Had this money been recovered from {min(de_years)} on, it would have paid for the entire "
+              f"DigitalPakt Schule — Germany's flagship programme for digitising schools, €{_DIGIPAKT:,.1f}bn of "
+              f"federal funding over 2019–2024 including all top-up agreements (BMBF) — by {_bnd_cross_year}. "
+              f"Based on {HOME_LABEL} multinationals only. All amounts are inflation-adjusted and expressed in "
+              "2025 euros.")
+    fig.text(0.01, -0.02, _bnote + METHOD_NOTE, ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
-    _ld_path = OUTPUT_FIGURES / f"germany_laender_loss_vs_schools_{min(de_years)}_{max(de_years)}.png"
-    plt.savefig(_longpath(_ld_path), dpi=300, bbox_inches="tight")
+    _bd_path = OUTPUT_FIGURES / f"germany_bund_loss_vs_digitalpakt_{min(de_years)}_{max(de_years)}.png"
+    plt.savefig(_longpath(_bd_path), dpi=300, bbox_inches="tight")
+    plt.close()
+
+    # (b2) Staffing framing (added 2026-07-16): the ANNUAL loss at its current
+    # (profit-scaled 2024) level buys a permanent stock of staff positions —
+    # set against Germany's official staff-shortage figures. Flow-to-flow, so
+    # no cumulative crossing is needed. Cost rates are full employer costs at
+    # 2025 pay levels, methodologically aligned (no building/overhead costs):
+    #   Erzieher:in ~€75k  = KGSt "Kosten eines Arbeitsplatzes" 2023, TVöD SuE
+    #                        S8a/S8b €68.1k/€72.7k, uprated for 2024/25 TVöD rounds;
+    #   Lehrkraft   ~€90k  = LFF Rheinland-Pfalz Personalkostenverrechnungssätze
+    #                        2025, A13 incl. 30% Versorgungszuschlag + Beihilfe.
+    # Shortage benchmarks: Kita 45,400 (Bertelsmann Fachkräfte-Radar 2023,
+    # gap by 2025 to meet the legal entitlement; 113,700 incl. child-appropriate
+    # staffing); teachers 49,000 (KMK Modellrechnung Feb 2025, 2024-2035;
+    # independent estimates up to ~158,000, Klemm/VBE 2022).
+    _next_y = max(de_years) + 3          # a year on the held 2024 profit level
+    # Länder annual-loss function (used by the staffing loop and the
+    # Deutschlandticket chart; the Länder cumulative chart was replaced by the
+    # federal DigitalPakt chart on 2026-07-16, so it is defined here).
+    _lae_vals = de_level["State (Länder)"]
+    if _ext_mode == "profits":
+        _lae_intensity = float(np.mean(_lae_vals)) / _Pavg
+        _lae_loss_at = lambda y: _lae_intensity * _P.get(y, _P_last)
+    else:
+        _lae_pace_ = float(np.mean(_lae_vals[-2:]))
+        _lae_loss_at = lambda y: _lae_pace_
+    for (_annual_bn, _cost, _gap, _staff, _gap_lab, _gap_src, _fname) in [
+        (_loss_at(_next_y), 75_000, 45_400, "educator",
+         "Missing Kita professionals by 2025\n(legal entitlement, Bertelsmann)",
+         "Bertelsmann Fachkräfte-Radar 2023 (45,400 to meet the legal entitlement by 2025; "
+         "113,700 including child-appropriate staffing ratios). Cost per position: KGSt full "
+         "employer cost, TVöD SuE S8a/S8b, at 2025 pay levels (~€75,000)",
+         f"germany_kommunen_loss_vs_kita_staffing_{min(de_years)}_{max(de_years)}.png"),
+        (_lae_loss_at(_next_y), 90_000, 49_000, "teacher",
+         "Projected teacher gap 2024–2035\n(KMK model calculation)",
+         "KMK, Lehrkräfteeinstellungsbedarf und -angebot 2024–2035 (Feb 2025): a calculated gap "
+         "of 49,000 teachers; independent estimates (Klemm/VBE) reach up to ~158,000. Cost per "
+         "position: LFF Rheinland-Pfalz Personalkostenverrechnungssätze 2025, A13 incl. pension "
+         "provisions (~€90,000)",
+         f"germany_laender_loss_vs_teacher_gap_{min(de_years)}_{max(de_years)}.png"),
+    ]:
+        _npos = _annual_bn * 1e9 / _cost
+        _lvl = "municipalities (Kommunen)" if _staff == "educator" else "states (Länder)"
+        _pct = 100 * _npos / _gap
+        fig, ax = plt.subplots(figsize=(8, 6.5))
+        _bars = ax.bar([f"{_staff.capitalize()} positions the annual\nlosses would fund permanently",
+                        _gap_lab],
+                       [_npos, _gap], color=[PALETTE["red"], PALETTE["slate"]],
+                       edgecolor="white", width=0.6)
+        ax.annotate(f"≈{_npos/1000:,.0f},000\n({_pct:.0f}% of the gap)",
+                    (_bars[0].get_x() + _bars[0].get_width() / 2, _npos), textcoords="offset points",
+                    xytext=(0, 6), ha="center", fontsize=11, fontweight="bold", color=PALETTE["ink"])
+        ax.annotate(f"{_gap:,.0f}", (_bars[1].get_x() + _bars[1].get_width() / 2, _gap),
+                    textcoords="offset points", xytext=(0, 6), ha="center", fontsize=11,
+                    fontweight="bold", color=PALETTE["ink"])
+        ax.set_ylabel("Full-time positions")
+        ax.set_ylim(0, _gap * 1.25)
+        house_style(ax, f"What the {_lvl.split(' ')[0]}' annual losses mean in {_staff}s",
+                    f"{_staff.capitalize()} positions fundable with one year's loss to "
+                    f"{HOME_LABEL} multinationals vs Germany's shortage")
+        ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+        _snote = (f"The red bar shows how many full-time {_staff} positions the German {_lvl} could fund "
+                  f"permanently with the tax revenue they lose to {HOME_LABEL} multinationals in a single year "
+                  f"(€{_annual_bn:,.1f}bn at the current, profit-scaled level; a recurring revenue funds a "
+                  f"recurring position). The blue bar is the official shortage: {_gap_src}. "
+                  "All amounts are inflation-adjusted and expressed in 2025 euros.")
+        fig.text(0.01, -0.02, _snote + METHOD_NOTE, ha="left", va="top", fontsize=11, color="#666666", wrap=True)
+        plt.tight_layout()
+        plt.savefig(_longpath(OUTPUT_FIGURES / _fname), dpi=300, bbox_inches="tight")
+        plt.close()
+
+    # (b3) Länder annual loss vs the missing judges and prosecutors (replaced
+    # the Deutschlandticket comparison 2026-07-16, user decision). Justice is a
+    # core Länder responsibility. Shortage benchmark: ~2,000 missing judges and
+    # prosecutors nationwide (Deutscher Richterbund; the Federal Justice
+    # Minister and the DRB jointly demand 2,000 additional positions, 2025/26;
+    # >1m open criminal cases at end-2025). Cost: ~EUR 100k full employer cost
+    # per position (R-Besoldung incl. pension provisions; slightly above the
+    # verified EUR 90k A13 teacher rate from the same Laender cost tables).
+    _JUDGE_GAP, _JUDGE_COST = 2000, 100_000
+    _lae_annual = _lae_loss_at(max(de_years) + 3)
+    _npos_j = _lae_annual * 1e9 / _JUDGE_COST
+    fig, ax = plt.subplots(figsize=(8, 6.5))
+    _vv = [_npos_j, _JUDGE_GAP]
+    _b = ax.bar(["Positions fundable with the\nstates' annual losses",
+                 "Missing judges and prosecutors\n(Deutscher Richterbund)"],
+                _vv, color=[PALETTE["red"], PALETTE["slate"]], edgecolor="white", width=0.6)
+    ax.tick_params(axis="x", labelsize=10.5)
+    _npos_disp = round(_npos_j / 500) * 500
+    ax.annotate(f"≈{_npos_disp:,.0f}",
+                (_b[0].get_x() + _b[0].get_width() / 2, _npos_j), textcoords="offset points",
+                xytext=(0, 6), ha="center", fontsize=11, fontweight="bold", color=PALETTE["ink"])
+    ax.annotate(f"{_JUDGE_GAP:,.0f}", (_b[1].get_x() + _b[1].get_width() / 2, _JUDGE_GAP),
+                textcoords="offset points", xytext=(0, 6), ha="center", fontsize=11,
+                fontweight="bold", color=PALETTE["ink"])
+    ax.set_ylabel("Full-time positions")
+    ax.set_ylim(0, max(_vv) * 1.22)
+    house_style(ax, "What the states' annual losses mean for the courts",
+                f"Judge and prosecutor positions fundable with one year's Länder loss to "
+                f"{HOME_LABEL} multinationals vs the shortage")
+    ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
+    _jnote = (f"The red bar shows how many full-time judge and prosecutor positions the German states (Länder) "
+              f"could fund permanently with the tax revenue they lose to {HOME_LABEL} multinationals in a single "
+              f"year (€{_lae_annual:,.2f}bn at the current, profit-scaled level; a recurring revenue funds a "
+              "recurring position), at a full employer cost of about €100,000 per position (R-grade pay "
+              "including pension provisions, Länder personnel cost tables). The blue bar is the roughly 2,000 "
+              "additional judges and prosecutors that the Deutscher Richterbund and the Federal Ministry of "
+              "Justice consider missing nationwide (2025/26), with more than one million criminal cases pending "
+              "at the end of 2025. Their demand is precisely for additional funded posts — funding, not the "
+              "supply of jurists, is the binding constraint. Justice is funded by the Länder. All amounts are inflation-adjusted and "
+              "expressed in 2025 euros.")
+    fig.text(0.01, -0.02, _jnote + METHOD_NOTE, ha="left", va="top", fontsize=11, color="#666666", wrap=True)
+    plt.tight_layout()
+    plt.savefig(_longpath(OUTPUT_FIGURES / f"germany_laender_loss_vs_judges_{min(de_years)}_{max(de_years)}.png"),
+                dpi=300, bbox_inches="tight")
     plt.close()
 
     # (c) Combined: all three levels of government and their spending comparisons
@@ -4238,7 +4498,7 @@ else:
         _ax.set_title(_lv, fontsize=12, fontweight="bold", color=PALETTE["ink"])
         _ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         _ax.spines[["top", "right"]].set_visible(False)
-    axes[0].set_ylabel("2022 EUR bn")
+    axes[0].set_ylabel("EUR bn (inflation-adjusted, 2025 prices)")
     fig.suptitle(f"What each level of German government loses to {HOME_LABEL} multinationals — "
                  "and the investment it could fund", fontsize=18, fontweight="bold",
                  x=0.012, ha="left", color=PALETTE["ink"])
@@ -4248,7 +4508,7 @@ else:
              "the world's multinationals. The slate bar (states and municipalities) is the investment that level is "
              "responsible for — school buildings for the states, daycare for municipalities (KfW Kommunalpanel); the "
              "federal government has no comparable single backlog. Each panel has its own scale. All amounts in real "
-             "2022 euros; based on OECD country-by-country data.",
+             "2025 euros; based on OECD country-by-country data." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _lvN_path = OUTPUT_FIGURES / f"germany_levels_vs_needs_{min(de_years)}_{max(de_years)}.png"
@@ -4257,7 +4517,7 @@ else:
 
     _de_top = ", ".join(f"{lvl.split(' ')[0]} €{de_totals[lvl]:,.1f}bn" for lvl in LEVELS)
     print(f"\n[EU country tax loss] saved: {_tl_path}\n"
-          f"  Top losers (2022 EUR bn): "
+          f"  Top losers (EUR bn (inflation-adjusted, 2025 prices)): "
           + ", ".join(f"{r.iso_partner}={r.tax_loss_bn:,.1f}"
                       for r in by_country.head(6).itertuples(index=False))
           + f"\n[Germany split] saved: {_de_path} | total €{de_total:,.1f}bn -> {_de_top}\n"
@@ -4315,8 +4575,9 @@ else:
     ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=9, frameon=False)
     fig.text(0.01, -0.02,
              f"Note: Each line = the EU-27's share of {HOME_LABEL}-MNE worldwide employees, tangible assets, "
-             "payroll and sales — the real economic activity. The 2017 line marks the Tax Cuts and Jobs Act. "
-             "Y-axis fitted to the data; factors clipped at 0. Baseline disaggregated CbCR.",
+             "payroll and sales — the real economic activity. The shaded area marks the years with the Tax Cuts "
+             "and Jobs Act in effect. Y-axis fitted to the data; factors clipped at 0. Baseline disaggregated "
+             "CbCR." + METHOD_NOTE,
              ha="left", va="top", fontsize=11, color="#666666", wrap=True)
     plt.tight_layout()
     _eus_path = OUTPUT_FIGURES / f"eu_share_activity_{min(_eyrs)}_{max(_eyrs)}.png"
@@ -4407,7 +4668,7 @@ if not PARENT_SET:
             ax.annotate(f"€{_r.shifted_bn:,.0f}bn ({_r.share_pct:.0f}%)", (_r.shifted_bn, yi),
                         textcoords="offset points", xytext=(4, 0), va="center", fontsize=8,
                         color=PALETTE["red"] if _r.iso_parent == "USA" else PALETTE["ink"])
-        ax.set_xlabel(f"Profit shifted out of other EU-27 countries, 2022 EUR bn (cumulative {min(_hq_years)}–{max(_hq_years)})")
+        ax.set_xlabel(f"Profit shifted out of other EU-27 countries, EUR bn (inflation-adjusted, 2025 prices) (cumulative {min(_hq_years)}–{max(_hq_years)})")
         house_style(ax, "US multinationals drain the most profit out of the EU",
                     f"By headquarters country (excl. each HQ's own home country) — the US is #{_us_rank} at "
                     f"{_us_share:.0f}% of the all-HQ total, cumulative {min(_hq_years)}–{max(_hq_years)}")
@@ -4424,7 +4685,7 @@ if not PARENT_SET:
                  "countries but that multinationals headquartered there book somewhere else instead (2016–2022). The "
                  "data identify a company's headquarters country, not the individual firm. Each HQ's own home country "
                  "is left out so the comparison is like-for-like (the US, with a non-EU home, is unaffected and is the "
-                 "clear #1)." + _flag_txt + " Based on OECD country-by-country data.",
+                 "clear #1)." + _flag_txt + " Based on OECD country-by-country data." + METHOD_NOTE,
                  ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         _hqa = OUTPUT_FIGURES / f"eu_loss_by_hq_{min(_hq_years)}_{max(_hq_years)}.png"
@@ -4449,7 +4710,7 @@ if not PARENT_SET:
                             (y, _tot_yr.iloc[i]), textcoords="offset points", xytext=(0, 3),
                             ha="center", fontsize=8, color=PALETTE["red"], fontweight="bold")
         ax.set_xlabel("Year")
-        ax.set_ylabel("Profit shifted out of EU-27, 2022 EUR bn")
+        ax.set_ylabel("Profit shifted out of EU-27, EUR bn (inflation-adjusted, 2025 prices)")
         ax.set_xticks(_hq_years)
         ax.grid(True, axis="y", linewidth=0.3, alpha=0.5)
         house_style(ax, f"US multinationals cause ~{_us_share:.0f}% of the EU's shifted-out profit",
@@ -4462,7 +4723,7 @@ if not PARENT_SET:
                  "headquarters is in the US (red) or any other country (slate); the label is the US share of that "
                  "year's total. It leaves out each headquarters' own home country, so the comparison is like-for-like. "
                  "The US share jumps in 2021, reflecting one-off profit repatriation by US firms after the 2017 US tax "
-                 "reform (discussed in the report text). Based on OECD country-by-country data.",
+                 "reform (discussed in the report text). Based on OECD country-by-country data." + METHOD_NOTE,
                  ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         _hqb = OUTPUT_FIGURES / f"eu_loss_us_share_{min(_hq_years)}_{max(_hq_years)}.png"

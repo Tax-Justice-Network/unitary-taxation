@@ -79,6 +79,7 @@ FIG_FORMULA = os.environ.get("FIG_FORMULA", "ccctb").strip()
 _FIG_FORMULA_META = {
     "ccctb": ("CCCTB formula (1/3 sales, 1/3 assets, 1/6 employees, 1/6 payroll)", "CCCTB", ""),
     "employees_payroll": ("SOTJ formula (50% employees, 50% payroll)", "SOTJ", "_sotj"),
+    "sales_employees": ("50% sales, 50% employees formula", "sales-employees", "_salesemp"),
 }
 if FIG_FORMULA not in _FIG_FORMULA_META:
     raise ValueError(f"FIG_FORMULA must be one of {list(_FIG_FORMULA_META)}; got {FIG_FORMULA!r}")
@@ -106,12 +107,16 @@ COLORS = {"US": "#e42728", "EU": "#2c324c", "All": "#5c7090"}
 # modelled loss to EUR for the contrast (period-average, for scale only).
 KOMMUNEN_DEBT_EUR_BN = 154.6      # Destatis end-2023, core municipal budgets
 # Municipal investment backlog (Investitionsrückstand), KfW Kommunalpanel:
-DAYCARE_BACKLOG_EUR_BN = 10.5     # childcare/Kitas (2021; ~11.2bn in 2024)
+DAYCARE_BACKLOG_EUR_BN = 11.2     # childcare/Kitas, 2025 panel = end-2024 backlog (was 10.5 in the 2021 panel)
 SCHOOL_BACKLOG_EUR_BN = 67.8      # school buildings (2025 panel)
-# The per-group estimate runs already express all monetary values in real 2022
+# The per-group estimate runs already express all monetary values in real 2025
 # EUR (deflated at load), so the figures read here are euros — no FX conversion
 # (USD_PER_EUR kept as 1.0 for the existing divisions).
 USD_PER_EUR = 1.0
+
+# Appended to every figure note (user request 2026-07-15).
+METHOD_NOTE = (" Details on the data and methods can be found in the accompanying methodology note.")
+
 
 EU27 = {
     "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", "FRA",
@@ -183,7 +188,7 @@ def main():
     _NOTE_BASE = (f"Based on OECD country-by-country data and a fair activity-based formula ({FIG_FORMULA_DESC}). "
                   "The share is measured against the group's total reported profit. "
                   "US = US-headquartered multinationals; EU = EU-27-headquartered multinationals. "
-                  "All amounts are in real 2022 euros.")
+                  "All amounts are inflation-adjusted and expressed in 2025 euros.")
 
     def _two_panel(metric, pct, title_abs, suptitle, note, fname):
         fig, axes = plt.subplots(1, 2, figsize=(16, 6.5))
@@ -198,7 +203,7 @@ def main():
             axes[1].bar(x + off, gi[pct].to_numpy(), w,
                         label=f"{label} MNEs", color=COLORS[label], edgecolor="white")
         axes[0].set_title(title_abs)
-        axes[0].set_ylabel("Profit shifted, 2022 EUR bn")
+        axes[0].set_ylabel("Profit shifted, EUR bn (inflation-adjusted, 2025 prices)")
         axes[1].set_title("As a share of total profit")
         axes[1].set_ylabel("Profit shifted, % of total reported profit")
         for ax in axes:
@@ -209,7 +214,7 @@ def main():
             ax.legend(frameon=False)
             ax.spines[["top", "right"]].set_visible(False)
         fig.suptitle(suptitle, fontsize=18, fontweight="bold", x=0.012, ha="left", color=PALETTE["ink"])
-        fig.text(0.01, -0.02, note, ha="left", va="top", fontsize=11, color="#666666", wrap=True)
+        fig.text(0.01, -0.02, note + METHOD_NOTE, ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out = figures_dir / f"{fname}_{min(years)}_{max(years)}.png"
         plt.savefig(_longpath(out), dpi=300, bbox_inches="tight")
@@ -265,7 +270,7 @@ def main():
         fig.text(0.01, -0.02,
                  "Note: Home region = the group's parent jurisdiction(s) (USA; EU-27). Left = share of worldwide "
                  "employees located at home (real activity); right = share of worldwide profit booked at home. "
-                 "Baseline disaggregated CbCR.",
+                 "Baseline disaggregated CbCR." + METHOD_NOTE,
                  ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out_hs = figures_dir / f"combined_home_share_us_eu_{min(years)}_{max(years)}.png"
@@ -322,8 +327,8 @@ def main():
                  f"US and EU multinationals over {min(years)}–{max(years)} ({_basis}). The ≈€"
                  f"{muni_eur.get('US', 0):.0f}bn lost to US firms alone is about the size of Germany's entire daycare "
                  f"(Kita) investment backlog (€{DAYCARE_BACKLOG_EUR_BN:.1f}bn, KfW Kommunalpanel). For context, total "
-                 f"municipal debt is €{KOMMUNEN_DEBT_EUR_BN:.0f}bn (Destatis, end-2023). Amounts in real 2022 euros; "
-                 "based on OECD country-by-country data.",
+                 f"municipal debt is €{KOMMUNEN_DEBT_EUR_BN:.0f}bn (Destatis, end-2023). Amounts inflation-adjusted and expressed in 2025 euros; "
+                 "based on OECD country-by-country data." + METHOD_NOTE,
                  ha="left", va="top", fontsize=11, color="#666666", wrap=True)
         plt.tight_layout()
         out_k = figures_dir / f"germany_kommunen_loss_vs_needs_{min(years)}_{max(years)}.png"
@@ -354,7 +359,7 @@ def main():
                      "The part of Germany's lost corporate tax that falls on municipalities (Kommunen), caused by "
                      f"ALL multinationals (any headquarters) over {min(years)}–{max(years)} ({_basis}). Total "
                      "municipal debt = German municipalities' core-budget debt (Destatis, end-2023). Amounts in real "
-                     "2022 euros; based on OECD country-by-country data.",
+                     "2025 euros; based on OECD country-by-country data." + METHOD_NOTE,
                      ha="left", va="top", fontsize=11, color="#666666", wrap=True)
             plt.tight_layout()
             out_kd = figures_dir / f"germany_kommunen_all_loss_vs_debt_{min(years)}_{max(years)}.png"

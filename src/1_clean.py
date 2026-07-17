@@ -120,6 +120,44 @@ def fill_missing(df, iso, year, column, value):
     df.loc[mask, column] = value
 
 
+def load_manual_imputation_values():
+    """Load the curated manual macro / CIT / wage values.
+
+    Single source of truth for the values that used to be hard-coded in this
+    script (small-territory GDP/population, the flat CIT overrides, and the
+    hand-collected wages). Lives in ``data/raw/manual_imputation_values.csv``
+    with columns ``iso_partner, year, variable, value, mode, source_url, note``.
+    """
+    manual = pd.read_csv(f"{data_raw}manual_imputation_values.csv")
+    manual["year"] = pd.to_numeric(manual["year"], errors="coerce")
+    return manual
+
+
+def apply_manual_values(df, manual, variables):
+    """Apply curated manual values (in place) to ``df`` for ``variables``.
+
+    Each manual row sets ``df[variable]`` for the matching ``iso_partner``
+    (and ``year`` if one is given; a blank year applies to every row for that
+    jurisdiction). ``mode == "fill_if_missing"`` only writes where the cell is
+    currently NaN; ``mode == "override"`` writes unconditionally. Rows whose
+    target column is absent from ``df`` are skipped.
+    """
+    sub = manual[manual["variable"].isin(variables)]
+    for _, row in sub.iterrows():
+        column = row["variable"]
+        if column not in df.columns:
+            continue
+        mask = df["iso_partner"] == row["iso_partner"]
+        if pd.notna(row["year"]):
+            mask &= df["year"] == int(row["year"])
+        if row["mode"] == "fill_if_missing":
+            mask &= df[column].isna()
+        df.loc[mask, column] = float(row["value"])
+
+
+MANUAL_VALUES = load_manual_imputation_values()
+
+
 def add_or_fill_wxd_rows(cbcr):
     """
     Add or complete a raw WXD row for each parent-year-grouping block.
@@ -200,7 +238,8 @@ def correct_for_dividend_double_counting(row, year, corrections, tax_havens):
     if pd.isna(profit):
         return np.nan
 
-    # Use adjusted profits if available
+    # Use OECD adjusted profits if available.
+    # In these cases, do not apply any further manual correction.
     if pd.notna(row.get("adjusted_profit_loss_before_income_tax")):
         return row["adjusted_profit_loss_before_income_tax"]
 
@@ -235,14 +274,6 @@ def correct_for_dividend_double_counting(row, year, corrections, tax_havens):
             corrections["foreign"].get(year, {}).get(row["iso_parent"], 0)
         )
         profit *= 1 - foreign_correction
-
-        # Extra US tax haven correction in 2018
-        if (
-            row["iso_parent"] == "USA"
-            and row["iso_partner"] in tax_havens
-            and year == 2018
-        ):
-            profit *= 0.61
 
     return profit
 
@@ -560,13 +591,25 @@ cbcr_wide = pd.pivot_table(
 
 cbcr = cbcr_wide[cbcr_variables].copy()
 
-# Remove non-existing jurisdictions, stateless entities, and empty world rows
-cbcr = cbcr[
-    (cbcr["COUNTERPART_AREA"] != "ANT_F")
-    & (cbcr["COUNTERPART_AREA"] != "BVT")
-    & (cbcr["COUNTERPART_AREA"] != "STLS")
-    & (cbcr["COUNTERPART_AREA"] != "W")
-].copy()
+# Drop four counterpart codes outright (this is the ONLY place the pipeline
+# excludes any partner rows):
+#   ANT_F  Netherlands Antilles  — dissolved 2010, no longer a jurisdiction.
+#   BVT    Bouvet Island         — uninhabited dependency, not a real market.
+#   STLS   Stateless             — see below.
+#   W      World (all partners)  — the reporter's own grand total; keeping it
+#                                  would double-count every partner row.
+#
+# STATELESS ENTITIES (STLS). OECD CbCR reports a separate "Stateless" partner
+# row per reporter for sub-entities the parent could not assign to any tax
+# jurisdiction. We DROP these rows entirely and do NOT redistribute their
+# profit/activity to any country: stateless profit has no real location, so
+# there is no geographic basis for reallocating it. Importantly, the OECD flags
+# stateless income as a known source of DOUBLE COUNTING with the partner rows
+# (the same profit can appear both here and under a named partner), so dropping
+# it is part of how we deal with duplicate profits. The misalignment/UT method
+# then operates only on profit booked in identifiable jurisdictions.
+_drop_codes = ["ANT_F", "BVT", "W", "STLS"]
+cbcr = cbcr[~cbcr["COUNTERPART_AREA"].isin(_drop_codes)].copy()
 
 # Correct one empty line for Chile in 2016
 cbcr = cbcr[
@@ -583,9 +626,7 @@ cbcr = cbcr[
 # payroll, and collapsed/negative tangible assets and revenues. The whole 2022
 # submission is internally inconsistent, so Romania is treated as a non-reporter
 # for 2022 (verified against the raw CbCR file; not a pipeline artefact).
-cbcr = cbcr[
-    ~((cbcr["REF_AREA"] == "ROU") & (cbcr["TIME_PERIOD"] == 2022))
-].copy()
+cbcr = cbcr[~((cbcr["REF_AREA"] == "ROU") & (cbcr["TIME_PERIOD"] == 2022))].copy()
 
 cbcr.rename(
     columns={
@@ -640,6 +681,141 @@ check_missing_values(
 
 cbcr = add_or_fill_wxd_rows(cbcr)
 
+
+def correct_source_data_artifacts(cbcr):
+    """Correct clearly-corrupt source CbCR cells before ETR construction.
+
+    Two list-free, jurisdiction-agnostic time-series fingerprints (detected on the
+    comprehensive 'Total (All sub-groups)' grouping, then applied to every grouping
+    of the flagged (iso_parent, iso_partner, year) cell):
+
+    (1) UNITS ERROR — profit, income tax AND tangible assets each jump >3x the
+        cell's own other-year average while revenue & employees stay in their normal
+        range, AND the resulting profit margin > 0.5. The real-activity fields
+        (revenue, headcount) are the correctly-filed parts, so profit/tax/assets are
+        reset to revenue x the cell's average ratio over its other years. (E.g.
+        Indonesia domestic 2018: 97% margin, assets ~4x GDP, tax ~25x normal — every
+        other year ~10% margin; the foreign Indonesian cells that year are normal.)
+
+    (2) EVERYTHING INFLATED (hyperinflation / bad FX conversion) — revenue itself is
+        corrupt too, so there is no trustworthy field to rescale against. A general
+        "revenue >> the cell's own history" rule fires on dozens of legitimate cells
+        (new large operations, bad-reporter continent aggregates), so these are NOT
+        auto-detected; they are listed explicitly in HYPERINFLATION_CELLS as known
+        corrupt-at-source records (cf. the Romania-2022 drop) and interpolated from
+        their adjacent years. Currently: Mexico->Venezuela 2020 (Venezuela bolivar
+        conversion — every field ~20-400x too big; both neighbours ~$0.1bn).
+    """
+    # Known hyperinflation / FX-corruption cells (add (parent, partner, year) here).
+    HYPERINFLATION_CELLS = [("MEX", "VEN", 2020)]
+    PROFIT = "profit_loss_before_income_tax"
+    REV = "total_revenues"
+    EMP = "n_employees"
+    RESCALE_COLS = [
+        "profit_loss_before_income_tax", "adjusted_profit_loss_before_income_tax",
+        "income_tax_paid_on_cash_basis", "income_tax_accrued_current_year",
+        "tangible_assets_except_cash",
+    ]
+    MONEY_COLS = RESCALE_COLS + [
+        "total_revenues", "unrelated_party_revenues", "related_party_revenues",
+        "stated_capital",
+    ]
+    num = {c: pd.to_numeric(cbcr[c], errors="coerce") for c in
+           set(MONEY_COLS + [EMP]) if c in cbcr.columns}
+    tot_mask = cbcr["grouping"] == "Total (All sub-groups)"
+    tot = cbcr[tot_mask].copy()
+    for c in num:
+        tot[c] = num[c][tot_mask]
+
+    units_cells = []
+    for (p, pt), g in tot.groupby(["iso_parent", "iso_partner"]):
+        if g["year"].nunique() < 4:
+            continue
+        g = g.sort_values("year")
+        for _, r in g.iterrows():
+            o = g[g["year"] != r["year"]]
+
+            def spike(col, k=3.0):
+                m = o[col].mean()
+                return bool(m > 0 and r[col] > k * m)
+
+            def flat(col, k=2.0):
+                m = o[col].mean()
+                return bool(m <= 0 or abs(r[col]) <= k * abs(m))
+
+            rev = r[REV]
+            margin = (r[PROFIT] / rev) if (pd.notna(rev) and rev > 0) else np.nan
+            # units error: income/balance-sheet fields spike, real activity flat
+            if (pd.notna(r[PROFIT]) and r[PROFIT] / 1e9 >= 2
+                    and spike(PROFIT) and spike("income_tax_paid_on_cash_basis")
+                    and spike("tangible_assets_except_cash")
+                    and flat(REV) and flat(EMP)
+                    and pd.notna(margin) and margin > 0.5):
+                units_cells.append((p, pt, int(r["year"])))
+
+    # Hyperinflation cells come from the explicit list, not auto-detection.
+    _present = set(zip(cbcr["iso_parent"], cbcr["iso_partner"]))
+    inflated_cells = [(p, pt, y) for (p, pt, y) in HYPERINFLATION_CELLS
+                      if (p, pt) in _present]
+
+    def cell_grouping_rows(p, pt):
+        return (cbcr["iso_parent"] == p) & (cbcr["iso_partner"] == pt)
+
+    for (p, pt, y) in units_cells:
+        for grp in cbcr.loc[cell_grouping_rows(p, pt), "grouping"].unique():
+            m = cell_grouping_rows(p, pt) & (cbcr["grouping"] == grp)
+            sub = cbcr[m]
+            yr = pd.to_numeric(sub["year"], errors="coerce")
+            if y not in yr.values:
+                continue
+            others = sub[yr != y]
+            rev_o = pd.to_numeric(others[REV], errors="coerce")
+            rev_y = pd.to_numeric(sub.loc[yr == y, REV], errors="coerce").iloc[0]
+            if not (pd.notna(rev_y) and rev_y != 0):
+                continue
+            # Only correct a grouping whose OWN value is anomalous (impossible
+            # margin > 0.5) — so e.g. the normal 'negative profits' grouping is left
+            # untouched while 'Total' and 'positive profits' (both corrupt) are fixed.
+            profit_y = pd.to_numeric(sub.loc[yr == y, PROFIT], errors="coerce").iloc[0]
+            if not (pd.notna(profit_y) and profit_y / rev_y > 0.5):
+                continue
+            for col in RESCALE_COLS:
+                if col not in cbcr.columns:
+                    continue
+                ratio = (pd.to_numeric(others[col], errors="coerce") / rev_o)
+                ratio = ratio.replace([np.inf, -np.inf], np.nan).mean()
+                if pd.notna(ratio):
+                    cbcr.loc[m & (pd.to_numeric(cbcr["year"], errors="coerce") == y), col] = rev_y * ratio
+        print(f"  [artifact] UNITS-ERROR rescaled {p}->{pt} {y} "
+              f"(profit/tax/assets reset to revenue x avg ratio, all groupings)")
+
+    for (p, pt, y) in inflated_cells:
+        for grp in cbcr.loc[cell_grouping_rows(p, pt), "grouping"].unique():
+            m = cell_grouping_rows(p, pt) & (cbcr["grouping"] == grp)
+            sub = cbcr[m]
+            yr = pd.to_numeric(sub["year"], errors="coerce")
+            if y not in yr.values:
+                continue
+            for col in MONEY_COLS:
+                if col not in cbcr.columns:
+                    continue
+                nb = [pd.to_numeric(sub.loc[yr == y + d, col], errors="coerce").iloc[0]
+                      for d in (-1, 1) if (y + d) in yr.values
+                      and len(sub.loc[yr == y + d, col])]
+                nb = [v for v in nb if pd.notna(v)]
+                if nb:
+                    cbcr.loc[m & (pd.to_numeric(cbcr["year"], errors="coerce") == y), col] = float(np.mean(nb))
+        print(f"  [artifact] HYPERINFLATION interpolated {p}->{pt} {y} "
+              f"(all monetary fields = mean of adjacent years, all groupings)")
+
+    if not units_cells and not inflated_cells:
+        print("  [artifact] no corrupt source cells detected")
+    return cbcr
+
+
+print("Source-data artifact correction:")
+cbcr = correct_source_data_artifacts(cbcr)
+
 parent_countries = cbcr["iso_parent"].drop_duplicates()
 partner_countries = cbcr["iso_partner"].drop_duplicates()
 
@@ -655,49 +831,32 @@ print(
 
 # %%
 # 1.2 Adjust profits for dividend double counting
+#
+# Sources:
+#
+# General corrections:
+# Garcia-Bernardo, J. and Janský, P. (2024).
+# "Profit shifting of multinational corporations worldwide."
+# World Development, 177, 106527.
+#
+# USA-specific corrections:
+# Garcia-Bernardo, J., Janský, P. and Zucman, G. (2026).
+# "Did the Tax Cuts and Jobs Act Reduce Profit Shifting by US Multinational Companies?"
+#
+# Assumptions:
+# - 2016 is treated like 2017.
+# - From 2020 onwards, no corrections are applied.
+# - Italy receives the standard 35% correction.
+# - NLD and GBR use OECD-adjusted profits where available and are therefore
+#   not separately corrected here.
+# - Aggregated country groups receive a 5% correction because they may contain
+#   tax havens.
 
 correction_domestic = {
-    2016: {
-        "ARG": 0.35,
-        "AUS": 0.35,
-        "AUT": 0.35,
-        "BEL": 0.5,
-        "BMU": 0.5,
-        "BRA": 0.35,
-        "CAN": 0.35,
-        "CHE": 0.35,
-        "USA": 0.74,
-        "ZAF": 0.35,
-    },
-    2017: {
-        "ARG": 0.35,
-        "AUS": 0.35,
-        "AUT": 0.35,
-        "BEL": 0.5,
-        "BMU": 0.5,
-        "BRA": 0.35,
-        "USA": 0.55,
-        "ZAF": 0.35,
-    },
-    2018: {
-        "ARG": 0.35,
-        "AUS": 0.35,
-        "AUT": 0.35,
-        "BEL": 0.5,
-        "BMU": 0.5,
-        "BRA": 0.35,
-        "USA": 0.74,
-        "ZAF": 0.35,
-    },
-    2019: {
-        "ARG": 0.35,
-        "AUS": 0.35,
-        "AUT": 0.35,
-        "BEL": 0.5,
-        "BMU": 0.5,
-        "USA": 0.74,
-        "ZAF": 0.35,
-    },
+    2016: {"USA": 0.54},
+    2017: {"USA": 0.54},
+    2018: {"USA": 0.74},
+    2019: {"USA": 0.42},
     2020: {},
     2021: {},
     2022: {},
@@ -707,46 +866,96 @@ correction_foreign = {
     2016: {"USA": 0.07},
     2017: {"USA": 0.07},
     2018: {"USA": 0.39},
-    2019: {"USA": 0.39},
+    2019: {"USA": 0.28},
     2020: {},
     2021: {},
     2022: {},
 }
 
-correction_taxhavens = {
-    year: {key: 0.09 for key in tax_havens} for year in range(2016, 2020)
-}
-correction_countrygroups = {
-    year: {key: 0.045 for key in other_country_groups} for year in range(2016, 2020)
+correction_domestic_other_countries = {
+    year: {
+        # Domestic ETR substantially below foreign ETR
+        "BEL": 0.50,
+        "SGP": 0.50,
+        "BMU": 0.50,
+        # Domestic ETR exceeds foreign ETR
+        "LVA": 0.00,
+        "SVN": 0.00,
+        "LUX": 0.00,
+    }
+    for year in range(2016, 2020)
 }
 
-corrections = {"domestic": {}, "foreign": {}, "taxhavens": {}, "countrygroups": {}}
+correction_taxhavens = {
+    year: {key: 0.10 for key in tax_havens} for year in range(2016, 2020)
+}
+
+# Aggregated country groups may contain tax havens.
+# Apply half of the tax haven correction.
+
+correction_countrygroups = {
+    year: {key: 0.05 for key in other_country_groups} for year in range(2016, 2020)
+}
+
+corrections = {
+    "domestic": {},
+    "foreign": {},
+    "taxhavens": {},
+    "countrygroups": {},
+}
 
 for year in analysis_years:
+
     corrections["domestic"][year] = {key: 0 for key in parent_countries.tolist()}
+
     corrections["foreign"][year] = {key: 0 for key in parent_countries.tolist()}
+
     corrections["taxhavens"][year] = {key: 0 for key in partner_countries.tolist()}
+
     corrections["countrygroups"][year] = {key: 0 for key in partner_countries.tolist()}
 
+    # General domestic correction (2016–2019 only)
+    if year in range(2016, 2020):
+        corrections["domestic"][year].update(
+            {key: 0.35 for key in parent_countries.tolist()}
+        )
+
+    # Country-specific domestic corrections
+    corrections["domestic"][year].update(
+        correction_domestic_other_countries.get(year, {})
+    )
+
+    # USA-specific domestic corrections
     corrections["domestic"][year].update(correction_domestic.get(year, {}))
+
+    # USA-specific foreign corrections
     corrections["foreign"][year].update(correction_foreign.get(year, {}))
+
+    # Tax haven corrections
     corrections["taxhavens"][year].update(correction_taxhavens.get(year, {}))
+
+    # Country-group corrections
     corrections["countrygroups"][year].update(correction_countrygroups.get(year, {}))
 
     print(
-        f"Applied corrections for year {year} (Domestic: {len(corrections['domestic'][year])} countries, "
-        f"Foreign: {len(corrections['foreign'][year])}, Tax Havens: {len(corrections['taxhavens'][year])}, "
+        f"Applied corrections for year {year} "
+        f"(Domestic: {len(corrections['domestic'][year])} countries, "
+        f"Foreign: {len(corrections['foreign'][year])}, "
+        f"Tax Havens: {len(corrections['taxhavens'][year])}, "
         f"Country Groups: {len(corrections['countrygroups'][year])})"
     )
 
 print(corrections)
 
-# %%
 # 1.2b Apply profit correction row by row
 
 for year in analysis_years:
     mask = cbcr["year"] == year
     original_values = cbcr.loc[mask, "profit_loss_before_income_tax"].copy()
+
+    adjusted_available = cbcr.loc[
+        mask, "adjusted_profit_loss_before_income_tax"
+    ].notna()
 
     corrected_values = cbcr.loc[mask].apply(
         lambda row: correct_for_dividend_double_counting(
@@ -759,6 +968,20 @@ for year in analysis_years:
 
     changed = (
         corrected_values.notna()
+        & original_values.notna()
+        & (corrected_values != original_values)
+    ).sum()
+
+    changed_by_adjusted_profit = (
+        adjusted_available
+        & corrected_values.notna()
+        & original_values.notna()
+        & (corrected_values != original_values)
+    ).sum()
+
+    changed_by_manual_correction = (
+        ~adjusted_available
+        & corrected_values.notna()
         & original_values.notna()
         & (corrected_values != original_values)
     ).sum()
@@ -778,6 +1001,8 @@ for year in analysis_years:
     print(f"Processed rows: {mask.sum()}")
     print(f"Non-missing corrected entries: {corrected_values.notna().sum()}")
     print(f"Actually changed entries: {changed}")
+    print(f"Changed via OECD adjusted profits: {changed_by_adjusted_profit}")
+    print(f"Changed via manual correction rules: {changed_by_manual_correction}")
     print(f"Domestic corrections: {domestic_nonzero}")
     print(f"Foreign corrections: {foreign_nonzero}")
     print(f"Tax haven corrections: {taxhavens_nonzero}")
@@ -1070,27 +1295,13 @@ missing_cits = [
 ]
 cits = pd.concat([cits, pd.DataFrame(missing_cits)], ignore_index=True)
 
+# Malta's 5/6 shareholder refund -> effective 1/7 of the headline rate. This is
+# a derived (multiplicative) adjustment, so it stays in code; MTQ<-FRA and
+# BVT<-NOR above are likewise derived. The flat and fill-if-missing CIT
+# overrides (GIB, MCO, AND, CAF, ..., SMR) now live in
+# data/raw/manual_imputation_values.csv.
 cits.loc[cits["iso_partner"] == "MLT", "cit"] *= 1 / 7
-cits.loc[cits["iso_partner"] == "GIB", "cit"] = 0
-cits.loc[cits["iso_partner"] == "MCO", "cit"] = 0
-cits.loc[cits["iso_partner"] == "AND", "cit"] = 0
-cits.loc[cits["iso_partner"] == "CAF", "cit"] = 0.3
-cits.loc[cits["iso_partner"] == "HTI", "cit"] = 0.3
-cits.loc[cits["iso_partner"] == "YEM", "cit"] = 0.2
-cits.loc[cits["iso_partner"] == "NCL", "cit"] = 0
-cits.loc[(cits["iso_partner"] == "PRK") & (cits["cit"].isna()), "cit"] = 0.325
-cits.loc[(cits["iso_partner"] == "COD") & (cits["cit"].isna()), "cit"] = 0.28
-cits.loc[(cits["iso_partner"] == "TLS") & (cits["cit"].isna()), "cit"] = 0.10
-cits.loc[(cits["iso_partner"] == "MHL") & (cits["cit"].isna()), "cit"] = 0
-cits.loc[(cits["iso_partner"] == "GLP") & (cits["cit"].isna()), "cit"] = 0.15
-cits.loc[(cits["iso_partner"] == "GUF") & (cits["cit"].isna()), "cit"] = 0.28
-cits.loc[(cits["iso_partner"] == "IOT") & (cits["cit"].isna()), "cit"] = 0
-cits.loc[(cits["iso_partner"] == "PLW") & (cits["cit"].isna()), "cit"] = 0
-cits.loc[(cits["iso_partner"] == "PYF") & (cits["cit"].isna()), "cit"] = 0.27
-cits.loc[(cits["iso_partner"] == "REU") & (cits["cit"].isna()), "cit"] = 0.15
-cits.loc[(cits["iso_partner"] == "SOM") & (cits["cit"].isna()), "cit"] = 0.3
-cits.loc[(cits["iso_partner"] == "XKV") & (cits["cit"].isna()), "cit"] = 0.1
-cits.loc[(cits["iso_partner"] == "SMR") & (cits["cit"].isna()), "cit"] = 0.17
+apply_manual_values(cits, MANUAL_VALUES, ["cit"])
 
 cbcr_etrs_cits = cbcr_etrs.merge(cits, on=["iso_partner", "year"], how="left")
 
@@ -1223,378 +1434,12 @@ gdp_population = sample_jur_year_df.merge(
 
 kosovo_code = "XKX" if "XKX" in gdp_population["iso_partner"].unique() else "XKV"
 
-eur_usd_2022 = 1.0530
-gbp_usd_2022 = 1.0530 / 0.852601
-
-years_covered = sorted(gdp_population["year"].dropna().unique())
-
 # %%
-# 2.3a Manual GDP and population fills
-
-# Anguilla
-for year, value in {
-    2016: 331 * 1e6,
-    2017: 322 * 1e6,
-    2018: 322 * 1e6,
-    2019: 380 * 1e6,
-    2020: 380 * 1e6,
-    2021: 380 * 1e6,
-    2022: 388_972_051,
-}.items():
-    fill_missing(gdp_population, "AIA", year, "gdp_current_usd", value)
-
-for year, value in {
-    2016: 14.3 * 1e3,
-    2017: 14.4 * 1e3,
-    2018: 14.7 * 1e3,
-    2019: 14.8 * 1e3,
-    2020: 14.8 * 1e3,
-    2021: 14.5 * 1e3,
-    2022: 14_180,
-}.items():
-    fill_missing(gdp_population, "AIA", year, "population", value)
-
-# British Indian Ocean Territory
-for year in years_covered:
-    fill_missing(gdp_population, "IOT", year, "gdp_current_usd", 1e6)
-    fill_missing(gdp_population, "IOT", year, "population", 3000)
-
-# British Virgin Islands
-for year, value in {
-    2016: 1279 * 1e6,
-    2017: 1279 * 1e6,
-    2018: 1653 * 1e6,
-    2019: 1653 * 1e6,
-    2020: 1653 * 1e6,
-    2021: 1653 * 1e6,
-    2022: 1_471_233_257,
-}.items():
-    fill_missing(gdp_population, "VGB", year, "gdp_current_usd", value)
-fill_missing(gdp_population, "VGB", 2022, "population", 38_319)
-
-# Cook Islands
-for year, value in {
-    2016: 287988 * 1e3 * 0.69,
-    2017: 345587 * 1e3 * 0.7,
-    2018: 391959 * 1e3 * 0.67,
-    2019: 593585 * 1e3 * 0.64,
-    2020: 397791 * 1e3 * 0.7,
-    2021: 349192 * 1e3 * 0.71,
-    2022: 289_749_646,
-}.items():
-    fill_missing(gdp_population, "COK", year, "gdp_current_usd", value)
-
-for year, value in {
-    2016: 15076,
-    2017: 15076,
-    2018: 15153,
-    2019: 15216,
-    2020: 15281,
-    2021: 15342,
-    2022: 14_723,
-}.items():
-    fill_missing(gdp_population, "COK", year, "population", value)
-
-# Eritrea
-for year, value in {
-    2016: 2.21 * 1e9,
-    2017: 1.9 * 1e9,
-    2018: 2.01 * 1e9,
-    2019: 1.98 * 1e9,
-    2020: 1.98 * 1e9,
-    2021: 1.98 * 1e9,
-}.items():
-    fill_missing(gdp_population, "ERI", year, "gdp_current_usd", value)
-
-# French Guiana
-for year, value in {
-    2016: 4131 / 0.904 * 1e6,
-    2017: 4127 / 0.8865 * 1e6,
-    2018: 4353 * 1.1811 * 1e6,
-    2019: 4431 * 1.11 * 1e6,
-    2020: 4275 * 1.21 * 1e6,
-    2021: 4450 * 1.13 * 1e6,
-    2022: 4562 * eur_usd_2022 * 1e6,
-}.items():
-    fill_missing(gdp_population, "GUF", year, "gdp_current_usd", value)
-
-for year, value in {
-    2016: 267821,
-    2017: 275191,
-    2018: 282938,
-    2019: 281678,
-    2020: 285133,
-    2021: 286618,
-    2022: 288382,
-}.items():
-    fill_missing(gdp_population, "GUF", year, "population", value)
-
-# Falkland Islands
-fill_missing(gdp_population, "FLK", 2016, "gdp_current_usd", 206.4 * 1e6)
-for year, value in {
-    2016: 3478,
-    2017: 3518,
-    2018: 3521,
-    2019: 3517,
-    2020: 3506,
-    2021: 3490,
-}.items():
-    fill_missing(gdp_population, "FLK", year, "population", value)
-
-# Gibraltar
-for year, value in {
-    2016: 2.344 * 1.3349 * 1e9,
-    2017: 2.344 * 1.3349 * 1e9,
-    2018: 2.344 * 1.3349 * 1e9,
-    2019: 2.344 * 1.3349 * 1e9,
-    2020: 2.344 * 1.3349 * 1e9,
-    2021: 2.344 * 1.3349 * 1e9,
-}.items():
-    fill_missing(gdp_population, "GIB", year, "gdp_current_usd", value)
-fill_missing(gdp_population, "GIB", 2022, "population", 37_936)
-
-# Guadeloupe
-for year, value in {
-    2016: 8712.316 / 0.904 * 1e6,
-    2017: 8803.461 / 0.8865 * 1e6,
-    2018: 9025.467 * 1.1811 * 1e6,
-    2019: 9268.066 * 1.11 * 1e6,
-    2020: 8857.257 * 1.21 * 1e6,
-    2021: 9169.070 * 1.13 * 1e6,
-    2022: 9877.241 * eur_usd_2022 * 1e6,
-}.items():
-    fill_missing(gdp_population, "GLP", year, "gdp_current_usd", value)
-
-for year, value in {
-    2016: 395700,
-    2017: 402119,
-    2018: 402119,
-    2019: 384239,
-    2020: 383559,
-    2021: 384315,
-    2022: 383569,
-}.items():
-    fill_missing(gdp_population, "GLP", year, "population", value)
-
-# Guernsey
-for year, value in {
-    2016: 2934 * 1.3552 * 1e6,
-    2017: 3101 * 1.289 * 1e6,
-    2018: 3170 * 1.3349 * 1e6,
-    2019: 3248 * 1e6 * 1.31,
-    2020: 3125 * 1e6 * 1.32,
-    2021: 3446 * 1e6 * 1.34,
-    2022: 3349 * gbp_usd_2022 * 1e6,
-}.items():
-    fill_missing(gdp_population, "GGY", year, "gdp_current_usd", value)
-
-for year, value in {
-    2016: 61908,
-    2017: 62046,
-    2018: 62506,
-    2019: 62885,
-    2020: 63156,
-    2021: 63664,
-    2022: 63950,
-}.items():
-    fill_missing(gdp_population, "GGY", year, "population", value)
-
-# Jersey
-for year, value in {
-    2016: 4.11 * 1.3552 * 1e9,
-    2017: 4.304 * 1.289 * 1e9,
-    2018: 4.642 * 1.3349 * 1e9,
-    2019: 4.885 * 1.31 * 1e9,
-    2020: 4.528 * 1.32 * 1e9,
-    2021: 5.087 * 1.34 * 1e9,
-    2022: 5761 * gbp_usd_2022 * 1e6,
-}.items():
-    fill_missing(gdp_population, "JEY", year, "gdp_current_usd", value)
-
-for year, value in {
-    2016: 102200,
-    2017: 102700,
-    2018: 103300,
-    2019: 103200,
-    2020: 103300,
-    2021: 103100,
-    2022: 103300,
-}.items():
-    fill_missing(gdp_population, "JEY", year, "population", value)
-
-# Kosovo
-for year, value in {
-    2016: 6.68 * 1e9,
-    2017: 7.18 * 1e9,
-    2018: 7.88 * 1e9,
-    2019: 7.9 * 1e9,
-    2020: 7.73 * 1e9,
-    2021: 9.42 * 1e9,
-    2022: 9_375_000_000,
-}.items():
-    fill_missing(gdp_population, kosovo_code, year, "gdp_current_usd", value)
-
-for year, value in {
-    2016: 1777557,
-    2017: 1791003,
-    2018: 1797085,
-    2019: 1788878,
-    2020: 1790133,
-    2021: 1786038,
-}.items():
-    fill_missing(gdp_population, kosovo_code, year, "population", value)
-
-# Northern Mariana Islands
-for year, value in {
-    2016: 1230 * 1e6,
-    2017: 1560 * 1e6,
-    2018: 1301 * 1e6,
-    2019: 1181 * 1e6,
-    2020: 858 * 1e6,
-    2021: 1181 * 1e6,
-    2022: 1_096_000_000,
-}.items():
-    fill_missing(gdp_population, "MNP", year, "gdp_current_usd", value)
-fill_missing(gdp_population, "MNP", 2022, "population", 46_078)
-
-# Martinique
-fill_missing(gdp_population, "MTQ", 2021, "gdp_current_usd", 9459 * 1e6 * 1.12)
-fill_missing(
-    gdp_population, "MTQ", 2022, "gdp_current_usd", 9653.712 * eur_usd_2022 * 1e6
-)
-for year, value in {
-    2016: 378865,
-    2017: 371502,
-    2018: 364089,
-    2019: 359611,
-    2020: 356615,
-    2021: 353278,
-    2022: 361019,
-}.items():
-    fill_missing(gdp_population, "MTQ", year, "population", value)
-
-# North Korea
-fill_missing(gdp_population, "PRK", 2016, "gdp_current_usd", 772921776)
-
-# Réunion
-for year, value in {
-    2016: 18065 / 0.904 * 1e6,
-    2017: 18555 / 0.8865 * 1e6,
-    2018: 18822 * 1.1811 * 1e6,
-    2019: 19367 * 1.11 * 1e6,
-    2020: 19032 * 1.21 * 1e6,
-    2021: 20412 * 1.13 * 1e6,
-    2022: 21668.213 * eur_usd_2022 * 1e6,
-}.items():
-    fill_missing(gdp_population, "REU", year, "gdp_current_usd", value)
-
-for year, value in {
-    2016: 926628,
-    2017: 932739,
-    2018: 941187,
-    2019: 861210,
-    2020: 863083,
-    2021: 871157,
-    2022: 881348,
-}.items():
-    fill_missing(gdp_population, "REU", year, "population", value)
-
-# San Marino
-for year, value in {
-    2016: 1.468 * 1e9,
-    2017: 1.529 * 1e9,
-    2018: 1.655 * 1e9,
-    2019: 1.616 * 1e9,
-    2020: 1.541 * 1e9,
-    2021: 1.855 * 1e9,
-    2022: 1_833_000_000,
-}.items():
-    fill_missing(gdp_population, "SMR", year, "gdp_current_usd", value)
-
-for year, value in {
-    2016: 33834,
-    2017: 34056,
-    2018: 34156,
-    2019: 34178,
-    2020: 34007,
-    2021: 33745,
-}.items():
-    fill_missing(gdp_population, "SMR", year, "population", value)
-
-# Saint Martin
-fill_missing(gdp_population, "MAF", 2021, "gdp_current_usd", 649_206_263)
-fill_missing(gdp_population, "MAF", 2022, "population", 28_870)
-
-# South Sudan
-for year, value in {
-    2016: 2.9 * 1e9,
-    2017: 1.8 * 1e9,
-    2018: 3.12 * 1e9,
-    2019: 4.04 * 1e9,
-    2020: 5.42 * 1e9,
-    2021: 5.94 * 1e9,
-    2022: 5_317_000_000,
-}.items():
-    fill_missing(gdp_population, "SSD", year, "gdp_current_usd", value)
-fill_missing(gdp_population, "SSD", 2022, "population", 11_000_000)
-
-# Taiwan
-for year, value in {
-    2016: 543.08 * 1e9,
-    2017: 590.73 * 1e9,
-    2018: 609.2 * 1e9,
-    2019: 611.4 * 1e9,
-    2020: 673.18 * 1e9,
-    2021: 773.04 * 1e9,
-    2022: 765_624_000_000,
-}.items():
-    fill_missing(gdp_population, "TWN", year, "gdp_current_usd", value)
-
-for year, value in {
-    2016: 23512136,
-    2017: 23665024,
-    2018: 23726185,
-    2019: 23674138,
-    2020: 23663459,
-    2021: 23663459,
-    2022: 23_420_111,
-}.items():
-    fill_missing(gdp_population, "TWN", year, "population", value)
-
-# Venezuela
-for year, value in {
-    2016: 112.92 * 1e9,
-    2017: 115.88 * 1e9,
-    2018: 102.02 * 1e9,
-    2019: 73 * 1e9,
-    2020: 43.79 * 1e9,
-    2021: 57.67 * 1e9,
-    2022: 89_013_000_000,
-}.items():
-    fill_missing(gdp_population, "VEN", year, "gdp_current_usd", value)
-fill_missing(gdp_population, "VEN", 2022, "population", 28_213_017)
-
-# Wallis and Futuna
-for year, value in {
-    2016: 139500 * 1e3,
-    2017: 139500 * 1e3,
-    2018: 139500 * 1e3,
-    2019: 139500 * 1e3,
-    2020: 139500 * 1e3,
-    2021: 139500 * 1e3,
-}.items():
-    fill_missing(gdp_population, "WLF", year, "gdp_current_usd", value)
-
-for year, value in {
-    2016: 12060,
-    2017: 11936,
-    2018: 11816,
-    2019: 11502,
-    2020: 11441,
-    2021: 11369,
-    2022: 11_478,
-}.items():
-    fill_missing(gdp_population, "WLF", year, "population", value)
+# 2.3a Manual GDP and population fills.
+# Curated values + their source URLs now live in
+# data/raw/manual_imputation_values.csv (see load_manual_imputation_values).
+# These are fill-if-missing: only small territories absent from WB fill here.
+apply_manual_values(gdp_population, MANUAL_VALUES, ["gdp_current_usd", "population"])
 
 for col in ["gdp_current_usd", "population"]:
     values_2021 = gdp_population.loc[
@@ -1735,7 +1580,7 @@ for jur, year in sample_jur_year:
 wages = pd.concat([wages, pd.DataFrame(missing_wages)], ignore_index=True)
 
 # %%
-# 2.4a-pre Outlier filter on ILO USD observations.
+# 2.4a Outlier filter on ILO USD observations.
 #
 # Some ILO survey years are wildly inconsistent with the rest of the
 # country's series. Liberia's 2017 LFS reports $1,309/month vs $95-$122 from
@@ -1787,7 +1632,7 @@ if "country_name" in wages.columns or "iso_partner" in wages.columns:
 
 
 # %%
-# 2.4a CPI-based extrapolation of ILO observations across missing panel years.
+# 2.4b CPI-based extrapolation of ILO observations across missing panel years.
 #
 # Many countries in the panel (especially LMI/L) have only 1-2 ILO survey
 # observations across 2016-2022. Filling missing years with the country mean
@@ -2021,16 +1866,10 @@ wages = wages.drop(columns=["_w_extrap"])
 avg_wage = wages.groupby("iso_partner")["wage_monthly"].transform("mean")
 wages["wage_monthly"] = wages["wage_monthly"].fillna(avg_wage)
 
-wages.loc[wages["iso_partner"] == "AIA", "wage_monthly"] = 74620.18 / 12
-wages.loc[wages["iso_partner"] == "COK", "wage_monthly"] = 2913.46
-wages.loc[wages["iso_partner"] == "GGY", "wage_monthly"] = 9859.02
-wages.loc[wages["iso_partner"] == "GIB", "wage_monthly"] = 4462
-wages.loc[wages["iso_partner"] == "GLP", "wage_monthly"] = 2277.85
-wages.loc[wages["iso_partner"] == "GUF", "wage_monthly"] = 16983.03 / 12
-wages.loc[wages["iso_partner"] == "JEY", "wage_monthly"] = 1098.36 * 4
-wages.loc[wages["iso_partner"] == "MAF", "wage_monthly"] = 46000 / 12
-wages.loc[wages["iso_partner"] == "TWN", "wage_monthly"] = 21689 / 12
-wages.loc[wages["iso_partner"] == "WLF", "wage_monthly"] = 625.75
+# Hand-collected monthly wages for small territories missing from ILO. These
+# are unconditional overrides; the values + sources live in
+# data/raw/manual_imputation_values.csv (see load_manual_imputation_values).
+apply_manual_values(wages, MANUAL_VALUES, ["wage_monthly"])
 
 cbcr_etrs_cits_gdp_wages = cbcr_etrs_cits_gdp.merge(
     wages,
@@ -2056,7 +1895,7 @@ else:
     print("No missing wage data after the merge.")
 
 # %%
-# 2.4b Impute wages using GDP and population
+# 2.4c Impute wages using GDP and population
 
 offsample_countries = []
 
@@ -2289,9 +2128,6 @@ for _, row in missing_tax_revenue_countries_years.iterrows():
 # %%
 # 2.7 Import region variables and World Bank income groups
 
-# %%
-# 2.7 Import region variables and World Bank income groups
-
 regions = pd.read_csv(
     unilateral_cross_data,
     usecols=[
@@ -2382,15 +2218,11 @@ wb_income["wb_income_group_id"] = wb_income["wb_income_group_id_official"]
 # -------------------------------------------------
 # 1. Overwrite investment hubs consistently
 # -------------------------------------------------
-# Use your existing tax_havens list as the analytical definition of investment hubs.
-# Add a few missing special cases explicitly if needed.
-investment_hub_codes = sorted(
-    # Liberia reclassified as investment hub (2026-05-14): flag-of-convenience
-    # shipping registry inflates LBR's CbCR profits to multiples of GDP without
-    # corresponding real-economy activity, so its "low_income" classification
-    # was misrepresenting it for cross-group comparisons.
-    set(tax_havens).union({"AIA", "COK", "GGY", "IOT", "JEY", "LBR"})
-)
+# The "investment_hub" income group is the REPRESENTATION haven list from
+# config: TAX_HAVENS_REPRESENTATION = the GB cleaning core ∪ (CTHI-2024 Haven
+# Score > 65 AND net profit-shifting recipient in our results) ∪ Saudi Arabia
+# (manual: no CTHI score, FSI 69). Edit the list in config.py, not here.
+investment_hub_codes = sorted(TAX_HAVENS_REPRESENTATION)
 
 wb_income.loc[
     wb_income["iso_partner"].isin(investment_hub_codes),
@@ -2504,6 +2336,18 @@ cbcr_main.drop(columns=["eu28"], inplace=True)
 
 variables_to_replace = ["ukt", "gbr_oct", "oecd_oct", "oecd", "eu", "nld_oct"]
 cbcr_main[variables_to_replace] = cbcr_main[variables_to_replace].fillna(0)
+
+# %%
+# The manually-collected values for the small territories hand-filled above
+# (GDP / population / wages for San Marino, the French overseas departments,
+# Taiwan, the Pacific islands, the Channel Islands, etc.) and the flat CIT
+# overrides are NOT stored as columns in the dataset. They live — values AND
+# their source URLs together — in a single hand-maintained reference:
+#   - data/raw/manual_imputation_values.csv    (iso_partner, year, variable,
+#                                                value, mode, source_url, note)
+#   - docs/manual_macro_imputation_sources.md  (human-readable overview)
+# Edit that CSV to add or revise a value or its source; the script consumes it
+# via load_manual_imputation_values() / apply_manual_values().
 
 cbcr_main_allsubgroupsonly = cbcr_main[
     cbcr_main["grouping"] == "Total (All sub-groups)"

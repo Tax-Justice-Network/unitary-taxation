@@ -44,6 +44,20 @@ with `FIG_FORMULA=employees_payroll` prefixed; outputs land in the
 `*_sotj`-suffixed topics (`us_multinationals_sotj`, …, `combined_us_eu_sotj`,
 plus the `_etr15_sotj` variants) alongside the CCCTB ones.
 
+**One-command re-run (after updating the input data).** Whenever
+`data/2024/final/cbcr_main_disaggregated.csv` changes, regenerate everything
+(all 12 estimate runs + 4 combine runs, both formulas × both ETR settings) with
+no internet required:
+
+```powershell
+conda activate sotj_profit_shifting_estimates
+powershell -ExecutionPolicy Bypass -File src\us_only\run_all.ps1
+```
+
+GLOBAL is run first for each formula so the US/EU figures can read the fresh
+`all_multinationals` files (the German "vs all MNEs" dashed boxes and the
+EU-loss-by-headquarters figures depend on them).
+
 ## Core method
 
 - **Parent filter.** UT misalignment is computed per `iso_parent`, so keeping

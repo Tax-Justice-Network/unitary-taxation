@@ -26,10 +26,17 @@
 #   countries without a true reported country row, including countries that may
 #   already have received continent residual imputations
 #
-# Distribution weights come from good reporters' granular foreign data.
+# Distribution weights are calibrated over ALL years pooled together: each
+# foreign partner's weight for a variable is the MEDIAN, across good
+# reporter-years that reported the partner, of that reporter's share of the
+# variable going to that partner. Taking the median (rather than summing /
+# averaging over reporters) keeps a few large HQ countries -- which report big
+# values and therefore appear -- from dominating the imputed shares; pooling
+# over years relies on more observations.
 # Aggregate values, including negative values, are distributed proportionally whenever
 # positive weights exist. If all weights for a variable are zero, values are split equally.
-# Negative foreign totals used as weights are set to zero before weighting.
+# Negative weights are set to zero before weighting, except for the profit/tax
+# variables in SIGNED_DISTRIBUTION_VARS, where signed weights are kept.
 #
 # WXD diagnostics are computed before any clipping of negative distributed values.
 # After those diagnostics, negative distributed values are clipped to zero for
@@ -38,8 +45,17 @@
 # The final output contains country rows only.
 
 # %%
+import os
+import sys
 import pandas as pd
 import numpy as np
+
+# On Windows, stdout defaults to cp1252 and crashes when any printed line
+# embeds the Arabic characters from the project path. Reconfigure stdout to
+# UTF-8 with error-replacement so status prints never abort the script.
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 from config import *
 
 pd.set_option("display.max_columns", None)
@@ -74,7 +90,13 @@ CBCR_VARS = [
 
 METADATA_COLS = [
     "partner_jurisdiction",
+    "etr_domestic_corrected",
+    "etr_foreign_corrected",
     "etr_average_corrected",
+    "etr_partner_median_corrected",
+    "etr_partner_p25_corrected",
+    "etr_partner_min_corrected",
+    "etr_parent_partner_corrected",
     "cit",
     "tax_revenue_current_usd",
     "gvt_health_expenditure",
@@ -98,11 +120,25 @@ STATIC_METADATA_COLS = [
 ]
 
 YEARLY_METADATA_COLS = [
+    "etr_domestic_corrected",
+    "etr_foreign_corrected",
     "etr_average_corrected",
+    "etr_partner_median_corrected",
+    "etr_partner_p25_corrected",
+    "etr_partner_min_corrected",
     "cit",
     "tax_revenue_current_usd",
     "gvt_health_expenditure",
     "wage_monthly",
+]
+
+PAIR_YEARLY_METADATA_COLS = [
+    "etr_parent_partner_corrected",
+    # Number of CbCR-reporting MNE groups in this (parent, partner, year) cell.
+    # Carried through (NaN on is_distributed==1 imputed rows, like the pair ETR)
+    # to serve as the denominator for the destination-sales nexus coverage
+    # fraction in 5_estimate_profit_shifting.py.
+    "n_cbcr",
 ]
 
 CONTINENT_CODES = {
@@ -157,7 +193,14 @@ EXCLUSION_CONDITIONS = [
 
 METADATA_DTYPES = {
     "partner_jurisdiction": "string",
+    "etr_domestic_corrected": "Float64",
+    "etr_foreign_corrected": "Float64",
     "etr_average_corrected": "Float64",
+    "etr_partner_median_corrected": "Float64",
+    "etr_partner_p25_corrected": "Float64",
+    "etr_partner_min_corrected": "Float64",
+    "etr_parent_partner_corrected": "Float64",
+    "n_cbcr": "Float64",
     "cit": "Float64",
     "tax_revenue_current_usd": "Float64",
     "gvt_health_expenditure": "Float64",
@@ -196,6 +239,17 @@ NONNEGATIVE_DISTRIBUTED_VARS = [
     "related_party_revenues",
     "holding_or_managing_ip",
     "n_entities",
+    # Profit / tax variables — added 2026-05-14 per user decision: do not allow
+    # negative imputed values for any variable, including profit and tax.
+    # Negative shares can still arise from the trimmed-mean weights (rarely,
+    # since the weight is also clipped at 0), but if the allocation produces a
+    # negative row value (e.g. from distributing a negative aggregate) it is
+    # clipped to zero. Conservation is intentionally relaxed for imputed rows
+    # — the conservation-invariant check at the end of the script logs the gap.
+    "profit_loss_before_income_tax_corrected",
+    "profit_loss_before_income_tax",
+    "income_tax_paid_on_cash_basis",
+    "income_tax_accrued_current_year",
 ]
 
 
@@ -226,6 +280,19 @@ partner_yearly = (
     .copy()
 )
 
+pair_rows = cbcr_full.loc[
+    ~cbcr_full["iso_partner"].isin(non_countries),
+    ["iso_parent", "iso_partner", "year"] + PAIR_YEARLY_METADATA_COLS,
+].copy()
+
+pair_yearly = (
+    pair_rows.groupby(["iso_parent", "iso_partner", "year"], as_index=False)[
+        PAIR_YEARLY_METADATA_COLS
+    ]
+    .agg(first_non_null)
+    .copy()
+)
+
 for col in STATIC_METADATA_COLS:
     try:
         partner_static[col] = partner_static[col].astype(METADATA_DTYPES[col])
@@ -235,6 +302,12 @@ for col in STATIC_METADATA_COLS:
 for col in YEARLY_METADATA_COLS:
     try:
         partner_yearly[col] = partner_yearly[col].astype(METADATA_DTYPES[col])
+    except Exception:
+        pass
+
+for col in PAIR_YEARLY_METADATA_COLS:
+    try:
+        pair_yearly[col] = pair_yearly[col].astype(METADATA_DTYPES[col])
     except Exception:
         pass
 
@@ -304,6 +377,8 @@ def build_partner_metadata_lookup(cbcr_year, year, partner_static, partner_yearl
     metadata_lookup = pd.DataFrame(index=all_partners)
 
     for col in METADATA_COLS:
+        if col not in METADATA_DTYPES:
+            continue
         dtype = METADATA_DTYPES[col]
         metadata_lookup[col] = pd.Series(
             pd.NA, index=metadata_lookup.index, dtype=dtype
@@ -334,6 +409,53 @@ def build_partner_metadata_lookup(cbcr_year, year, partner_static, partner_yearl
             metadata_lookup.loc[reported_series.index, col] = reported_series
 
     return metadata_lookup
+
+
+def build_pair_metadata_lookup(cbcr_year, year, pair_yearly):
+    """
+    Build a reporter-partner-year lookup for pair-specific metadata.
+
+    Priority:
+    1. Metadata observed in the current cbcr_year country rows
+    2. Fallback metadata from pair_yearly for the same year
+    """
+    reported_lookup = (
+        cbcr_year[~cbcr_year["iso_partner"].isin(non_countries)]
+        .drop_duplicates(subset=["iso_parent", "iso_partner"])
+        .set_index(["iso_parent", "iso_partner"])
+    )
+
+    yearly_lookup = (
+        pair_yearly.loc[pair_yearly["year"] == year]
+        .drop(columns="year")
+        .drop_duplicates(subset=["iso_parent", "iso_partner"])
+        .set_index(["iso_parent", "iso_partner"])
+    )
+
+    all_pairs = reported_lookup.index.union(yearly_lookup.index)
+    pair_lookup = pd.DataFrame(index=all_pairs)
+
+    for col in PAIR_YEARLY_METADATA_COLS:
+        dtype = METADATA_DTYPES[col]
+        pair_lookup[col] = pd.Series(pd.NA, index=pair_lookup.index, dtype=dtype)
+
+        if col in yearly_lookup.columns:
+            yearly_series = yearly_lookup[col].copy()
+            try:
+                yearly_series = yearly_series.astype(dtype)
+            except Exception:
+                pass
+            pair_lookup.loc[yearly_series.index, col] = yearly_series
+
+        if col in reported_lookup.columns:
+            reported_series = reported_lookup[col].copy()
+            try:
+                reported_series = reported_series.astype(dtype)
+            except Exception:
+                pass
+            pair_lookup.loc[reported_series.index, col] = reported_series
+
+    return pair_lookup
 
 
 def get_aggregate_row(parent_data, code):
@@ -525,36 +647,108 @@ def drop_redundant_continent_totals(cbcr_year, continent_mapping):
 # 4. Core distribution functions
 
 
+# Variables whose global aggregate weight is allowed to be negative when
+# distributing aggregate rows. For these, partners that are systematically
+# loss-making (negative profit, refund-driven negative tax accrual) get
+# correctly-signed shares of the aggregate so misalignment between
+# activity-where-it-happens and profit-where-it-shows-up is preserved in
+# imputed rows. For non-signed variables (employees, revenues, assets, etc.),
+# negative totals are clipped to zero as before.
+SIGNED_DISTRIBUTION_VARS = {
+    "profit_loss_before_income_tax_corrected",
+    "profit_loss_before_income_tax",
+    "income_tax_paid_on_cash_basis",
+    "income_tax_accrued_current_year",
+}
+
+# Signed (profit/tax) imputed values are allowed to stay NEGATIVE end-to-end: a
+# market that is on average loss-making keeps a correctly-signed negative imputed
+# profit instead of being clamped to zero, so the activity-vs-profit misalignment
+# the downstream estimation detects is preserved. This is now the fixed behaviour
+# (the former ALLOW_NEGATIVE_SIGNED_SHARES toggle has been removed): the
+# post-distribution clip below exempts SIGNED_DISTRIBUTION_VARS unconditionally.
+
+# Factors whose profitability is used to impute the profit of distributed rows.
+# For each factor f, the partner's profit-yield = Σ reported profit ÷ Σ reported f
+# (pooled over its directly-reported foreign rows); the row's implied profit from f
+# = row_f × that yield. The imputed profit is the MEAN of the implied profits over
+# the factors for which the row has a positive value and the partner a defined
+# yield. Fixed at all three activity factors (sales, employees, tangible assets),
+# so profit reflects the partner's overall return on activity rather than its sales
+# margin alone (which over-rewards consumer markets). The earlier sales-margin-only
+# and weight-distributed profit variants have been removed — this is the sole method.
+PROFIT_IMPUTATION_FACTORS = [
+    "unrelated_party_revenues",
+    "n_employees",
+    "tangible_assets_except_cash",
+]
+# Robustness for the partner-specific profit yields. Each partner's per-factor
+# yield (Σ reported profit ÷ Σ reported factor) is used directly and winsorized
+# across partners at the 1st / 99th percentile, clipping only the explosive
+# outliers produced by near-zero activity denominators. The winsor is
+# sign-preserving: a partner that reported losses keeps a negative yield (and so a
+# negative imputed profit), and a structurally high-profitability jurisdiction
+# keeps its high yield.
+PROFIT_YIELD_WINSOR = 0.01
+
+# Disaggregation is a SINGLE method (the former IMPUTE_METHOD toggle is removed):
+# bad-reporter aggregates (continent / WXD / W_O totals) are spread across ALL
+# structurally-eligible markets, the three activity factors (employees / sales /
+# tangible assets) are then re-weighted by the García-Bernardo & Janský (2024)
+# gravity-model predictions (src/gravity/, data/intermediate/gravity/
+# gravity_imputed_activity.csv) conserving each aggregate, and profit is imputed
+# from each partner's reported profitability (see PROFIT_IMPUTATION_FACTORS).
+# Bootstrap draw: when GRAVITY_BOOT_SEED is set, read the seed-tagged gravity
+# activity and write a seed-tagged disaggregated dataset, so run_bootstrap.py can
+# propagate imputation uncertainty into SEs.
+_GBOOT = os.environ.get("GRAVITY_BOOT_SEED")
+_BOOT_SUFFIX = f"__boot{_GBOOT}" if _GBOOT not in (None, "") else ""
+
+# Stability threshold for signed allocation: when abs(denominator) for a
+# signed variable is small relative to the max-abs of the partner weights,
+# the resulting shares blow up. Skip allocation in that variable for the
+# (rare) cell-year where the denominator is degenerate.
+SIGNED_DENOMINATOR_MIN_RELATIVE = 0.05
+
+
 # %%
-def compute_distribution_foreign(cbcr_year, excluded_parents, continent_mapping):
-    """
-    Compute per-variable foreign totals from good reporters for later distribution.
-    These totals are used as weights and are only turned into shares after restricting
-    to the eligible recipient set.
+def build_uniform_recipient_weights(partner_universe, continent_mapping):
+    """Uniform (=1) per-variable weight tables over the FULL foreign-country
+    universe — the BROAD recipient set.
 
-    Negative totals are clipped to zero for weighting purposes.
-    """
-    good_foreign = cbcr_year[
-        (~cbcr_year["iso_parent"].isin(excluded_parents))
-        & (~cbcr_year["iso_partner"].isin(non_countries))
-        & (cbcr_year["iso_partner"] != cbcr_year["iso_parent"])
-    ]
+    Trimmed-mean share weighting has been removed: bad-reporter aggregates are
+    spread across EVERY structurally-eligible market, not just the partners that
+    good reporters happened to report. The phase-1 distribution here uses a flat
+    weight of 1 for every (variable, partner), which (a) selects the recipient
+    set (all eligible markets) and (b) conserves each raw aggregate (an equal
+    split sums back to the aggregate). The real within-group split of the three
+    activity factors is then set by the gravity-model predictions, and profit by
+    partner profitability, in the post-distribution step below — so the phase-1
+    values for those columns are transient, and every other variable is cleared
+    on imputed rows afterwards.
 
-    global_foreign_total = (
-        good_foreign.groupby("iso_partner")[CBCR_VARS].sum().clip(lower=0)
-    )
+    Returns the same 4-tuple interface the distribution code expects
+    (continent_foreign_total, global_foreign_total, n_reporters_per_partner,
+    weight_source_per_partner).
+    """
+    partner_index = pd.Index(sorted(partner_universe), name="iso_partner")
+    global_foreign_total = pd.DataFrame(1.0, index=partner_index, columns=CBCR_VARS)
 
     continent_foreign_total = {}
     for continent_name, countries in continent_mapping.items():
-        cont_data = good_foreign[good_foreign["iso_partner"].isin(countries)]
-        if cont_data.empty:
-            continent_foreign_total[continent_name] = pd.DataFrame(columns=CBCR_VARS)
-        else:
-            continent_foreign_total[continent_name] = (
-                cont_data.groupby("iso_partner")[CBCR_VARS].sum().clip(lower=0)
-            )
+        sub = global_foreign_total[global_foreign_total.index.isin(countries)]
+        continent_foreign_total[continent_name] = (
+            sub.copy() if not sub.empty else pd.DataFrame(columns=CBCR_VARS)
+        )
 
-    return continent_foreign_total, global_foreign_total
+    # No per-partner reporter count under uniform weighting; the metadata column
+    # records the (single) imputation method rather than a trimmed-mean source.
+    n_reporters_per_partner = None
+    weight_source_per_partner = pd.Series(
+        "gravity_broad", index=global_foreign_total.index, name="weight_source"
+    )
+    return (continent_foreign_total, global_foreign_total,
+            n_reporters_per_partner, weight_source_per_partner)
 
 
 def distribute_aggregates_per_reporter(
@@ -563,6 +757,8 @@ def distribute_aggregates_per_reporter(
     continent_mapping,
     continent_foreign_total,
     global_foreign_total,
+    n_reporters_per_partner=None,
+    weight_source_per_partner=None,
 ):
     """
     For a single reporter, keep country-level rows and distribute aggregated rows.
@@ -607,6 +803,12 @@ def distribute_aggregates_per_reporter(
     country_rows["is_distributed"] = 0
     country_rows["distribution_source"] = "reported_country"
     country_rows["source_aggregate_code"] = pd.NA
+    # n_reporters_for_partner_weight applies only to imputed rows, where it
+    # captures how many MNEs in good_foreign contributed to the partner-level
+    # weights. Country rows are direct reports (not imputed from weights), so
+    # the field is NaN -- the concept doesn't apply.
+    country_rows["n_reporters_for_partner_weight"] = pd.NA
+    country_rows["weight_source_for_partner"] = pd.NA
 
     true_reported_foreign_partners = set(
         country_rows.loc[country_rows["iso_partner"] != iso_parent, "iso_partner"]
@@ -627,17 +829,36 @@ def distribute_aggregates_per_reporter(
         distribution_source,
         source_code,
     ):
-        relevant = foreign_total[foreign_total.index.isin(eligible_partners)].copy()
-        if relevant.empty:
+        # Build TWO weight frames:
+        #   relevant_clipped: negative weights clipped to zero. Used for
+        #                     non-signed variables (employees, revenues, etc.)
+        #   relevant_signed:  raw signed weights. Used for SIGNED_DISTRIBUTION_VARS
+        #                     so partners systematically loss-making globally
+        #                     get correctly-signed shares of aggregate profit
+        #                     (preserving the activity-vs-profit misalignment
+        #                     that the downstream estimation is built to detect).
+        relevant_signed = foreign_total[
+            foreign_total.index.isin(eligible_partners)
+        ].copy()
+        if relevant_signed.empty:
             return []
 
-        relevant = relevant.clip(lower=0)
-        partner_list = list(relevant.index)
+        relevant_clipped = relevant_signed.clip(lower=0)
+        partner_list = list(relevant_signed.index)
         n_partners = len(partner_list)
-        denominators = relevant.sum()
 
         new_rows = []
         for iso_partner_target in partner_list:
+            n_rep = (
+                int(n_reporters_per_partner.get(iso_partner_target, 0))
+                if n_reporters_per_partner is not None
+                else 0
+            )
+            weight_src = (
+                str(weight_source_per_partner.get(iso_partner_target, "median"))
+                if weight_source_per_partner is not None
+                else "median"
+            )
             new_rows.append(
                 {
                     "iso_parent": iso_parent,
@@ -646,6 +867,8 @@ def distribute_aggregates_per_reporter(
                     "is_distributed": 1,
                     "distribution_source": distribution_source,
                     "source_aggregate_code": source_code,
+                    "n_reporters_for_partner_weight": n_rep,
+                    "weight_source_for_partner": weight_src,
                 }
             )
 
@@ -663,31 +886,46 @@ def distribute_aggregates_per_reporter(
                 new_rows[0][var] = agg_val
                 continue
 
-            # Use proportional distribution for both positive and negative aggregates
-            # whenever positive weights exist
-            if denominators[var] > 0:
-                running_sum = 0.0
+            # Pick weight frame based on variable type
+            use_signed = var in SIGNED_DISTRIBUTION_VARS
+            weights = relevant_signed[var] if use_signed else relevant_clipped[var]
+            denominator = weights.sum()
+            sum_abs = weights.abs().sum()
 
+            # For signed variables, fall back to clipped weights when the
+            # signed denominator is degenerate (cancellation makes the ratio
+            # explosive). Use SIGNED_DENOMINATOR_MIN_RELATIVE × max-abs as
+            # the threshold.
+            if (
+                use_signed
+                and (
+                    sum_abs == 0
+                    or abs(denominator)
+                    < SIGNED_DENOMINATOR_MIN_RELATIVE * sum_abs
+                )
+            ):
+                weights = relevant_clipped[var]
+                denominator = weights.sum()
+
+            if denominator != 0 and weights.abs().sum() > 0:
+                running_sum = 0.0
                 for i, iso_partner_target in enumerate(partner_list[:-1]):
                     value = (
                         agg_val
-                        * relevant.loc[iso_partner_target, var]
-                        / denominators[var]
+                        * weights.loc[iso_partner_target]
+                        / denominator
                     )
                     new_rows[i][var] = value
                     running_sum += value
-
                 new_rows[-1][var] = agg_val - running_sum
                 continue
 
-            # Fallback: if all weights are zero, split equally
+            # Fallback: all weights are zero, split equally
             base_value = agg_val / n_partners
             running_sum = 0.0
-
             for i in range(n_partners - 1):
                 new_rows[i][var] = base_value
                 running_sum += base_value
-
             new_rows[-1][var] = agg_val - running_sum
 
         return new_rows
@@ -730,10 +968,6 @@ def distribute_aggregates_per_reporter(
         covered_foreign_partners.update([row["iso_partner"] for row in new_rows])
 
     # Step 2: single-letter continent codes, also treated as residual values
-    # Reason: these codes may either represent a residual part of a continent or
-    # the full continent total when no country rows from that continent are reported.
-    # Treating them as residual values works in both cases: it distributes only the
-    # uncovered part when country rows exist, and the full continent total otherwise.
     for code in ["E", "A", "F", "S"]:
         continent_name = CONTINENT_CODES[code]
         if continent_name in continents_processed:
@@ -774,9 +1008,6 @@ def distribute_aggregates_per_reporter(
         covered_foreign_partners.update([row["iso_partner"] for row in new_rows])
 
     # Step 3: W_O = global foreign residual
-    # Only distribute W_O to still-uncovered foreign countries.
-    # If no uncovered countries remain, do not allocate W_O again,
-    # because that would double count already covered foreign activity.
     w_o_row = parent_data[parent_data["iso_partner"] == "W_O"]
     if not w_o_row.empty:
         agg_values = w_o_row.iloc[0][CBCR_VARS].to_dict()
@@ -809,8 +1040,6 @@ def distribute_aggregates_per_reporter(
                 )
 
     # Step 4: WXD residual
-    # WXD is treated as total non-domestic activity. After subtracting already
-    # covered non-domestic rows, the remaining residual is distributed.
     wxd_row = parent_data[parent_data["iso_partner"] == "WXD"]
     reported_codes = set(parent_data["iso_partner"].dropna())
     wxd_only_reporter = reported_codes.issubset({iso_parent, "WXD"})
@@ -889,26 +1118,77 @@ def distribute_aggregates_per_reporter(
                 )
 
             else:
+                # Spillover case: WXD residual is positive but every global
+                # foreign partner is already covered by a continent residual
+                # (F_O / E_O / A_O / S_O / world_other). The previous design
+                # emitted a SECOND row per partner with source
+                # "wxd_residual_added_to_nonreported", which produced duplicate
+                # parent x partner x year rows downstream. Instead, add the
+                # WXD residual proportionally to the existing distributed
+                # rows (already covering the same set of partners) so the
+                # partner-level totals reflect both the continent share and
+                # the WXD spillover, on a single row per partner.
                 wxd_eligible_nonreported = (
                     set(global_foreign_total.index)
                     - true_reported_foreign_partners
                     - {iso_parent}
                 )
 
-                if wxd_eligible_nonreported:
-                    new_rows = allocate_across_partners(
-                        agg_values=residual_values,
-                        eligible_partners=wxd_eligible_nonreported,
-                        foreign_total=global_foreign_total,
-                        iso_parent=iso_parent,
-                        year=year,
-                        distribution_source="wxd_residual_added_to_nonreported",
-                        source_code="WXD",
-                    )
-                    distributed_rows.extend(new_rows)
-                    covered_foreign_partners.update(
-                        [row["iso_partner"] for row in new_rows]
-                    )
+                if wxd_eligible_nonreported and distributed_rows:
+                    # Per-variable, allocate the WXD residual proportionally
+                    # to each existing distributed row, weighted by the
+                    # partner's share of global_foreign_total restricted to
+                    # the eligible-nonreported set. Uses signed weights for
+                    # SIGNED_DISTRIBUTION_VARS (so partners systematically
+                    # loss-making globally get correctly-signed residual
+                    # shares) and clipped weights for the rest.
+                    relevant_signed = global_foreign_total[
+                        global_foreign_total.index.isin(wxd_eligible_nonreported)
+                    ]
+                    if not relevant_signed.empty:
+                        relevant_clipped = relevant_signed.clip(lower=0)
+                        for row in distributed_rows:
+                            partner = row.get("iso_partner")
+                            if partner not in relevant_signed.index:
+                                continue
+                            for var in CBCR_VARS:
+                                rv = residual_values.get(var)
+                                if rv is None or pd.isna(rv):
+                                    continue
+                                use_signed = var in SIGNED_DISTRIBUTION_VARS
+                                weights_var = (
+                                    relevant_signed[var]
+                                    if use_signed
+                                    else relevant_clipped[var]
+                                )
+                                denom_v = weights_var.sum()
+                                sum_abs = weights_var.abs().sum()
+                                if (
+                                    use_signed
+                                    and (
+                                        sum_abs == 0
+                                        or abs(denom_v)
+                                        < SIGNED_DENOMINATOR_MIN_RELATIVE * sum_abs
+                                    )
+                                ):
+                                    weights_var = relevant_clipped[var]
+                                    denom_v = weights_var.sum()
+                                if denom_v == 0 or weights_var.abs().sum() == 0:
+                                    continue
+                                share = weights_var.loc[partner] / denom_v
+                                add_val = float(rv) * share
+                                cur = row.get(var, 0.0)
+                                if pd.isna(cur):
+                                    cur = 0.0
+                                row[var] = float(cur) + add_val
+                            existing_src = str(row.get("distribution_source",
+                                                       "")).strip()
+                            if "wxd_spillover" not in existing_src:
+                                row["distribution_source"] = (
+                                    existing_src + "+wxd_spillover"
+                                    if existing_src
+                                    else "wxd_spillover"
+                                )
 
     # Final result for all reporters, including those without WXD
     if distributed_rows:
@@ -958,11 +1238,15 @@ def distribute_aggregates_per_reporter(
             "wxd_max_abs_diff": pd.NA,
         }
 
-    # After the WXD checks, clip negative distributed values to zero for variables
-    # that should not be negative. Profit and tax variables may remain negative.
+    # After the WXD checks, clip negative distributed values to zero. Signed
+    # (profit/tax) vars are exempt so their negative imputed values survive into
+    # the conserved per-group aggregate, which the profitability recompute below
+    # then redistributes sign-preserved.
     distributed_mask = result["is_distributed"] == 1
 
-    for var in NONNEGATIVE_DISTRIBUTED_VARS:
+    clip_vars = [v for v in NONNEGATIVE_DISTRIBUTED_VARS if v not in SIGNED_DISTRIBUTION_VARS]
+
+    for var in clip_vars:
         negative_mask = distributed_mask & result[var].notna() & (result[var] < 0)
         if negative_mask.any():
             negative_rows = result.loc[
@@ -1006,40 +1290,40 @@ for year in years:
     excluded = get_excluded_parents_for_year(year)
     print(f"  {year}: {len(excluded)} countries - {sorted(excluded)}")
 
+# %% [markdown]
+# Pre-pass: per year, drop redundant continent totals and determine the parents
+# excluded from weight computation. The cleaned per-year frames and exclusion
+# sets are kept so the distribution weights can be calibrated over ALL years
+# pooled together (next cell).
+
 # %%
-all_years = []
-diagnostics = []
+cbcr_year_clean = {}
+continent_total_audit_dict = {}
 continent_total_audit_years = []
-wxd_checks = []
-negative_wxd_warning_rows_all = []
-negative_distributed_clipping_rows_all = []
 flagged_inconsistent_totals_dict = {}
 excluded_parents_dict = {}
 
-print("\nChecking continent totals, computing weights, and disaggregating rows:")
+print("\nChecking continent totals and determining excluded reporters per year:")
 
 for year in years:
-    print(f'\n{"=" * 60}\nYear {year}\n{"=" * 60}')
-
     cbcr_year = cbcr_full[cbcr_full["year"] == year].copy()
 
-    # Step 1: Drop redundant continent totals and flag inconsistent total+_O cases
+    # Drop redundant continent totals and flag inconsistent total+_O cases
     cbcr_year, continent_total_audit, flagged_inconsistent_totals = (
         drop_redundant_continent_totals(cbcr_year, continent_mapping)
     )
 
-    continent_total_audit_years.append(continent_total_audit)
-
-    # Step 2: Build exclusions for weight computation
+    # Build exclusions for weight computation
     manual_excluded = get_excluded_parents_for_year(year).copy()
-
     if not flagged_inconsistent_totals.empty:
         flagged_parents = set(flagged_inconsistent_totals["iso_parent"].unique())
     else:
         flagged_parents = set()
-
     excluded_parents = manual_excluded | flagged_parents
 
+    cbcr_year_clean[year] = cbcr_year
+    continent_total_audit_dict[year] = continent_total_audit
+    continent_total_audit_years.append(continent_total_audit)
     flagged_inconsistent_totals_dict[year] = flagged_inconsistent_totals
     excluded_parents_dict[year] = excluded_parents
 
@@ -1048,16 +1332,62 @@ for year in years:
         if not continent_total_audit.empty
         else 0
     )
-
-    print(f"Dropped redundant continent total rows: {n_dropped_redundant_totals}")
     print(
-        f"Flagged parents with inconsistent single-letter + _O totals: {sorted(flagged_parents)}"
+        f"  {year}: dropped {n_dropped_redundant_totals} redundant continent "
+        f"total rows; flagged {sorted(flagged_parents)}; "
+        f"excluded {sorted(excluded_parents)}"
     )
-    print(f"Excluded parents for weight computation: {sorted(excluded_parents)}")
 
-    # Step 3: Compute foreign totals used as distribution weights
-    continent_foreign_total, global_foreign_total = compute_distribution_foreign(
-        cbcr_year, excluded_parents, continent_mapping
+# %% [markdown]
+# Recipient universe for the BROAD gravity redistribution.
+#
+# Trimmed-mean share weighting is gone: a bad reporter's aggregate is spread
+# across EVERY structurally-eligible foreign market (all real countries observed
+# anywhere in the CbCR panel), with a flat phase-1 weight that conserves each
+# aggregate. The actual within-group split of the three activity factors is set
+# by the gravity model, and profit by partner profitability, in the
+# post-distribution step further below.
+
+# %%
+partner_universe = set(partner_static["iso_partner"].dropna()) - set(non_countries)
+
+(
+    continent_foreign_total,
+    global_foreign_total,
+    n_reporters_per_partner,
+    weight_source_per_partner,
+) = build_uniform_recipient_weights(partner_universe, continent_mapping)
+
+print(
+    f"\nBroad recipient universe: {len(global_foreign_total)} foreign markets "
+    f"eligible to receive gravity-imputed activity (flat phase-1 weights)."
+)
+
+# %%
+all_years = []
+diagnostics = []
+wxd_checks = []
+negative_wxd_warning_rows_all = []
+negative_distributed_clipping_rows_all = []
+
+print("\nDisaggregating rows per year:")
+
+for year in years:
+    print(f'\n{"=" * 60}\nYear {year}\n{"=" * 60}')
+
+    cbcr_year = cbcr_year_clean[year]
+    manual_excluded = get_excluded_parents_for_year(year)
+    excluded_parents = excluded_parents_dict[year]
+    flagged_parents = (
+        set(flagged_inconsistent_totals_dict[year]["iso_parent"].unique())
+        if not flagged_inconsistent_totals_dict[year].empty
+        else set()
+    )
+    continent_total_audit = continent_total_audit_dict[year]
+    n_dropped_redundant_totals = (
+        int(continent_total_audit["dropped_redundant_total"].sum())
+        if not continent_total_audit.empty
+        else 0
     )
 
     n_good = cbcr_year[~cbcr_year["iso_parent"].isin(excluded_parents)][
@@ -1068,7 +1398,7 @@ for year in years:
     ].nunique()
     print(f"Reporters: {n_good} good + {n_excluded} excluded from weight computation")
 
-    # Step 4: Build partner metadata lookup
+    # Build metadata lookups
     partner_lookup = build_partner_metadata_lookup(
         cbcr_year=cbcr_year,
         year=year,
@@ -1076,7 +1406,13 @@ for year in years:
         partner_yearly=partner_yearly,
     )
 
-    # Step 5: Disaggregate all reporters
+    pair_lookup = build_pair_metadata_lookup(
+        cbcr_year=cbcr_year,
+        year=year,
+        pair_yearly=pair_yearly,
+    )
+
+    # Disaggregate all reporters
     processed_reporters = []
     total_distributed = 0
     reporters_with_distribution = 0
@@ -1095,6 +1431,8 @@ for year in years:
             continent_mapping=continent_mapping,
             continent_foreign_total=continent_foreign_total,
             global_foreign_total=global_foreign_total,
+            n_reporters_per_partner=n_reporters_per_partner,
+            weight_source_per_partner=weight_source_per_partner,
         )
 
         processed_reporters.append(processed)
@@ -1125,16 +1463,48 @@ for year in years:
             except Exception:
                 pass
 
+    # Fill all non-pair metadata from partner lookup
+    non_pair_cols = [
+        col for col in METADATA_COLS if col != "etr_parent_partner_corrected"
+    ]
+
+    for col in non_pair_cols:
         missing = combined[col].isna()
         if missing.any():
             mapped = combined.loc[missing, "iso_partner"].map(partner_lookup[col])
 
             try:
-                mapped = mapped.astype(target_dtype)
+                mapped = mapped.astype(METADATA_DTYPES[col])
             except Exception:
                 pass
 
             combined.loc[missing, col] = mapped
+
+    # Fill pair-specific corrected ETR from pair lookup for cells that were
+    # actually reported in the source data. Distributed (is_distributed=1)
+    # cells stay NaN — no real (parent, partner, year) report exists to
+    # derive an ETR from, and we intentionally do NOT impute the pair ETR
+    # here. Downstream consumers should treat etr_parent_partner_corrected
+    # as a diagnostic only and rely on partner-year ETRs (median / p25 /
+    # average / min) for any calculation that needs to cover distributed
+    # rows.
+    # Same treatment for every pair-year metadata column (the pair ETR and the
+    # CbCR group count n_cbcr): map the reported value onto reported cells, leave
+    # distributed (imputed) cells NaN — they have no real (parent, partner, year)
+    # report. n_cbcr in particular is not carried on the good-reporter rows, so
+    # the column is created here as NaN first and then filled from pair_lookup.
+    for pair_col in PAIR_YEARLY_METADATA_COLS:
+        if pair_col not in pair_lookup.columns:
+            continue
+        if pair_col not in combined.columns:
+            combined[pair_col] = np.nan
+        missing_pair = combined[pair_col].isna()
+        if missing_pair.any():
+            pair_index = pd.MultiIndex.from_frame(
+                combined.loc[missing_pair, ["iso_parent", "iso_partner"]]
+            )
+            mapped_pair = pair_lookup.reindex(pair_index)[pair_col].to_numpy()
+            combined.loc[missing_pair, pair_col] = mapped_pair
 
     combined["year"] = year
 
@@ -1208,6 +1578,210 @@ cbcr_main_disaggregated = cbcr_main_disaggregated.sort_values(
     ["year", "iso_parent", "iso_partner"]
 ).reset_index(drop=True)
 
+# %%
+def _impute_profit_multifactor(frame, pcol, reported_mask, factors):
+    """Per-row imputed profit from the partner's profitability on MULTIPLE factors.
+
+    For each factor f in `factors`, the partner-level yield is
+    Σ reported profit ÷ Σ reported f (pooled over the partner's directly-reported
+    foreign rows, `reported_mask`). The row's implied profit from f = row_f × yield.
+    The returned value is the arithmetic MEAN of the implied profits across the
+    factors for which the row has a positive value AND the partner has a defined
+    yield (so a row with 0 employees contributes no employee-based estimate, and a
+    partner with no reported assets contributes no asset yield). Aligned to
+    `frame.index`; NaN where no factor is usable (caller leaves such rows as-is).
+
+    With factors == ["unrelated_party_revenues"] this reduces exactly to the old
+    sales-margin imputation (imputed sales × reported profit/sales).
+    """
+    p = pd.to_numeric(frame[pcol], errors="coerce")
+    est_sum = pd.Series(0.0, index=frame.index)
+    est_cnt = pd.Series(0.0, index=frame.index)
+    for f in factors:
+        if f not in frame.columns:
+            continue
+        fv = pd.to_numeric(frame[f], errors="coerce")
+        tab = pd.DataFrame(
+            {"iso_partner": frame["iso_partner"], "p": p.where(reported_mask),
+             "f": fv.where(reported_mask)}
+        ).groupby("iso_partner").sum(min_count=1)
+        own_yield = (tab["p"] / tab["f"]).where(tab["f"] > 0)
+        # Winsorize the partner yields across partners at the 1st / 99th
+        # percentile, clipping only the explosive thin-denominator outliers and
+        # otherwise keeping each partner's own (sign-preserving) profitability.
+        _lo, _hi = own_yield.quantile(PROFIT_YIELD_WINSOR), own_yield.quantile(1 - PROFIT_YIELD_WINSOR)
+        yield_f = own_yield
+        if pd.notna(_lo) and pd.notna(_hi):
+            yield_f = own_yield.clip(_lo, _hi)
+        implied = fv * frame["iso_partner"].map(yield_f)
+        ok = implied.notna() & fv.notna() & (fv > 0)
+        est_sum = est_sum + implied.where(ok, 0.0)
+        est_cnt = est_cnt + ok.astype(float)
+    return est_sum / est_cnt.where(est_cnt > 0)
+
+
+# %%
+# The single imputation method. Each bad-reporter aggregate group's distributed
+# total (placed on ALL eligible markets with a flat phase-1 weight) is
+# redistributed across its partners by the gravity-model predicted activity
+# (conserving the aggregate) and capped to plausible per-country totals; profit is
+# then imputed from each partner's reported profitability. Every other variable is
+# cleared on distributed rows at the end.
+_g = pd.read_csv(f"{data_intermediate}/gravity/gravity_imputed_activity{_BOOT_SUFFIX}.csv")
+_g = _g.rename(columns={
+    "pred_n_employees": "_g_n_employees",
+    "pred_unrelated_party_revenues": "_g_unrelated_party_revenues",
+    "pred_tangible_assets_except_cash": "_g_tangible_assets_except_cash",
+})
+df = cbcr_main_disaggregated.merge(
+    _g[["iso_parent", "iso_partner", "year", "_g_n_employees",
+        "_g_unrelated_party_revenues", "_g_tangible_assets_except_cash"]],
+    on=["iso_parent", "iso_partner", "year"], how="left",
+)
+dist = df["is_distributed"] == 1
+grp = [df["year"], df["iso_parent"], df["source_aggregate_code"]]
+factor_map = {
+    "n_employees": "_g_n_employees",
+    "unrelated_party_revenues": "_g_unrelated_party_revenues",
+    "tangible_assets_except_cash": "_g_tangible_assets_except_cash",
+}
+# ── Per-country TOTAL imputed-activity cap (2026-06-16) ───────────────────
+# The redistribution conserves each (year, parent, source_aggregate) total —
+# val = weight/Σweight × aggregate always sums back to the aggregate — so we
+# can iteratively DOWN-WEIGHT any market whose *total* imputed activity exceeds
+# an economic-size ceiling, and the freed share flows to other partners while
+# the aggregate is preserved. Without this, fragile/small non-haven states are
+# imputed implausibly large activity (e.g. Somalia ~6× GDP of MNE sales,
+# Marshall Is ~197×). Anchors: GDP for sales/assets, population for employees.
+# Recognised havens are EXEMPT (high sales/GDP is legitimate for them).
+_CAP_SALES_X_GDP, _CAP_ASSETS_X_GDP, _CAP_EMP_X_POP = 2.0, 2.0, 0.5
+_araw = pd.read_csv(
+    f"{data_final}/cbcr_main_allsubgroupsonly.csv",
+    usecols=["iso_partner", "year", "gdp_current_usd", "population"],
+).drop_duplicates(["iso_partner", "year"])
+# Fill missing GDP/population per country across the year panel (ffill+bfill),
+# so country-years lacking GDP (e.g. Marshall Is. 2016, North Korea) still get
+# a ceiling — otherwise the cap silently does not fire there.
+_isos = df["iso_partner"].dropna().unique()
+_yrs = sorted(int(y) for y in pd.to_numeric(df["year"], errors="coerce").dropna().unique())
+_grid = pd.MultiIndex.from_product([_isos, _yrs],
+                                   names=["iso_partner", "year"]).to_frame(index=False)
+_araw = _grid.merge(_araw, on=["iso_partner", "year"], how="left").sort_values(
+    ["iso_partner", "year"])
+for _c in ["gdp_current_usd", "population"]:
+    _araw[_c] = _araw.groupby("iso_partner")[_c].transform(lambda s: s.ffill().bfill())
+_araw = _araw.rename(columns={"gdp_current_usd": "_gdp_anchor", "population": "_pop_anchor"})
+df = df.merge(_araw, on=["iso_partner", "year"], how="left")
+_gdp = pd.to_numeric(df["_gdp_anchor"], errors="coerce")
+_pop = pd.to_numeric(df["_pop_anchor"], errors="coerce")
+# Cap exemption uses the FROZEN functional haven set (not the presentational
+# representation list): micro-state havens like Guernsey / Cook Islands must keep
+# the exemption even though the outcome-based representation list dropped them.
+_exempt = df["iso_partner"].isin(TAX_HAVENS_FUNCTIONAL)
+_ceil_map = {
+    "n_employees": (_CAP_EMP_X_POP * _pop).where(~_exempt, np.inf),
+    "unrelated_party_revenues": (_CAP_SALES_X_GDP * _gdp).where(~_exempt, np.inf),
+    "tangible_assets_except_cash": (_CAP_ASSETS_X_GDP * _gdp).where(~_exempt, np.inf),
+}
+_py = [df["iso_partner"], df["year"]]
+_ncap = {}
+for _col, _gcol in factor_map.items():
+    cur = pd.to_numeric(df[_col], errors="coerce").fillna(0.0)
+    gw = pd.to_numeric(df[_gcol], errors="coerce")
+    gw = gw.where(gw.notna() & (gw > 0), cur).clip(lower=0).where(dist, 0.0)
+    agg = cur.where(dist, 0.0).groupby(grp).transform("sum")
+    ceil_row = _ceil_map[_col]
+    val = pd.Series(0.0, index=df.index)
+    for _ in range(10):
+        gwsum = gw.groupby(grp).transform("sum")
+        val = pd.Series(np.where(dist & (gwsum > 0), gw / gwsum * agg, 0.0),
+                        index=df.index)
+        tot = val.where(dist, 0.0).groupby(_py).transform("sum")
+        over = dist & ceil_row.notna() & (tot > ceil_row) & (tot > 0)
+        if not over.any():
+            break
+        gw = gw.mask(over, gw * (ceil_row / tot)).clip(lower=0)
+    _ncap[_col] = int((dist & ceil_row.notna() & (val.groupby(_py).transform("sum") > ceil_row * 1.001)).sum())
+    df[_col] = np.where(dist, val, df[_col])
+print(f"  gravity activity cap: rows still > ceiling after capping "
+      f"(all-partners-capped groups): {_ncap}")
+df["payroll"] = (pd.to_numeric(df["n_employees"], errors="coerce").fillna(0)
+                 * pd.to_numeric(df["wage_monthly"], errors="coerce").fillna(0) * 12)
+_reported = (df["is_distributed"] == 0) & (df["iso_parent"] != df["iso_partner"])
+for _pcol in ["profit_loss_before_income_tax_corrected", "profit_loss_before_income_tax"]:
+    _p = pd.to_numeric(df[_pcol], errors="coerce")
+    # Multi-factor profitability (sales + employees + tangible assets) applied to
+    # each imputed row, then rescaled within the (year, parent, source_aggregate)
+    # group to conserve the reported aggregate profit.
+    prof = _impute_profit_multifactor(df, _pcol, _reported, PROFIT_IMPUTATION_FACTORS).where(dist).fillna(0.0)
+    agg_prof = _p.where(dist, 0.0).groupby(grp).transform("sum")
+    # Sign-robust share denominator (mirrors allocate_across_partners): when the
+    # signed sum of the multi-factor estimates nearly cancels, the raw ratio
+    # prof/profsum explodes (a tiny denominator inflates each share). Fall back
+    # to positive-clipped shares in that case so micro-markets can't be assigned
+    # absurd profit (e.g. Cook Is. −$294bn on $6bn sales).
+    _signed = prof.groupby(grp).transform("sum")
+    _abssum = prof.abs().groupby(grp).transform("sum")
+    _share = prof.where(_signed.abs() >= 0.05 * _abssum, prof.clip(lower=0))
+    _den = _share.groupby(grp).transform("sum")
+    df[_pcol] = np.where(dist & (_den.abs() > 0), _share / _den * agg_prof, df[_pcol])
+
+# Imputed rows carry ONLY the gravity-imputed activity, derived payroll, the
+# profitability-imputed profit, and total_revenues (floored to the imputed
+# unrelated-party sales — related-party revenue is not imputed). Every other CbCR
+# variable is intentionally left blank on distributed rows (tax, related-party
+# revenue, stated capital, entity counts, IP-holding are NOT imputed).
+_imp_all = df["is_distributed"] == 1
+df.loc[_imp_all, "total_revenues"] = pd.to_numeric(
+    df.loc[_imp_all, "unrelated_party_revenues"], errors="coerce")
+_NOT_IMPUTED_ON_DISTRIBUTED = [
+    "related_party_revenues", "stated_capital", "n_entities",
+    "holding_or_managing_ip",
+    "income_tax_paid_on_cash_basis", "income_tax_accrued_current_year",
+]
+for _c in _NOT_IMPUTED_ON_DISTRIBUTED:
+    if _c in df.columns:
+        df.loc[_imp_all, _c] = np.nan
+cbcr_main_disaggregated = df.drop(
+    columns=[c for c in df.columns if c.startswith("_g_")] + ["_gdp_anchor", "_pop_anchor"]
+)
+print(f"  gravity imputation: activity + profit recomputed on {int(dist.sum())} "
+      f"distributed rows; total_revenues floored to imputed sales and "
+      f"tax/related/capital/entities/IP cleared on {int(_imp_all.sum())} distributed rows.")
+
+# %%
+# Merge destination-based sales (CFB), built by 0_destination_based_sales.py.
+# Done here, after disaggregation, because the disaggregation step introduces
+# partner jurisdictions that do not exist after script 1, and destination-based
+# sales are a property of the market jurisdiction (iso_partner, year).
+dest_sales = pd.read_csv(f"{data_intermediate}/destination_based_sales.csv")
+cbcr_main_disaggregated = cbcr_main_disaggregated.merge(
+    dest_sales,
+    on=["iso_partner", "year"],
+    how="left",
+)
+n_rows = len(cbcr_main_disaggregated)
+n_with_cfb = cbcr_main_disaggregated["cfb_sales"].notna().sum()
+n_with_ads = cbcr_main_disaggregated["ads_sales"].notna().sum()
+print(f"\nDestination-based sales merged: CFB on {n_with_cfb} / {n_rows} rows, "
+      f"ADS on {n_with_ads} / {n_rows} rows.")
+
+# Bilateral (parent-specific) destination factor, if 1b's Part D produced it
+# (requires the AAMNE bilateral download). Keyed by parent AND partner, unlike
+# the market-level keys above. Absent file = no-op.
+from pathlib import Path  # noqa: E402  (notebook-style script, local use)
+
+_bilat_fp = Path(f"{data_intermediate}/destination_based_sales_bilateral.csv")
+if _bilat_fp.exists():
+    _bilat = pd.read_csv(_bilat_fp)
+    cbcr_main_disaggregated = cbcr_main_disaggregated.merge(
+        _bilat, on=["iso_parent", "iso_partner", "year"], how="left"
+    )
+    _nb = cbcr_main_disaggregated["mne_bilat_factor"].notna().sum()
+    print(f"Bilateral destination factor merged on {_nb} / {n_rows} rows.")
+else:
+    print("Bilateral destination factor not found (1b Part D inactive) — skipped.")
+
 print(f"\nFinal disaggregated dataset: {len(cbcr_main_disaggregated)} rows")
 print(cbcr_main_disaggregated.head())
 
@@ -1225,55 +1799,143 @@ if not negative_distributed_clipping_all.empty:
 
 
 # %%
-cbcr_main_disaggregated.to_csv(
-    f"{data_final}/cbcr_main_disaggregated.csv",
-    index=False,
+# Apply canonical column order before writing
+from _column_order import COLUMNS_STAGE_2, apply_canonical_order
+
+cbcr_main_disaggregated = apply_canonical_order(
+    cbcr_main_disaggregated, COLUMNS_STAGE_2
 )
+# Single canonical disaggregated dataset (gravity activity + profitability profit).
+# Bootstrap draws append a __boot{seed} suffix.
+_disagg_name = f"cbcr_main_disaggregated{_BOOT_SUFFIX}.csv"
+cbcr_main_disaggregated.to_csv(f"{data_final}/{_disagg_name}", index=False)
+
+DISAGG_TABLES, _ = output_dirs("disaggregation")
 
 disaggregation_diagnostics.to_csv(
-    f"{output_tables}/disaggregation_diagnostics.csv",
+    DISAGG_TABLES / "disaggregation_diagnostics.csv",
     index=False,
 )
 
 continent_total_audit_all.to_csv(
-    f"{output_tables}/continent_total_audit.csv",
+    DISAGG_TABLES / "continent_total_audit.csv",
     index=False,
 )
 
 wxd_checks_all.to_csv(
-    f"{output_tables}/wxd_checks.csv",
+    DISAGG_TABLES / "wxd_checks.csv",
     index=False,
 )
 
 if not negative_wxd_warnings_all.empty:
     negative_wxd_warnings_all.to_csv(
-        f"{output_tables}/negative_wxd_residual_warnings.csv",
+        DISAGG_TABLES / "negative_wxd_residual_warnings.csv",
         index=False,
     )
 
 if not negative_distributed_clipping_all.empty:
     negative_distributed_clipping_all.to_csv(
-        f"{output_tables}/negative_distributed_values_clipped.csv",
+        DISAGG_TABLES / "negative_distributed_values_clipped.csv",
         index=False,
     )
 
 if not flagged_inconsistent_totals_all.empty:
     flagged_inconsistent_totals_all.to_csv(
-        f"{output_tables}/flagged_inconsistent_continent_totals.csv",
+        DISAGG_TABLES / "flagged_inconsistent_continent_totals.csv",
         index=False,
     )
 
 print("\nSaved:")
-print(f"  {data_final}/cbcr_main_disaggregated.csv")
-print(f"  {output_tables}/disaggregation_diagnostics.csv")
-print(f"  {output_tables}/continent_total_audit.csv")
-print(f"  {output_tables}/wxd_checks.csv")
+print(f"  {data_final}/{_disagg_name}")
+print(f"  {DISAGG_TABLES}/disaggregation_diagnostics.csv")
+print(f"  {DISAGG_TABLES}/continent_total_audit.csv")
+print(f"  {DISAGG_TABLES}/wxd_checks.csv")
 if not negative_wxd_warnings_all.empty:
-    print(f"  {output_tables}/negative_wxd_residual_warnings.csv")
+    print(f"  {DISAGG_TABLES}/negative_wxd_residual_warnings.csv")
 if not negative_distributed_clipping_all.empty:
-    print(f"  {output_tables}/negative_distributed_values_clipped.csv")
+    print(f"  {DISAGG_TABLES}/negative_distributed_values_clipped.csv")
 if not flagged_inconsistent_totals_all.empty:
-    print(f"  {output_tables}/flagged_inconsistent_continent_totals.csv")
+    print(f"  {DISAGG_TABLES}/flagged_inconsistent_continent_totals.csv")
+
+
+# %% [conservation invariant] domestic + non_domestic == raw_reported_total
+#
+# For every (year, iso_parent) reporter, verify that the sum of all output
+# rows equals the raw reported "total" we expected the disaggregation to
+# preserve. The reference total is:
+#   - domestic (iso_partner == iso_parent in the raw input)
+#   - + WXD value if the parent reported one
+#   - or + sum of all reported continent codes / specific countries
+# Only the IMPUTED variables are conservation-checked: the three gravity activity
+# factors and the two profit columns (gravity conserves each (year, parent,
+# source_aggregate) total, profit is rescaled to conserve it). The other CbCR
+# variables are intentionally NOT imputed on distributed rows (total_revenues is
+# floored to imputed sales; tax / related-party revenue / stated capital / entity
+# counts / IP-holding are blank), so they are expected NOT to conserve and are
+# excluded from the check.
+
+print("\nConservation invariant check (imputed variables only):")
+CONSERVED_VARS = [
+    "n_employees",
+    "unrelated_party_revenues",
+    "tangible_assets_except_cash",
+    "profit_loss_before_income_tax_corrected",
+    "profit_loss_before_income_tax",
+]
+INVARIANT_ATOL = 1.0   # USD / counts; tolerance for floating-point summation
+INVARIANT_RTOL = 1e-4
+
+raw_input = cbcr_full.copy() if "cbcr_full" in dir() else None
+if raw_input is not None:
+    # Sum reported (per-parent-year, per variable) excluding sub-totals so we
+    # don't double-count: domestic row + WXD row (if present) is the
+    # canonical aggregate; otherwise sum the country + continent rows.
+    invariant_fails = []
+    for (yr, par), grp in cbcr_main_disaggregated.groupby(["year", "iso_parent"]):
+        # Output sum (all output rows for this reporter)
+        out_sum = grp[CBCR_VARS].sum()
+        raw = raw_input[(raw_input["year"] == yr) & (raw_input["iso_parent"] == par)]
+        if raw.empty:
+            continue
+        wxd_raw = raw[raw["iso_partner"] == "WXD"]
+        dom_raw = raw[raw["iso_partner"] == par]
+        if not wxd_raw.empty:
+            ref_sum = (
+                dom_raw[CBCR_VARS].sum().fillna(0)
+                + wxd_raw[CBCR_VARS].sum().fillna(0)
+            )
+        else:
+            # Without WXD, the raw input rows themselves are the reference
+            # (continent codes + specific countries). The disaggregation
+            # redistributes the continent codes to specific partners but the
+            # parent-level sum is preserved.
+            ref_sum = raw[CBCR_VARS].sum().fillna(0)
+        for var in CONSERVED_VARS:
+            ov = float(out_sum.get(var, 0) or 0)
+            rv = float(ref_sum.get(var, 0) or 0)
+            if abs(ov - rv) > max(INVARIANT_ATOL, INVARIANT_RTOL * max(abs(rv), 1.0)):
+                invariant_fails.append({
+                    "year": yr, "iso_parent": par, "variable": var,
+                    "raw_total": rv, "output_total": ov, "diff": ov - rv,
+                })
+    if invariant_fails:
+        ifd = pd.DataFrame(invariant_fails)
+        ifd.to_csv(DISAGG_TABLES / "conservation_invariant_fails.csv", index=False)
+        print(f"  FAIL: {len(invariant_fails)} (parent, year, variable) cells "
+              f"failed conservation invariant")
+        print(f"     details -> {DISAGG_TABLES}/conservation_invariant_fails.csv")
+        # Top offenders
+        worst = ifd.reindex(ifd['diff'].abs().sort_values(ascending=False).index).head(10)
+        print(f"  Top 10 by absolute diff:")
+        for _, r in worst.iterrows():
+            print(f"    {int(r['year'])} {r['iso_parent']:<3s} {r['variable']:<40s} "
+                  f"raw={r['raw_total']:>15,.1f} out={r['output_total']:>15,.1f} "
+                  f"diff={r['diff']:>+12,.1f}")
+    else:
+        print("  PASS: every parent-year disaggregated total matches the raw "
+              "reported total within tolerance")
+else:
+    print("  (raw input frame `cbcr_main_long` not in scope; skip)")
 
 
 # %%
