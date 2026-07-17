@@ -1,0 +1,89 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  COG  (Congo)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: minerals (metals/other), oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 35%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: Congo hydrocarbons code).
+The government's take arrives in three forms (split source: actual realized split from grd_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.469 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.062 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.468 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+The profit removed is read from the resource payments above: it is the LARGER of the income-
+tax-implied profit (income tax / resource rate) and the state-dividend (equity) amount. So for a
+state whose take is mostly dividends, the equity bucket is what determines the profit removed,
+with the matching tax removed at the resource rate.
+
+TAX RATES
+General statutory corporate income tax rate: 0.293. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.35. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: effective_resource_cit_rates.csv (combined effective rate).
+Notes on the tax regime: Hydrocarbons Code 2016: 35% CIT + cost recovery PSCs
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Congo, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity.
+About 5.8% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    FRA: 43.2%
+    ITA: 17.1%
+    USA: 10.9%
+    COG (domestic): 5.8%
+    CHN: 3.6%
+    SAU: 2.1%
+    CAN: 2.1%
+    GBR: 1.7%
+    other (108 more headquarters): 13.4%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016            0.09          0.18         2.114 |                    0.03                 0.12 |             0.05          0.06         1.109
+  2017            0.13          0.10         0.799 |                    0.03                -0.00 |             0.10          0.11         1.036
+  2018            0.01          0.30        33.979 |                    0.01                 0.00 |             0.00          0.30       186.188
+  2019            0.01          0.31        44.704 |                    0.00                 0.00 |             0.00          0.31        96.534
+  2020            0.36          0.21         0.591 |                    0.18                 0.05 |             0.18          0.16         0.874
+  2021            0.71          0.39         0.549 |                    0.45                 0.17 |             0.27          0.22         0.824
+  2022            0.73          0.48         0.652 |                    0.73                 0.48 |             0.00          0.00             -
+
+SOURCES AND CITATIONS
+  - Source for the combined resource rate: Congo hydrocarbons code
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

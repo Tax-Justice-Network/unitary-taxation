@@ -1,0 +1,87 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  DEU  (Germany)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: coal, minerals (metals/other), oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 30%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: BMF).
+The government's take arrives in three forms (split source: actual realized split from eiti_bilateral payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.549 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.451 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.0 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+The profit removed is read from the resource payments above: it is the LARGER of the income-
+tax-implied profit (income tax / resource rate) and the state-dividend (equity) amount. So for a
+state whose take is mostly dividends, the equity bucket is what determines the profit removed,
+with the matching tax removed at the resource rate.
+
+TAX RATES
+General statutory corporate income tax rate: 0.299. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.3. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: effective_resource_cit_rates.csv (combined effective rate).
+Notes on the tax regime: ~30% combined federal+local; small extraction sector
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Germany, the figures come from EITI reports, so the attribution is bilateral: each
+company's payment is matched to its ultimate owner (through Orbis), so the headquarter split
+reflects which companies actually made the payments.
+About 36.9% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    USA: 39.3%
+    DEU (domestic): 36.9%
+    GBR: 17.7%
+    ITA: 2.8%
+    CZE: 2.4%
+    CAN: 0.8%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016           42.40          9.12         0.215 |                    0.21                 0.08 |            42.19          9.04         0.214
+  2017          177.31         35.45         0.200 |                    0.21                 0.12 |           177.09         35.32         0.199
+  2018          184.60         39.41         0.213 |                    0.71                 0.31 |           183.89         39.09         0.213
+  2019          155.91         35.60         0.228 |                    0.85                 0.38 |           155.06         35.22         0.227
+  2020          121.99         29.02         0.238 |                    0.22                 0.08 |           121.77         28.94         0.238
+  2021          181.77         41.37         0.228 |                    0.38                 0.07 |           181.39         41.30         0.228
+  2022          261.66         46.49         0.178 |                    1.90                 0.33 |           259.76         46.16         0.178
+
+SOURCES AND CITATIONS
+  - Source for the combined resource rate: BMF
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

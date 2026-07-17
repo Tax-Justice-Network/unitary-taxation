@@ -1,0 +1,81 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  ECU  (Ecuador)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: minerals (metals/other), oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 35%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: SRI).
+The government's take arrives in three forms (split source: manual table), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.5902 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.0492 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.3607 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+The profit removed is read from the resource payments above: it is the LARGER of the income-
+tax-implied profit (income tax / resource rate) and the state-dividend (equity) amount. So for a
+state whose take is mostly dividends, the equity bucket is what determines the profit removed,
+with the matching tax removed at the resource rate.
+
+TAX RATES
+General statutory corporate income tax rate: 0.244. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.35. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: effective_resource_cit_rates.csv (combined effective rate).
+Notes on the tax regime: 25% CIT + windfall tax on excess oil price; PSC structure
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Ecuador, the figures come from EITI reports, so the attribution is bilateral: each
+company's payment is matched to its ultimate owner (through Orbis), so the headquarter split
+reflects which companies actually paid (carried forward and scaled by reported CbCR profit
+in years the EITI reports do not yet cover).
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016            1.02          0.28         0.276 |                    0.00                -0.00 |             1.02          0.28         0.276
+  2017            1.77          0.33         0.188 |                    0.00                 0.00 |             1.77          0.33         0.188
+  2018            2.53          0.96         0.380 |                    0.00                 0.00 |             2.53          0.96         0.380
+  2019            2.27          0.61         0.267 |                    0.00                 0.00 |             2.27          0.61         0.267
+  2020            1.12          0.52         0.462 |                    0.00                 0.00 |             1.12          0.52         0.462
+  2021            2.65          0.48         0.179 |                    0.00                 0.00 |             2.65          0.48         0.179
+  2022            3.75          0.54         0.143 |                    0.00                 0.00 |             3.75          0.54         0.143
+
+SOURCES AND CITATIONS
+  - Source for the combined resource rate: SRI
+  - Source for the resource-revenue figure (confidence low): Ecuador oil & gas (state-dominated; service-contract model since ~2010). Total = SPNF 'ingresos petroleros'. pre = state crude export sales + sovereignty margin + royalties; post = SRI oil-sector taxes (CIT/withholding on hydrocarbons); equity = EP Petroecuador surplus + domestic-derivatives sales. NOTE: 2018-2020 use IMF 'oil revenue net of operational cost' (conservative); 2021-2022 use BCE gross 'ingresos petroleros' (not strictly comparable - gross 2018-20 ~ $11-12bn). EITI bilateral was broken/thin so this manual figure overrides it. Hand-collected 2026-06. Sources: BCE Informe Evolucion Economia 2022 Tabla 14; IMF Art IV CR21/228 & CR24/357; EITI Ecuador 2020-2022 Cuadros 37/39.
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

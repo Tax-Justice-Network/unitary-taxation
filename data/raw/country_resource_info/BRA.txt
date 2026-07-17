@@ -1,0 +1,98 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  BRA  (Brazil)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: minerals (metals/other), oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 45%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: Receita + ANP).
+The government's take arrives in three forms (split source: actual realized split from manual_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.633 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.237 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.129 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+This country is corrected by the ETR-gap method: the profit removed is inferred from the CbCR
+tax itself — the tax paid above what the 34% statutory rate would imply, converted to profit
+at the 45% resource rate. The royalty / income-tax / dividend split above feeds the
+'resources included' and minimum-royalty views, and is the fallback in any year where the gap
+is inert (observed ETR at or below the statutory rate).
+
+TAX RATES
+General statutory corporate income tax rate: 0.340. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.45. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: resource_profit_tax_rate.csv (income-tax-based, per commodity).
+Notes on the tax regime: 34% CIT (15+9+10 surcharge) + Special Participation oil tax effective ~10%
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Brazil, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity, anchored on operator-level
+payment-to-government data where it exists.
+About 58.3% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    BRA (domestic): 58.3%
+    FRA: 18.7%
+    NLD: 12.9%
+    GBR: 3.4%
+    CHN: 1.2%
+    USA: 1.0%
+    AUS: 0.6%
+    other (64 more headquarters): 3.8%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016           54.07         22.50         0.416 |                   20.35                11.55 |            33.72         10.95         0.325
+  2017           88.24         23.17         0.263 |                   21.01                 8.39 |            67.23         14.77         0.220
+  2018           74.66         30.24         0.405 |                   21.15                16.71 |            53.51         13.53         0.253
+  2019           81.64         24.37         0.298 |                   20.64                 8.36 |            61.00         16.00         0.262
+  2020           54.69         20.01         0.366 |                   19.30                10.39 |            35.39          9.61         0.272
+  2021          127.21         28.23         0.222 |                   25.67                 6.68 |           101.54         21.55         0.212
+  2022          232.48         40.90         0.176 |                   23.93                 4.15 |           208.55         36.75         0.176
+
+SOURCES AND CITATIONS
+  - Resource tax rate for oil & gas (0.45, confidence low): CIT 34% + special participation (progressive profit-based levy up to 40%) on high-output fields
+  - Resource tax rate for minerals (metals/other) (0.34, confidence low): CIT 34%; CFEM royalty 1-3.5% revenue (pre-profit)
+  - Source for the combined resource rate: Receita + ANP
+  - Source for the resource-revenue figure (confidence low (estimate; anchor on ANM CFEM)): Brazil minerals: CFEM mining royalty (1-3.5% of revenue, Vale-dominated) [pre] + sector corporate tax 34% [post]; ~no state controlling stake since 2020 -> negligible equity. R$ bn -> /avg BRL-USD. ESTIMATE — anchor on ANM CFEM stats.
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.
+  Reference links for this country (pulled from the files above so this sheet stands alone):
+    https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-estatisticos
+    https://www.gov.br/anm/pt-br
+    https://www.tesourotransparente.gov.br/
+    https://www.presalpetroleo.gov.br

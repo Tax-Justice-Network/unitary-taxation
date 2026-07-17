@@ -1,0 +1,91 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  AGO  (Angola)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 50%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: Lei Fiscal de Petróleo).
+The government's take arrives in three forms (split source: actual realized split from grd_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.5 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.3 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.2 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+This country is corrected by the ETR-gap method: the profit removed is inferred from the CbCR
+tax itself — the tax paid above what the 28% statutory rate would imply, converted to profit
+at the 50% resource rate. The royalty / income-tax / dividend split above feeds the
+'resources included' and minimum-royalty views, and is the fallback in any year where the gap
+is inert (observed ETR at or below the statutory rate).
+
+TAX RATES
+General statutory corporate income tax rate: 0.284. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.5. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: resource_profit_tax_rate.csv (income-tax-based, per commodity).
+Notes on the tax regime: 50% petroleum income tax; 70% on traditional concessions (legacy)
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Angola, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity.
+About 20.0% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    AGO (domestic): 20.0%
+    USA: 17.0%
+    CHN: 8.8%
+    SAU: 5.4%
+    CAN: 5.3%
+    GBR: 4.8%
+    RUS: 3.4%
+    JPN: 2.5%
+    other (105 more headquarters): 32.7%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016            0.84          0.85         1.012 |                    0.52                 0.16 |             0.32          0.69         2.158
+  2017            4.34          1.26         0.290 |                    2.14                 1.19 |             2.20          0.07         0.033
+  2018            8.06          1.75         0.217 |                    3.84                 1.31 |             4.22          0.44         0.104
+  2019            5.40          1.10         0.203 |                    2.21                 0.80 |             3.20          0.30         0.094
+  2020            1.38          0.50         0.365 |                    0.50                 0.07 |             0.88          0.43         0.492
+  2021           12.02          1.17         0.097 |                    2.86                 0.92 |             9.16          0.25         0.027
+  2022           12.41          1.90         0.153 |                    3.09                 0.70 |             9.32          1.20         0.128
+
+SOURCES AND CITATIONS
+  - Resource tax rate for oil & gas (0.5, confidence low): PSA petroleum income tax ~50% + corporate tax
+  - Source for the combined resource rate: Lei Fiscal de Petróleo
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

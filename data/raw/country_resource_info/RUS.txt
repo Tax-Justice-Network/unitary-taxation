@@ -1,0 +1,97 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  RUS  (Russia)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 40%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: Russian Tax Code Ch 26).
+The government's take arrives in three forms (split source: actual realized split from manual_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.84 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.114 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.046 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+This country is corrected by the ETR-gap method: the profit removed is inferred from the CbCR
+tax itself — the tax paid above what the 20% statutory rate would imply, converted to profit
+at the 20% resource rate. The royalty / income-tax / dividend split above feeds the
+'resources included' and minimum-royalty views, and is the fallback in any year where the gap
+is inert (observed ETR at or below the statutory rate).
+
+TAX RATES
+General statutory corporate income tax rate: 0.200. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.2. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: resource_profit_tax_rate.csv (income-tax-based, per commodity).
+This country's TOTAL government take from the resource sector is about 0.4 of profit, but
+that figure bundles three flows together: royalties, income tax, and state dividends.
+Only the income-tax part (0.2) is used to convert the CbCR income-tax line back
+into profit; the royalties and dividends are removed separately (as pre-profit royalties and
+state-equity income), so using the full 0.4 here would double-count them and understate
+the resource profit.
+Notes on the tax regime: 20% CIT + Mineral Extraction Tax (MET) on oil ~20% effective; export duty also material
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Russia, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity, anchored on operator-level
+payment-to-government data where it exists.
+About 85.0% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    RUS (domestic): 85.0%
+    FRA: 10.1%
+    GBR: 4.5%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016           10.75          1.43         0.133 |                    0.30                 0.00 |            10.44          1.42         0.136
+  2017           21.01          4.30         0.204 |                    1.31                 0.36 |            19.70          3.93         0.200
+  2018           22.94          4.63         0.202 |                    3.63                 0.31 |            19.32          4.32         0.224
+  2019           22.72          7.56         0.333 |                    3.13                 0.36 |            19.59          7.20         0.368
+  2020           22.27          6.13         0.275 |                    3.64                 0.50 |            18.63          5.63         0.302
+  2021           28.30          7.89         0.279 |                    3.25                 0.53 |            25.05          7.36         0.294
+  2022           14.33          6.46         0.450 |                    0.22                 0.43 |            14.12          6.03         0.427
+
+SOURCES AND CITATIONS
+  - Resource tax rate for oil & gas (0.2, confidence medium): profit tax 20% on the sector; MET + export duty are pre-profit; APT on some fields raises effective
+  - Source for the combined resource rate: Russian Tax Code Ch 26
+  - Source for the resource-revenue figure (confidence med-high): Russia oil & gas: total from MinFin federal budget (MET + export duties [pre] + NDD [post]); equity ADDED 2026-06 = Gazprom (state 50.23%) + Rosneft (40.4%) dividends to state. Regional oil&gas profit tax not isolable.
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.
+  Reference links for this country (pulled from the files above so this sheet stands alone):
+    https://minfin.gov.ru/en/statistics/fedbud?id_4=119255-brief_annual_information_on_federal_budget_execution_bln._rub
+    https://minfin.gov.ru/en/statistics/
+    https://eng.rosstat.gov.ru

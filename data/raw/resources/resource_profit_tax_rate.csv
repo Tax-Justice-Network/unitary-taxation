@@ -1,0 +1,64 @@
+# Combined effective extractive PROFIT-tax rate, by source country x commodity.
+# Used in 4_correcting_cbcr_for_resource_payments.py to convert the "post-profit"
+# resource take (corporate income tax + special petroleum/mining taxes + windfall,
+# all levied on profit) into the profit base it was levied on:  base = post_profit / rate.
+# Royalties / licence fees / bonuses / production entitlements are NOT in here — those
+# are pre-profit (1:1 reduction of reported profit), handled separately.
+# Where a (source_iso3, commodity) pair is absent, 4_... falls back to the source
+# country-year's statutory CIT rate (the `cit` column of cbcr_main_disaggregated.csv).
+# Rates are the combined headline regime rate (CIT + any extractive-profit surtax),
+# from public fiscal-regime sources (IGF/IISD database, IMF FAD notes, national budgets).
+# STARTER VALUES — verify before relying on them; `confidence` flags how rough each is.
+# Sources are documented in docs/extractive/manual_resource_data_sources.md.
+source_iso3,commodity,effective_resource_profit_tax_rate,confidence,source_note
+NOR,oil_gas,0.78,high,CIT 22% + special petroleum tax 56%
+GBR,oil_gas,0.65,medium,"ring-fence CT 30% + supplementary charge 10-32% (+ energy profits levy from 2022, 35-75%); period-average ~0.65"
+SAU,oil_gas,0.20,medium,Aramco CIT 20% post-2017 (was 50%/85%); royalty is pre-profit; equity/dividends are post-profit-side
+RUS,oil_gas,0.20,medium,profit tax 20% on the sector; MET + export duty are pre-profit; APT on some fields raises effective
+KWT,oil_gas,0.15,low,no CIT on KPC; state takes revenue directly — most is equity-side; small profit-based component
+ARE,oil_gas,0.45,low,ADNOC concession partners ~40-55% income tax bands; blended ~0.45
+QAT,oil_gas,0.35,low,LNG-JV income tax ~35%; QatarEnergy share is equity-side
+IRN,oil_gas,0.25,low,NIOC; opaque; ~25% effective profit-based component
+DZA,oil_gas,0.30,low,Sonatrach + partners; complex hydrocarbon tax; ~30% profit-based
+AGO,oil_gas,0.50,low,PSA petroleum income tax ~50% + corporate tax
+OMN,oil_gas,0.30,low,income tax ~15-30% + EPSA share; ~0.30 profit-based
+LBY,oil_gas,0.50,low,EPSA/concession income tax; ~0.50; highly disrupted period
+BRA,oil_gas,0.45,low,CIT 34% + special participation (progressive profit-based levy up to 40%) on high-output fields
+CAN,oil_gas,0.27,low,federal CIT 15% + provincial ~12-15%; royalties are pre-profit
+USA,oil_gas,0.23,low,federal CIT 21% + state CIT; severance taxes are pre-profit
+AUS,oil_gas,0.42,medium,company tax 30% + PRRT 40% on offshore petroleum (cash-flow); blended ~0.42
+CHN,oil_gas,0.25,low,"CIT 25% (+ special oil gain levy is on revenue, pre-profit)"
+MEX,oil_gas,0.30,medium,Pemex special regime ~30% + DUC; reformed-contract IOCs ~30% CIT
+IDN,oil_gas,0.40,medium,PSC contractor income tax ~28-40%; profit-oil split is equity-side
+IRQ,oil_gas,0.35,medium,service-contract IOCs pay ~35% income tax on their fee profit
+KAZ,oil_gas,0.40,low,CIT 20% + excess profit tax + rent tax on exports; ~0.40 profit-based blended
+NGA,oil_gas,0.65,medium,PPT 50% (deepwater PSCs) to 85% (onshore JVs); period blend ~0.65
+TKM,oil_gas,0.20,low,state-owned; opaque; ~0.20 profit-based
+BHR,oil_gas,0.25,low,oil income tax ~46% statutory but effective lower; ~0.25
+VEN,oil_gas,0.20,low,PDVSA; collapsed regime; ~0.20 effective profit-based
+oil_gas,oil_gas,0.45,low,GLOBAL DEFAULT for oil/gas where the country is not listed (used by 1_8's rent-proxy fallback)
+CHL,minerals,0.35,medium,CIT 27% + old specific mining tax (IEAM) 0-14% on operating margin; ~0.35 (new 2024 royalty raises it)
+AUS,minerals,0.30,medium,company tax 30%; state royalties are pre-profit
+CAN,minerals,0.30,low,federal+provincial CIT ~26% + provincial mining tax; ~0.30
+USA,minerals,0.25,low,federal CIT 21% + state; hardrock has ~no federal royalty
+PER,minerals,0.32,medium,CIT 29.5% + modified mining royalty/special tax on operating margin
+ZAF,minerals,0.27,medium,CIT 27%; the mining royalty is revenue-based (pre-profit)
+COD,minerals,0.30,low,CIT 30% (2018 mining code; + super-profits levy)
+GHA,minerals,0.32,medium,CIT 35% on mining minus rebates; ~0.32 effective
+ZMB,minerals,0.30,low,CIT 30%; mineral royalty is revenue-based (pre-profit)
+TZA,minerals,0.30,low,CIT 30%; royalty 6% revenue (pre-profit); 16% free carried interest is equity-side
+GIN,minerals,0.30,low,CIT 30%; bauxite royalties are revenue-based
+BFA,minerals,0.275,medium,CIT 27.5% on mining
+MLI,minerals,0.30,medium,CIT 30% on mining
+BWA,minerals,0.22,medium,mining CIT ~22% (variable formula); royalties pre-profit
+NAM,minerals,0.375,medium,non-diamond mining CIT 37.5%; diamonds 55%
+MAR,minerals,0.31,low,CIT ~31% on OCP; phosphate royalties small
+CHN,minerals,0.25,low,CIT 25%; resource tax is revenue-based (pre-profit)
+BRA,minerals,0.34,low,CIT 34%; CFEM royalty 1-3.5% revenue (pre-profit)
+minerals,minerals,0.32,low,GLOBAL DEFAULT for minerals where the country is not listed
+AUS,coal,0.30,medium,company tax 30%; state coal royalties are pre-profit
+USA,coal,0.25,low,federal CIT 21% + state; coal royalties/severance are pre-profit
+CHN,coal,0.25,low,CIT 25%; resource tax revenue-based (pre-profit)
+COL,coal,0.32,low,CIT ~32%; coal royalties revenue-based (pre-profit)
+IDN,coal,0.40,low,coal CCoW/IUPK income tax ~40% (older contracts) / 25-30% (newer); royalty pre-profit
+coal,coal,0.30,low,GLOBAL DEFAULT for coal where the country is not listed

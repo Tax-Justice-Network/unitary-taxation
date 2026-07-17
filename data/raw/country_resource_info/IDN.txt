@@ -1,0 +1,91 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  IDN  (Indonesia)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: coal, minerals (metals/other), oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 40%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: DGT + SKK Migas).
+The government's take arrives in three forms (split source: actual realized split from grd_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.688 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.23 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.082 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+The profit removed is read from the resource payments above: it is the LARGER of the income-
+tax-implied profit (income tax / resource rate) and the state-dividend (equity) amount. So for a
+state whose take is mostly dividends, the equity bucket is what determines the profit removed,
+with the matching tax removed at the resource rate.
+
+TAX RATES
+General statutory corporate income tax rate: 0.235. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.4. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: resource_profit_tax_rate.csv (income-tax-based, per commodity).
+Notes on the tax regime: 40% effective on PSC; mining 22% CIT + royalty
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Indonesia, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity.
+About 23.6% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    USA: 40.5%
+    IDN (domestic): 23.6%
+    FRA: 10.4%
+    CHN: 7.1%
+    JPN: 4.9%
+    GBR: 4.5%
+    AUS: 1.3%
+    CAN: 0.8%
+    other (108 more headquarters): 6.8%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016           27.48          9.78         0.356 |                    6.69                 2.68 |            20.80          7.10         0.341
+  2017           32.03          9.56         0.299 |                    1.99                 0.71 |            30.05          8.85         0.295
+  2018          210.18         98.30         0.468 |                    3.25                 1.20 |           206.93         97.09         0.469
+  2019           35.32          9.81         0.278 |                    2.69                 0.77 |            32.63          9.04         0.277
+  2020           34.98          8.15         0.233 |                    5.19                 1.02 |            29.80          7.14         0.240
+  2021           63.32         10.63         0.168 |                    7.23                 1.77 |            56.09          8.86         0.158
+  2022           91.87         22.02         0.240 |                   11.83                 2.74 |            80.04         19.28         0.241
+
+SOURCES AND CITATIONS
+  - Resource tax rate for oil & gas (0.4, confidence medium): PSC contractor income tax ~28-40%; profit-oil split is equity-side
+  - Resource tax rate for coal (0.4, confidence low): coal CCoW/IUPK income tax ~40% (older contracts) / 25-30% (newer); royalty pre-profit
+  - Source for the combined resource rate: DGT + SKK Migas
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

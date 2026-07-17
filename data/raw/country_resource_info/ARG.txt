@@ -1,0 +1,89 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  ARG  (Argentina)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: minerals (metals/other), oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 25%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: AFIP + Hydrocarbons Law).
+The government's take arrives in three forms (split source: actual realized split from eiti_extrapolated payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.471 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.513 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.016 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+The profit removed is read from the resource payments above: it is the LARGER of the income-
+tax-implied profit (income tax / resource rate) and the state-dividend (equity) amount. So for a
+state whose take is mostly dividends, the equity bucket is what determines the profit removed,
+with the matching tax removed at the resource rate.
+
+TAX RATES
+General statutory corporate income tax rate: 0.310. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.25. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: effective_resource_cit_rates.csv (combined effective rate).
+Notes on the tax regime: 25% CIT (35% headline reduced for new investments); royalty 12% cost-side
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Argentina, the figures come from EITI reports, so the attribution is bilateral: each
+company's payment is matched to its ultimate owner (through Orbis), so the headquarter split
+reflects which companies actually paid (carried forward and scaled by reported CbCR profit
+in years the EITI reports do not yet cover).
+About 45.0% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    ARG (domestic): 45.0%
+    FRA: 20.2%
+    CHN: 18.6%
+    ZAF: 10.2%
+    USA: 3.0%
+    CHE: 2.3%
+    GBR: 0.8%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016            9.16          2.93         0.320 |                    0.36                 0.13 |             8.80          2.80         0.318
+  2017           16.68          5.37         0.322 |                    0.64                 0.42 |            16.03          4.95         0.309
+  2018           23.58          4.10         0.174 |                    0.48                 0.21 |            23.10          3.88         0.168
+  2019            8.85          2.94         0.332 |                    0.14                 0.05 |             8.71          2.89         0.332
+  2020            4.90          3.48         0.710 |                    0.01                -0.00 |             4.89          3.48         0.711
+  2021           19.02          3.60         0.189 |                    0.91                 0.18 |            18.11          3.41         0.188
+  2022           19.94          5.80         0.291 |                    0.73                 0.36 |            19.21          5.45         0.284
+
+SOURCES AND CITATIONS
+  - Source for the combined resource rate: AFIP + Hydrocarbons Law
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

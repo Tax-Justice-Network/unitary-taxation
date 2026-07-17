@@ -1,0 +1,90 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  BRN  (Brunei)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 55%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: MoF Brunei).
+The government's take arrives in three forms (split source: actual realized split from grd_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.788 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.0 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.212 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+This country is corrected by the ETR-gap method: the profit removed is inferred from the CbCR
+tax itself — the tax paid above what the 19% statutory rate would imply, converted to profit
+at the 55% resource rate. The royalty / income-tax / dividend split above feeds the
+'resources included' and minimum-royalty views, and is the fallback in any year where the gap
+is inert (observed ETR at or below the statutory rate).
+
+TAX RATES
+General statutory corporate income tax rate: 0.185. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.55. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: effective_resource_cit_rates.csv (combined effective rate).
+Notes on the tax regime: 55% petroleum CIT
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Brunei, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity.
+About 50.0% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    BRN (domestic): 50.0%
+    USA: 10.7%
+    CHN: 5.4%
+    SAU: 3.3%
+    CAN: 3.3%
+    GBR: 3.1%
+    RUS: 2.2%
+    JPN: 1.6%
+    other (105 more headquarters): 20.5%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016            0.02          0.01         0.228 |                    0.02                 0.00 |             0.01          0.01         0.717
+  2017            0.09          0.00         0.027 |                    0.05                 0.00 |             0.04          0.00         0.013
+  2018            0.12          0.01         0.097 |                    0.07                 0.00 |             0.05          0.01         0.160
+  2019            0.15          0.01         0.066 |                    0.07                 0.00 |             0.07          0.01         0.104
+  2020            0.19          0.01         0.061 |                    0.04                 0.00 |             0.14          0.01         0.077
+  2021            0.35          0.00         0.012 |                    0.15                -0.00 |             0.20          0.00         0.024
+  2022            0.24          0.01         0.032 |                    0.18                 0.00 |             0.05          0.01         0.096
+
+SOURCES AND CITATIONS
+  - Source for the combined resource rate: MoF Brunei
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

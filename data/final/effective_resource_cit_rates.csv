@@ -1,0 +1,98 @@
+# Effective resource-CIT rate for top extractive jurisdictions.
+# combined_effective_rate is what to divide captured_cit by to imply local profit.
+# Ring-fenced regimes (oil/petroleum specifically): combined includes special tax.
+# General CIT regimes (mining, no separate resource tax): combined = headline.
+# All rates as decimals. As of fiscal-year 2022-2024 averages.
+iso3,country_name,headline_cit_rate,resource_surtax_rate,combined_effective_rate,regime_type,notes,source
+NOR,Norway,0.22,0.56,0.78,oil_ringfence,22% CIT + 56% special petroleum tax (continental shelf only),IMF FARI 2022 + Norwegian Petroleum Tax Act
+GBR,United Kingdom,0.3,0.35,0.65,oil_ringfence,30% ring-fence CIT + 35% Energy Profits Levy (post-Nov 2022); pre-2022 effective ~40%,HMRC + Energy Profits Levy Act 2022
+AUS,Australia,0.3,0.2,0.5,oil_ringfence,30% CIT + 40% PRRT on petroleum (offshore + onshore conventional). PRRT effective ~20% accounting for deductions. Mining royalty state-level,ATO + Tax Justice Network Australia
+USA,United States,0.21,0.05,0.26,general,21% federal CIT + ~5% state corporate tax (avg of TX/OK/AK/ND/NM/WY); state severance taxes separate (treated as cost-side),IRS + state DoR averages
+CAN,Canada,0.15,0.12,0.27,general,"15% federal + ~12% provincial average (AB 8%, SK 12%); mining and oil royalties cost-side",CRA + provincial budgets
+NLD,Netherlands,0.25,0.25,0.5,oil_ringfence,25.8% CIT + 25% State Profit Share on petroleum (continental shelf),Mining Act 2003 + Belastingdienst
+DNK,Denmark,0.22,0.3,0.52,oil_ringfence,22% CIT + 52% hydrocarbon tax (effective ~30%); North Sea fields,IMF FARI Denmark + Danish Hydrocarbon Tax Act
+RUS,Russia,0.2,0.2,0.4,oil_ringfence,20% CIT + Mineral Extraction Tax (MET) on oil ~20% effective; export duty also material,Russian Tax Code Ch 26
+CHN,China,0.25,0.05,0.3,general,25% CIT + ~5% resource tax effective; SOE retentions complicate,PRC State Taxation Admin
+SAU,Saudi Arabia,0.2,0.65,0.85,oil_ringfence,Aramco-only effective rate post-2017 reform: 50% income tax + royalty + dividend; aggregate fiscal take ≈ 85%,Saudi Royal Decree A/152/2017 + IMF Article IV
+ARE,United Arab Emirates,0.0,0.55,0.55,oil_ringfence,Concession-level effective rate ~55-65%; UAE introduced 9% federal CIT in 2023 but petroleum sector kept emirate-level fiscal regime,ADNOC concession docs + IMF
+KWT,Kuwait,0.15,0.4,0.55,oil_ringfence,15% headline CIT but oil sector via KPC structure; effective fiscal take similar to Aramco range,Kuwait Petroleum Corp + IMF
+QAT,Qatar,0.1,0.25,0.35,oil_ringfence,35% on oil/gas concession profits; QatarEnergy structure,Qatar Tax Law + IMF
+IRN,Iran,0.25,0.3,0.55,oil_ringfence,25% CIT + buyback contract structures; effective ~55% on NIOC consortium projects,IMF Article IV + buyback contract terms
+IRQ,Iraq,0.15,0.2,0.35,oil_ringfence,35% on oil sector (post-2007 hydrocarbon law) plus profit-split via technical service contracts,Iraq oil ministry
+DZA,Algeria,0.38,0.05,0.43,oil_ringfence,19% IBS + 38% petroleum profit tax (TPP) ≈ 43% effective; signature bonuses on top,Algerian Hydrocarbons Law 2019
+LBY,Libya,0.2,0.45,0.65,oil_ringfence,EPSA contracts: 65% take to government effective; remainder MNE,Libya Petroleum Law
+NGA,Nigeria,0.3,0.3,0.6,oil_ringfence,Petroleum Industry Act 2021: 30% CIT + 30% Hydrocarbon Tax = 60% on oil; mining 30% CIT only,PIA 2021 + FIRS guidance
+AGO,Angola,0.284,0.216,0.5,oil_ringfence,50% petroleum income tax; 70% on traditional concessions (legacy),Lei Fiscal de Petróleo
+GNQ,Equatorial Guinea,0.35,0.0,0.35,oil_ringfence,35% petroleum tax; production sharing complicates effective rate,IMF
+GAB,Gabon,0.3,0.05,0.35,oil_ringfence,35% mining/oil CIT,Gabon Hydrocarbons Code
+COG,Congo,0.293,0.057,0.35,oil_ringfence,Hydrocarbons Code 2016: 35% CIT + cost recovery PSCs,Congo hydrocarbons code
+TCD,Chad,0.35,0.05,0.4,oil_ringfence,40% petroleum CIT,Chad petroleum code
+GHA,Ghana,0.25,0.1,0.35,oil_ringfence,35% petroleum income tax (Petroleum Income Tax Act); mining 35% CIT,GRA + PRMA
+CIV,Côte d'Ivoire,0.25,0.17,0.42,oil_ringfence,42% on petroleum concessions,PSC terms
+SEN,Senegal,0.3,0.0,0.3,general,30% CIT plus PSC profit oil split,PSC terms
+TZA,Tanzania,0.3,0.0,0.3,general,30% CIT; mining royalty cost-side,TRA mining tax guide
+MOZ,Mozambique,0.32,0.0,0.32,oil_ringfence,32% CIT plus 32% special tax on petroleum production = ring-fence higher,Mozambique petroleum code
+ZMB,Zambia,0.3,0.0,0.3,general,30% CIT for mining; 35% headline,ZRA mining tax
+ZAF,South Africa,0.27,0.0,0.27,general,27% CIT; MPRR (royalty) cost-side,SARS
+COD,DR Congo,0.3,0.0,0.3,general,30% CIT mining; 35% petroleum,DRC Mining Code 2018
+BRA,Brazil,0.34,0.1,0.44,oil_ringfence,34% CIT (15+9+10 surcharge) + Special Participation oil tax effective ~10%,Receita + ANP
+MEX,Mexico,0.3,0.075,0.375,general,30% CIT + ~7.5% mining royalty (treated as deductible income tax) on profit,SHCP + LISR
+CHL,Chile,0.27,0.05,0.32,general,27% CIT + new mining royalty (2023): copper price-linked 8% + ad-valorem 1%; ~5% effective,SII + Mining Royalty Law 2023
+COL,Colombia,0.35,0.0,0.35,general,35% CIT for petroleum (38% pre-2022); mining royalty cost-side,DIAN
+PER,Peru,0.295,0.05,0.345,general,29.5% CIT + Special Mining Tax sliding scale ~5% effective,SUNAT
+ECU,Ecuador,0.25,0.1,0.35,oil_ringfence,25% CIT + windfall tax on excess oil price; PSC structure,SRI
+BOL,Bolivia,0.25,0.32,0.57,oil_ringfence,25% CIT + IDH 32% on hydrocarbons production,Servicio Impuestos Nacionales
+ARG,Argentina,0.25,0.0,0.25,general,25% CIT (35% headline reduced for new investments); royalty 12% cost-side,AFIP + Hydrocarbons Law
+TTO,Trinidad and Tobago,0.5,0.35,0.85,oil_ringfence,50% petroleum profit tax + 35% supplemental petroleum tax,MEEI + BIR
+GUY,Guyana,0.259,0.241,0.5,oil_ringfence,PSC: 50% profit oil to govt; effectively 14.25% MNE retains; no separate CIT,PSC Stabroek block
+KAZ,Kazakhstan,0.2,0.1,0.3,general,20% CIT + Mineral Extraction Tax + Excess Profit Tax sliding-scale,Tax Code RK
+UZB,Uzbekistan,0.129,0.021,0.15,general,15% CIT; gold royalties cost-side,State Tax Committee
+IDN,Indonesia,0.235,0.165,0.4,oil_ringfence,40% effective on PSC; mining 22% CIT + royalty,DGT + SKK Migas
+MYS,Malaysia,0.24,0.14,0.38,oil_ringfence,38% petroleum income tax (PITA); mining 24% CIT,IRBM + PITA
+THA,Thailand,0.2,0.3,0.5,oil_ringfence,50% petroleum income tax (Thailand III concession); mining 20% CIT,DMF + Revenue Dept
+VNM,Vietnam,0.202,0.298,0.5,oil_ringfence,50% on petroleum concessions; mining 20% CIT,GDT + petroleum law
+MMR,Myanmar,0.25,0.0,0.25,general,25% CIT post-2018; gas-PSC complicated,Internal Revenue Dept
+PNG,Papua New Guinea,0.3,0.1,0.4,oil_ringfence,30% CIT + Additional Profits Tax (APT) for mining ~10% effective; oil 30%,IRC PNG
+MNG,Mongolia,0.25,0.05,0.3,general,25% CIT + 5% royalty + windfall (suspended),MTA + Minerals Law
+PHL,Philippines,0.25,0.0,0.25,general,25% CIT; mining 4% royalty cost-side,BIR
+NCL,New Caledonia,0.0,0.3,0.3,general,30% CIT; nickel royalty cost-side,DSF + nickel code
+TUN,Tunisia,0.35,0.1,0.45,oil_ringfence,35% CIT + petroleum profit tax sliding ~10%,Tunisia hydrocarbon code
+EGY,Egypt,0.225,0.2,0.425,oil_ringfence,22.5% CIT + petroleum royalty embedded in PSC (effective ~70-80% govt take but post-CIT calc ~42%),ETA + petroleum law
+MAR,Morocco,0.31,0.0,0.31,general,31% CIT; royalty cost-side,DGI Morocco
+TUR,Turkey,0.222,0.028,0.25,general,25% CIT; mining royalty cost-side,GIB
+ROU,Romania,0.16,0.04,0.2,general,16% CIT + 4% royalty (deductible); supplemental tax on Black Sea gas separate,ANAF + petroleum law
+POL,Poland,0.19,0.05,0.24,general,19% CIT + hydrocarbon production tax 5%,Ministerstwo Finansów
+DEU,Germany,0.3,0.0,0.3,general,~30% combined federal+local; small extraction sector,BMF
+ITA,Italy,0.24,0.0,0.24,general,24% IRES; mining minor,Agenzia Entrate
+ESP,Spain,0.25,0.0,0.25,general,25% CIT; minimal extraction,Hacienda
+JPN,Japan,0.3,0.0,0.3,general,~30% combined CIT; minimal domestic extraction,NTA
+KOR,South Korea,0.25,0.0,0.25,general,25% CIT; minimal extraction,NTS
+ISR,Israel,0.23,0.27,0.5,oil_ringfence,23% CIT + Sheshinski levy on Tamar/Leviathan ~27% effective,Tax Authority + Sheshinski Law
+BHR,Bahrain,0.0,0.46,0.46,oil_ringfence,46% on oil/gas (Bahrain only taxes hydrocarbons),NBR
+OMN,Oman,0.148,0.402,0.55,oil_ringfence,55% on petroleum concessions,MoF + petroleum law
+BWA,Botswana,0.22,0.0,0.22,general,22% CIT diamond + mining; royalty cost-side,BURS + Diamond Trading Co
+NAM,Namibia,0.32,0.1,0.42,general,32% diamond CIT + 10% non-diamond mining; royalty cost-side,NamRA
+GIN,Guinea,0.3,0.0,0.3,general,30% CIT bauxite mining; royalty cost-side,Code Minier 2011
+SLE,Sierra Leone,0.275,0.025,0.3,general,30% CIT; mining royalty cost-side,NRA
+LBR,Liberia,0.25,0.05,0.3,general,30% CIT iron ore; royalty cost-side,LRA
+MLI,Mali,0.3,0.05,0.35,general,35% CIT mining; gold royalty cost-side,DGI Mali
+BFA,Burkina Faso,0.275,0.0,0.275,general,27.5% CIT mining,DGI
+NER,Niger,0.3,0.0,0.3,general,30% CIT uranium,DGI Niger
+SDN,Sudan,0.35,0.0,0.35,general,35% petroleum CIT,IMF Sudan
+SSD,South Sudan,0.3,0.3,0.6,oil_ringfence,30% CIT + petroleum profit share + cost-recovery split,Petroleum Act 2012
+YEM,Yemen,0.2,0.15,0.35,oil_ringfence,35% petroleum CIT; production effectively halted,IMF
+JOR,Jordan,0.2,0.0,0.2,general,20% CIT; mining minor,Income Tax Dept
+LBN,Lebanon,0.17,0.0,0.17,general,17% CIT; petroleum law signed but no production,Min Finance
+SYR,Syria,0.28,0.0,0.28,general,28% CIT (effective lower due to conflict),IMF
+KGZ,Kyrgyz Republic,0.1,0.0,0.1,general,10% CIT + mining royalty cost-side,STS
+TJK,Tajikistan,0.18,0.0,0.18,general,18% CIT + royalty cost-side,Tax Committee
+AFG,Afghanistan,0.2,0.0,0.2,general,20% CIT (pre-2021),Min Finance
+PAK,Pakistan,0.296,0.104,0.4,oil_ringfence,40% CIT for petroleum (pre-2024 super-tax adds further),FBR + petroleum policy
+BGD,Bangladesh,0.275,0.0,0.275,oil_ringfence,27.5% CIT for gas (Petrobangla concession structure),NBR
+LKA,Sri Lanka,0.267,0.033,0.3,general,30% CIT; minimal extraction,IRD
+LAO,Lao PDR,0.24,0.0,0.24,general,24% CIT mining + hydropower,MoF Laos
+KHM,Cambodia,0.3,0.05,0.35,general,30% petroleum CIT + ~5% royalty effective deductible,GDT
+BRN,Brunei,0.185,0.365,0.55,oil_ringfence,55% petroleum CIT,MoF Brunei
+TLS,Timor-Leste,0.3,0.22,0.52,oil_ringfence,30% CIT + 22% supplemental petroleum tax,ANPM + AT
+PNG_DEFAULT,DEFAULT_oil_ringfence,0.3,0.2,0.5,oil_ringfence,Default for oil/gas in countries not in this table,heuristic
+DEFAULT_general,DEFAULT_general,0.27,0.0,0.27,general,Default general CIT rate (median of OECD developing-country range),heuristic

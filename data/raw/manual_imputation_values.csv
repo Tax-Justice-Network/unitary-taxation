@@ -1,0 +1,261 @@
+iso_partner,year,variable,value,mode,source_url,note
+AND,,cit,0.0,override,,
+CAF,,cit,0.3,override,,
+COD,,cit,0.28,fill_if_missing,,
+GIB,,cit,0.0,override,,
+GLP,,cit,0.15,fill_if_missing,,
+GUF,,cit,0.28,fill_if_missing,,
+HTI,,cit,0.3,override,,
+IOT,,cit,0.0,fill_if_missing,,
+MCO,,cit,0.0,override,,
+MHL,,cit,0.0,fill_if_missing,,
+NCL,,cit,0.0,override,,
+PLW,,cit,0.0,fill_if_missing,,
+PRK,,cit,0.325,fill_if_missing,,
+PYF,,cit,0.27,fill_if_missing,,
+REU,,cit,0.15,fill_if_missing,,
+SMR,,cit,0.17,fill_if_missing,,
+SOM,,cit,0.3,fill_if_missing,,
+TLS,,cit,0.1,fill_if_missing,,
+XKV,,cit,0.1,fill_if_missing,,
+YEM,,cit,0.2,override,,
+AIA,2016,gdp_current_usd,331000000.0,fill_if_missing,http://data.un.org/en/iso/ai.html,2015 value (as 2016 is not available): http://data.un.org/en/iso/ai.html
+AIA,2017,gdp_current_usd,322000000.0,fill_if_missing,http://data.un.org/en/iso/ai.html,"same for 2017 and 2018, as there is no 2017 and 2016 data: http://data.un.org/en/iso/ai.html"
+AIA,2018,gdp_current_usd,322000000.0,fill_if_missing,http://data.un.org/en/iso/ai.html,"same for 2017 and 2018, as there is no 2017 and 2016 data: http://data.un.org/en/iso/ai.html"
+AIA,2019,gdp_current_usd,380000000.0,fill_if_missing,http://data.un.org/en/iso/ai.html,2021 data
+AIA,2020,gdp_current_usd,380000000.0,fill_if_missing,http://data.un.org/en/iso/ai.html,2021 data
+AIA,2021,gdp_current_usd,380000000.0,fill_if_missing,http://data.un.org/en/iso/ai.html,2021 data
+AIA,2022,gdp_current_usd,388972051.0,fill_if_missing,https://www.worldometers.info/gdp/anguilla-gdp/,2022 value: https://www.worldometers.info/gdp/anguilla-gdp/
+COK,2016,gdp_current_usd,198711719.99999997,fill_if_missing,https://stats.pacificdata.org,https://stats.pacificdata.org
+COK,2017,gdp_current_usd,241910899.99999997,fill_if_missing,https://stats.pacificdata.org,https://stats.pacificdata.org
+COK,2018,gdp_current_usd,262612530.00000003,fill_if_missing,https://stats.pacificdata.org,https://stats.pacificdata.org
+COK,2019,gdp_current_usd,379894400.0,fill_if_missing,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=26&tm=gdp&df[ds]=ds%3ASPC2&df[id]=DF_NATIONAL_ACCOUNTS&df[ag]=SPC&df[vs]=1.0&pd=2012%2C&dq=A.DOM..GDPC&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=26&tm=gdp&df[ds]=ds%3ASPC2&df[id]=DF_NATIONAL_ACCOUNTS&df[ag]=SPC&df[vs]=1.0&pd=2012%2C&dq=A.DOM..GDPC&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false
+COK,2020,gdp_current_usd,278453700.0,fill_if_missing,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=26&tm=gdp&df[ds]=ds%3ASPC2&df[id]=DF_NATIONAL_ACCOUNTS&df[ag]=SPC&df[vs]=1.0&pd=2012%2C&dq=A.DOM..GDPC&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=26&tm=gdp&df[ds]=ds%3ASPC2&df[id]=DF_NATIONAL_ACCOUNTS&df[ag]=SPC&df[vs]=1.0&pd=2012%2C&dq=A.DOM..GDPC&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false
+COK,2021,gdp_current_usd,247926320.0,fill_if_missing,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=26&tm=gdp&df[ds]=ds%3ASPC2&df[id]=DF_NATIONAL_ACCOUNTS&df[ag]=SPC&df[vs]=1.0&pd=2012%2C&dq=A.DOM..GDPC&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=26&tm=gdp&df[ds]=ds%3ASPC2&df[id]=DF_NATIONAL_ACCOUNTS&df[ag]=SPC&df[vs]=1.0&pd=2012%2C&dq=A.DOM..GDPC&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false
+COK,2022,gdp_current_usd,289749646.0,fill_if_missing,https://www.worldometers.info/gdp/cook-islands-gdp/,2022 value: https://www.worldometers.info/gdp/cook-islands-gdp/
+ERI,2016,gdp_current_usd,2210000000.0,fill_if_missing,https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/,https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/
+ERI,2017,gdp_current_usd,1900000000.0,fill_if_missing,https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/,https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/
+ERI,2018,gdp_current_usd,2009999999.9999998,fill_if_missing,https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/,https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/
+ERI,2019,gdp_current_usd,1980000000.0,fill_if_missing,https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/,https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/
+ERI,2020,gdp_current_usd,1980000000.0,fill_if_missing,https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/,"2019 value, https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/"
+ERI,2021,gdp_current_usd,1980000000.0,fill_if_missing,https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/,"2019 value, https://www.statista.com/statistics/510484/gross-domestic-product-gdp-in-eritrea/"
+FLK,2016,gdp_current_usd,206400000.0,fill_if_missing,https://en.wikipedia.org/wiki/Economy_of_the_Falkland_Islands,"2015 data, as no better data exists: https://en.wikipedia.org/wiki/Economy_of_the_Falkland_Islands"
+GGY,2016,gdp_current_usd,3976156799.9999995,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=160890&p=0,https://gov.gg/CHttpHandler.ashx?id=160890&p=0
+GGY,2017,gdp_current_usd,3997189000.0,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=160890&p=0,https://gov.gg/CHttpHandler.ashx?id=160890&p=0
+GGY,2018,gdp_current_usd,4231633000.0,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=160890&p=0,https://gov.gg/CHttpHandler.ashx?id=160890&p=0
+GGY,2019,gdp_current_usd,4254880000.0,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=160890&p=0,https://gov.gg/CHttpHandler.ashx?id=160890&p=0
+GGY,2020,gdp_current_usd,4125000000.0,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=160890&p=0,https://gov.gg/CHttpHandler.ashx?id=160890&p=0
+GGY,2021,gdp_current_usd,4617640000.0,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=160890&p=0,https://gov.gg/CHttpHandler.ashx?id=160890&p=0
+GGY,2022,gdp_current_usd,4136163340.1790514,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=173806&p=0,2022 value in GBP: https://gov.gg/CHttpHandler.ashx?id=173806&p=0
+GIB,2016,gdp_current_usd,3129005599.9999995,fill_if_missing,https://en.wikipedia.org/wiki/Economy_of_Gibraltar,"2018 data, as no older data exists, https://en.wikipedia.org/wiki/Economy_of_Gibraltar"
+GIB,2017,gdp_current_usd,3129005599.9999995,fill_if_missing,https://en.wikipedia.org/wiki/Economy_of_Gibraltar,"2018 data, as no older data exists, https://en.wikipedia.org/wiki/Economy_of_Gibraltar"
+GIB,2018,gdp_current_usd,3129005599.9999995,fill_if_missing,https://en.wikipedia.org/wiki/Economy_of_Gibraltar,https://en.wikipedia.org/wiki/Economy_of_Gibraltar
+GIB,2019,gdp_current_usd,3129005599.9999995,fill_if_missing,https://en.wikipedia.org/wiki/Economy_of_Gibraltar,(year carried over; representative source)
+GIB,2020,gdp_current_usd,3129005599.9999995,fill_if_missing,https://en.wikipedia.org/wiki/Economy_of_Gibraltar,(year carried over; representative source)
+GIB,2021,gdp_current_usd,3129005599.9999995,fill_if_missing,https://en.wikipedia.org/wiki/Economy_of_Gibraltar,(year carried over; representative source)
+GLP,2016,gdp_current_usd,9637517699.115046,fill_if_missing,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe
+GLP,2017,gdp_current_usd,9930582064.2978,fill_if_missing,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe
+GLP,2018,gdp_current_usd,10659979073.7,fill_if_missing,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe
+GLP,2019,gdp_current_usd,10287553260.000002,fill_if_missing,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe
+GLP,2020,gdp_current_usd,10717280970.0,fill_if_missing,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe
+GLP,2021,gdp_current_usd,10361049099.999998,fill_if_missing,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe
+GLP,2022,gdp_current_usd,10400734773.0,fill_if_missing,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe,2022 value in EUR: https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-guadeloupe
+GUF,2016,gdp_current_usd,4569690265.486726,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751772#Tableau,https://www.insee.fr/en/statistiques/serie/010751772#Tableau
+GUF,2017,gdp_current_usd,4655386350.817822,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751772#Tableau,https://www.insee.fr/en/statistiques/serie/010751772#Tableau
+GUF,2018,gdp_current_usd,5141328300.0,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751772#Tableau,https://www.insee.fr/en/statistiques/serie/010751772#Tableau
+GUF,2019,gdp_current_usd,4918410000.000001,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751772#Tableau,https://www.insee.fr/en/statistiques/serie/010751772#Tableau
+GUF,2020,gdp_current_usd,5172750000.0,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751772#Tableau,https://www.insee.fr/en/statistiques/serie/010751772#Tableau
+GUF,2021,gdp_current_usd,5028499999.999999,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751772#Tableau,https://www.insee.fr/en/statistiques/serie/010751772#Tableau
+GUF,2022,gdp_current_usd,4803786000.0,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751772,2022 value in EUR: https://www.insee.fr/en/statistiques/serie/010751772
+IOT,,gdp_current_usd,1000000.0,fill_if_missing,,
+JEY,2016,gdp_current_usd,5569872000.0,fill_if_missing,https://www.gov.je/news/2017/pages/gvaandgdp2016.aspx,https://www.gov.je/news/2017/pages/gvaandgdp2016.aspx
+JEY,2017,gdp_current_usd,5547856000.0,fill_if_missing,https://www.gov.je/news/2018/pages/measuringjerseyseconomy2017.aspx,https://www.gov.je/news/2018/pages/measuringjerseyseconomy2017.aspx
+JEY,2018,gdp_current_usd,6196605800.0,fill_if_missing,https://www.gov.je/news/2019/pages/measuringjerseyseconomy2018.aspx,https://www.gov.je/news/2019/pages/measuringjerseyseconomy2018.aspx
+JEY,2019,gdp_current_usd,6399350000.0,fill_if_missing,https://www.gov.je/news/2020/pages/measuringjerseyseconomy2019.aspx,https://www.gov.je/news/2020/pages/measuringjerseyseconomy2019.aspx
+JEY,2020,gdp_current_usd,5976960000.0,fill_if_missing,https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/R%20GVA%20and%20GDP%202020%2020211001%20SJ.pdf,https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/R%20GVA%20and%20GDP%202020%2020211001%20SJ.pdf
+JEY,2021,gdp_current_usd,6816580000.0,fill_if_missing,https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/R%20GVA%20and%20GDP%202021%2020221005%20SJ.pdf,https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/R%20GVA%20and%20GDP%202021%2020221005%20SJ.pdf
+JEY,2022,gdp_current_usd,7115090176.999557,fill_if_missing,https://www.gov.je/News/2023/pages/measuringjerseyseconomy2022.aspx,2022 value in GBP: https://www.gov.je/News/2023/pages/measuringjerseyseconomy2022.aspx
+MAF,2021,gdp_current_usd,649206263.0,fill_if_missing,https://data.worldbank.org/country/st-martin-french-part,2021 latest World Bank value as no 2022 GDP found: https://data.worldbank.org/country/st-martin-french-part
+MNP,2016,gdp_current_usd,1230000000.0,fill_if_missing,https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf,https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf
+MNP,2017,gdp_current_usd,1560000000.0,fill_if_missing,https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf,https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf
+MNP,2018,gdp_current_usd,1301000000.0,fill_if_missing,https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf,https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf
+MNP,2019,gdp_current_usd,1181000000.0,fill_if_missing,https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf,https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf
+MNP,2020,gdp_current_usd,858000000.0,fill_if_missing,https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf,https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf
+MNP,2021,gdp_current_usd,1181000000.0,fill_if_missing,https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf,"2019 value, https://www.bea.gov/sites/default/files/2023-01/cngdp0123.pdf"
+MNP,2022,gdp_current_usd,1096000000.0,fill_if_missing,https://www.worldometers.info/gdp/northern-mariana-islands-gdp/,2022 value: https://www.worldometers.info/gdp/northern-mariana-islands-gdp/
+MTQ,2021,gdp_current_usd,10594080000.000002,fill_if_missing,https://www.insee.fr/fr/statistiques/7677143,"2022 values, https://www.insee.fr/fr/statistiques/7677143"
+MTQ,2022,gdp_current_usd,10165358735.999998,fill_if_missing,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-martinique,2022 value in EUR: https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-martinique
+PRK,2016,gdp_current_usd,772921776.0,fill_if_missing,https://www.cia.gov/the-world-factbook/countries/korea-north/#economy,"2015 data as no other years available, https://www.cia.gov/the-world-factbook/countries/korea-north/#economy"
+REU,2016,gdp_current_usd,19983407079.64602,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751763,https://www.insee.fr/en/statistiques/serie/010751763
+REU,2017,gdp_current_usd,20930626057.52961,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751763,https://www.insee.fr/en/statistiques/serie/010751763
+REU,2018,gdp_current_usd,22230664200.0,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751763,https://www.insee.fr/en/statistiques/serie/010751763
+REU,2019,gdp_current_usd,21497370000.000004,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751763,https://www.insee.fr/en/statistiques/serie/010751763
+REU,2020,gdp_current_usd,23028719999.999996,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751763,https://www.insee.fr/en/statistiques/serie/010751763
+REU,2021,gdp_current_usd,23065559999.999996,fill_if_missing,https://www.insee.fr/en/statistiques/serie/010751763,https://www.insee.fr/en/statistiques/serie/010751763
+REU,2022,gdp_current_usd,22816628288.999996,fill_if_missing,https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-reunion,2022 value in EUR: https://www.ceicdata.com/en/france/esa-2010-gdp-by-region-current-prices-base-2014/gdp-reunion
+SMR,2016,gdp_current_usd,1468000000.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,Google figure linking to https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SMR,2017,gdp_current_usd,1529000000.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SMR,2018,gdp_current_usd,1655000000.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SMR,2019,gdp_current_usd,1616000000.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SMR,2020,gdp_current_usd,1541000000.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SMR,2021,gdp_current_usd,1855000000.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SMR,2022,gdp_current_usd,1833000000.0,fill_if_missing,https://www.worldometers.info/gdp/san-marino-gdp/,2022 value: https://www.worldometers.info/gdp/san-marino-gdp/
+SSD,2016,gdp_current_usd,2900000000.0,fill_if_missing,https://www.statista.com/statistics/727342/gross-domestic-product-gdp-in-south-sudan/,Google
+SSD,2017,gdp_current_usd,1800000000.0,fill_if_missing,https://www.statista.com/statistics/727342/gross-domestic-product-gdp-in-south-sudan/,Google
+SSD,2018,gdp_current_usd,3120000000.0,fill_if_missing,https://www.statista.com/statistics/727342/gross-domestic-product-gdp-in-south-sudan/,https://www.statista.com/statistics/727342/gross-domestic-product-gdp-in-south-sudan/
+SSD,2019,gdp_current_usd,4040000000.0,fill_if_missing,https://www.statista.com/statistics/727342/gross-domestic-product-gdp-in-south-sudan/,(year carried over; representative source)
+SSD,2020,gdp_current_usd,5420000000.0,fill_if_missing,https://www.statista.com/statistics/727342/gross-domestic-product-gdp-in-south-sudan/,(year carried over; representative source)
+SSD,2021,gdp_current_usd,5940000000.0,fill_if_missing,https://www.statista.com/statistics/727342/gross-domestic-product-gdp-in-south-sudan/,(year carried over; representative source)
+SSD,2022,gdp_current_usd,5317000000.0,fill_if_missing,https://thedocs.worldbank.org/en/doc/b3502c65235d8c72aef5f34d87ed6298-0500062021/related/data-ssd.pdf,2022 value: https://thedocs.worldbank.org/en/doc/b3502c65235d8c72aef5f34d87ed6298-0500062021/related/data-ssd.pdf
+TWN,2016,gdp_current_usd,543080000000.00006,fill_if_missing,https://www.statista.com/statistics/727589/gross-domestic-product-gdp-in-taiwan/,https://www.statista.com/statistics/727589/gross-domestic-product-gdp-in-taiwan/
+TWN,2017,gdp_current_usd,590730000000.0,fill_if_missing,https://www.statista.com/statistics/727589/gross-domestic-product-gdp-in-taiwan/,https://www.statista.com/statistics/727589/gross-domestic-product-gdp-in-taiwan/
+TWN,2018,gdp_current_usd,609200000000.0,fill_if_missing,https://www.statista.com/statistics/727589/gross-domestic-product-gdp-in-taiwan/,https://www.statista.com/statistics/727589/gross-domestic-product-gdp-in-taiwan/
+TWN,2019,gdp_current_usd,611400000000.0,fill_if_missing,https://www.statista.com/statistics/727589/gross-domestic-product-gdp-in-taiwan/,https://www.statista.com/statistics/727589/gross-domestic-product-gdp-in-taiwan/
+TWN,2020,gdp_current_usd,673180000000.0,fill_if_missing,https://www.statista.com/statistics/727589/gross-domestic-product-gdp-in-taiwan/,https://www.statista.com/statistics/727589/gross-domestic-product-gdp-in-taiwan/
+TWN,2021,gdp_current_usd,773040000000.0,fill_if_missing,https://www.statista.com/statistics/727589/gross-domestic-product-gdp-in-taiwan/,(year carried over; representative source)
+TWN,2022,gdp_current_usd,765624000000.0,fill_if_missing,https://www.worldometers.info/gdp/taiwan-gdp/,2022 value: https://www.worldometers.info/gdp/taiwan-gdp/
+VEN,2016,gdp_current_usd,112920000000.0,fill_if_missing,https://www.statista.com/statistics/370937/gross-domestic-product-gdp-in-venezuela/,https://www.statista.com/statistics/370937/gross-domestic-product-gdp-in-venezuela/
+VEN,2017,gdp_current_usd,115880000000.0,fill_if_missing,https://www.statista.com/statistics/370937/gross-domestic-product-gdp-in-venezuela/,https://www.statista.com/statistics/370937/gross-domestic-product-gdp-in-venezuela/
+VEN,2018,gdp_current_usd,102020000000.0,fill_if_missing,https://www.statista.com/statistics/370937/gross-domestic-product-gdp-in-venezuela/,https://www.statista.com/statistics/370937/gross-domestic-product-gdp-in-venezuela/
+VEN,2019,gdp_current_usd,73000000000.0,fill_if_missing,https://www.statista.com/statistics/370937/gross-domestic-product-gdp-in-venezuela/,(year carried over; representative source)
+VEN,2020,gdp_current_usd,43790000000.0,fill_if_missing,https://www.statista.com/statistics/370937/gross-domestic-product-gdp-in-venezuela/,(year carried over; representative source)
+VEN,2021,gdp_current_usd,57670000000.0,fill_if_missing,https://www.statista.com/statistics/370937/gross-domestic-product-gdp-in-venezuela/,(year carried over; representative source)
+VEN,2022,gdp_current_usd,89013000000.0,fill_if_missing,https://www.worldometers.info/gdp/venezuela-gdp/,2022 value: https://www.worldometers.info/gdp/venezuela-gdp/
+VGB,2016,gdp_current_usd,1279000000.0,fill_if_missing,https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html,"2015 values as no 2016 values available, https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html"
+VGB,2017,gdp_current_usd,1279000000.0,fill_if_missing,https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html,"2015 values as no 2016 values available, https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html"
+VGB,2018,gdp_current_usd,1653000000.0,fill_if_missing,https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html,"2021 values as no 2018 values available, https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html"
+VGB,2019,gdp_current_usd,1653000000.0,fill_if_missing,https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html,https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html
+VGB,2020,gdp_current_usd,1653000000.0,fill_if_missing,https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html,https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html
+VGB,2021,gdp_current_usd,1653000000.0,fill_if_missing,https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html,https://unctadstat.unctad.org/countryprofile/generalprofile/en-gb/092/index.html
+VGB,2022,gdp_current_usd,1471233257.0,fill_if_missing,https://www.worldometers.info/gdp/british-virgin-islands-gdp/,2022 value: https://www.worldometers.info/gdp/british-virgin-islands-gdp/
+WLF,2016,gdp_current_usd,139500000.0,fill_if_missing,https://stats.pacificdata.org/,https://stats.pacificdata.org/
+WLF,2017,gdp_current_usd,139500000.0,fill_if_missing,https://stats.pacificdata.org/,https://stats.pacificdata.org/
+WLF,2018,gdp_current_usd,139500000.0,fill_if_missing,https://stats.pacificdata.org/,https://stats.pacificdata.org/
+WLF,2019,gdp_current_usd,139500000.0,fill_if_missing,https://stats.pacificdata.org/,https://stats.pacificdata.org/
+WLF,2020,gdp_current_usd,139500000.0,fill_if_missing,https://stats.pacificdata.org/,https://stats.pacificdata.org/
+WLF,2021,gdp_current_usd,139500000.0,fill_if_missing,https://stats.pacificdata.org/,https://stats.pacificdata.org/
+XKV,2016,gdp_current_usd,6680000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/
+XKV,2017,gdp_current_usd,7180000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/
+XKV,2018,gdp_current_usd,7880000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/
+XKV,2019,gdp_current_usd,7900000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,(year carried over; representative source)
+XKV,2020,gdp_current_usd,7730000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,(year carried over; representative source)
+XKV,2021,gdp_current_usd,9420000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,(year carried over; representative source)
+XKV,2022,gdp_current_usd,9375000000.0,fill_if_missing,https://thedocs.worldbank.org/en/doc/0f93cd231799e55067bb0f83154c216a-0500022021/related/data-xkx.pdf,2022 value: https://thedocs.worldbank.org/en/doc/0f93cd231799e55067bb0f83154c216a-0500022021/related/data-xkx.pdf
+XKX,2016,gdp_current_usd,6680000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/
+XKX,2017,gdp_current_usd,7180000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/
+XKX,2018,gdp_current_usd,7880000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/
+XKX,2019,gdp_current_usd,7900000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,(year carried over; representative source)
+XKX,2020,gdp_current_usd,7730000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,(year carried over; representative source)
+XKX,2021,gdp_current_usd,9420000000.0,fill_if_missing,https://de.statista.com/statistik/daten/studie/415738/umfrage/bruttoinlandsprodukt-bip-des-kosovo/,(year carried over; representative source)
+XKX,2022,gdp_current_usd,9375000000.0,fill_if_missing,https://thedocs.worldbank.org/en/doc/0f93cd231799e55067bb0f83154c216a-0500022021/related/data-xkx.pdf,2022 value: https://thedocs.worldbank.org/en/doc/0f93cd231799e55067bb0f83154c216a-0500022021/related/data-xkx.pdf
+AIA,2016,population,14300.0,fill_if_missing,https://worldpopulationreview.com/countries/anguilla-population,https://worldpopulationreview.com/countries/anguilla-population
+AIA,2017,population,14400.0,fill_if_missing,https://worldpopulationreview.com/countries/anguilla-population,https://worldpopulationreview.com/countries/anguilla-population
+AIA,2018,population,14700.0,fill_if_missing,https://worldpopulationreview.com/countries/anguilla-population,https://worldpopulationreview.com/countries/anguilla-population
+AIA,2019,population,14800.0,fill_if_missing,https://worldpopulationreview.com/countries/anguilla-population,https://worldpopulationreview.com/countries/anguilla-population
+AIA,2020,population,14800.0,fill_if_missing,https://worldpopulationreview.com/countries/anguilla-population,https://worldpopulationreview.com/countries/anguilla-population
+AIA,2021,population,14500.0,fill_if_missing,https://worldpopulationreview.com/countries/anguilla-population,https://worldpopulationreview.com/countries/anguilla-population
+AIA,2022,population,14180.0,fill_if_missing,https://www.worldometers.info/world-population/anguilla-population/,2022 value: https://www.worldometers.info/world-population/anguilla-population/
+COK,2016,population,15076.0,fill_if_missing,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false,"2017, https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false"
+COK,2017,population,15076.0,fill_if_missing,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false
+COK,2018,population,15153.0,fill_if_missing,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false
+COK,2019,population,15216.0,fill_if_missing,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false
+COK,2020,population,15281.0,fill_if_missing,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false
+COK,2021,population,15342.0,fill_if_missing,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false,https://stats.pacificdata.org/vis?pg=0&bp=true&snb=50&tm=population&df[ds]=ds%3ASPC2&df[id]=DF_POP_PROJ&df[ag]=SPC&df[vs]=3.0&pd=2017%2C2027&dq=A..MIDYEARPOPEST._T._T&ly[rw]=GEO_PICT&ly[cl]=TIME_PERIOD&to[TIME_PERIOD]=false
+COK,2022,population,14723.0,fill_if_missing,https://www.worldometers.info/world-population/cook-islands-population/,2022 value: https://www.worldometers.info/world-population/cook-islands-population/
+FLK,2016,population,3478.0,fill_if_missing,https://www.worldometers.info/world-population/falkland-islands-malvinas-population/,https://www.worldometers.info/world-population/falkland-islands-malvinas-population/
+FLK,2017,population,3518.0,fill_if_missing,https://www.worldometers.info/world-population/falkland-islands-malvinas-population/,(year carried over; representative source)
+FLK,2018,population,3521.0,fill_if_missing,https://www.worldometers.info/world-population/falkland-islands-malvinas-population/,(year carried over; representative source)
+FLK,2019,population,3517.0,fill_if_missing,https://www.worldometers.info/world-population/falkland-islands-malvinas-population/,(year carried over; representative source)
+FLK,2020,population,3506.0,fill_if_missing,https://www.worldometers.info/world-population/falkland-islands-malvinas-population/,(year carried over; representative source)
+FLK,2021,population,3490.0,fill_if_missing,https://www.worldometers.info/world-population/falkland-islands-malvinas-population/,(year carried over; representative source)
+GGY,2016,population,61908.0,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=121746&p=0,https://gov.gg/CHttpHandler.ashx?id=121746&p=0
+GGY,2017,population,62046.0,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=121746&p=0,https://gov.gg/CHttpHandler.ashx?id=121746&p=0
+GGY,2018,population,62506.0,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=121746&p=0,https://gov.gg/CHttpHandler.ashx?id=121746&p=0
+GGY,2019,population,62885.0,fill_if_missing,https://www.gov.gg/CHttpHandler.ashx?id=169995&p=0,https://www.gov.gg/CHttpHandler.ashx?id=169995&p=0
+GGY,2020,population,63156.0,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=121746&p=0,(year carried over; representative source)
+GGY,2021,population,63664.0,fill_if_missing,https://gov.gg/CHttpHandler.ashx?id=121746&p=0,(year carried over; representative source)
+GGY,2022,population,63950.0,fill_if_missing,https://www.gov.gg/CHttpHandler.ashx?id=167034&p=0,2022 value: https://www.gov.gg/CHttpHandler.ashx?id=167034&p=0
+GIB,2022,population,37936.0,fill_if_missing,https://www.gibraltar.gov.gi/uploads/statistics/2025/Census/Census%20of%20Gibraltar%202022%20-%20Report.pdf,2022 census: https://www.gibraltar.gov.gi/uploads/statistics/2025/Census/Census%20of%20Gibraltar%202022%20-%20Report.pdf
+GLP,2016,population,395700.0,fill_if_missing,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls,Google
+GLP,2017,population,402119.0,fill_if_missing,https://en.wikipedia.org/wiki/Guadeloupe,https://en.wikipedia.org/wiki/Guadeloupe
+GLP,2018,population,402119.0,fill_if_missing,https://en.wikipedia.org/wiki/Guadeloupe,2017 data as no 2018 data available: https://en.wikipedia.org/wiki/Guadeloupe
+GLP,2019,population,384239.0,fill_if_missing,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls
+GLP,2020,population,383559.0,fill_if_missing,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls
+GLP,2021,population,384315.0,fill_if_missing,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls
+GLP,2022,population,383569.0,fill_if_missing,https://www.insee.fr/fr/statistiques/8312244,2022 value: https://www.insee.fr/fr/statistiques/8312244
+GUF,2016,population,267821.0,fill_if_missing,https://statisticstimes.com/demographics/country/french-guiana-population.php,https://statisticstimes.com/demographics/country/french-guiana-population.php
+GUF,2017,population,275191.0,fill_if_missing,https://statisticstimes.com/demographics/country/french-guiana-population.php,https://statisticstimes.com/demographics/country/french-guiana-population.php
+GUF,2018,population,282938.0,fill_if_missing,https://statisticstimes.com/demographics/country/french-guiana-population.php,https://statisticstimes.com/demographics/country/french-guiana-population.php
+GUF,2019,population,281678.0,fill_if_missing,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls
+GUF,2020,population,285133.0,fill_if_missing,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls
+GUF,2021,population,286618.0,fill_if_missing,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls
+GUF,2022,population,288382.0,fill_if_missing,https://www.insee.fr/en/statistiques/serie/001760178,2022 value: https://www.insee.fr/en/statistiques/serie/001760178
+IOT,,population,3000.0,fill_if_missing,,
+JEY,2016,population,102200.0,fill_if_missing,https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/Jersey%20population%20and%20migration%20statistics%202023.pdf,(year carried over; representative source)
+JEY,2017,population,102700.0,fill_if_missing,https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/Jersey%20population%20and%20migration%20statistics%202023.pdf,(year carried over; representative source)
+JEY,2018,population,103300.0,fill_if_missing,https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/Jersey%20population%20and%20migration%20statistics%202023.pdf,(year carried over; representative source)
+JEY,2019,population,103200.0,fill_if_missing,https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/Jersey%20population%20and%20migration%20statistics%202023.pdf,(year carried over; representative source)
+JEY,2020,population,103300.0,fill_if_missing,https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/Jersey%20population%20and%20migration%20statistics%202023.pdf,(year carried over; representative source)
+JEY,2021,population,103100.0,fill_if_missing,https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/Jersey%20population%20and%20migration%20statistics%202023.pdf,(year carried over; representative source)
+JEY,2022,population,103300.0,fill_if_missing,https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/Jersey%20population%20and%20migration%20statistics%202023.pdf,2022 value: https://www.gov.je/SiteCollectionDocuments/Government%20and%20administration/Jersey%20population%20and%20migration%20statistics%202023.pdf
+MAF,2022,population,28870.0,fill_if_missing,https://www.worldometers.info/world-population/saint-martin-population/,2022 value: https://www.worldometers.info/world-population/saint-martin-population/
+MNP,2022,population,46078.0,fill_if_missing,https://www.worldometers.info/world-population/northern-mariana-islands-population/,2022 value: https://www.worldometers.info/world-population/northern-mariana-islands-population/
+MTQ,2016,population,378865.0,fill_if_missing,https://www.worldometers.info/world-population/martinique-population/,https://www.worldometers.info/world-population/martinique-population/
+MTQ,2017,population,371502.0,fill_if_missing,https://www.worldometers.info/world-population/martinique-population/,https://www.worldometers.info/world-population/martinique-population/
+MTQ,2018,population,364089.0,fill_if_missing,https://www.worldometers.info/world-population/martinique-population/,https://www.worldometers.info/world-population/martinique-population/
+MTQ,2019,population,359611.0,fill_if_missing,https://www.worldometers.info/world-population/martinique-population/,https://www.worldometers.info/world-population/martinique-population/
+MTQ,2020,population,356615.0,fill_if_missing,https://www.worldometers.info/world-population/martinique-population/,https://www.worldometers.info/world-population/martinique-population/
+MTQ,2021,population,353278.0,fill_if_missing,https://www.worldometers.info/world-population/martinique-population/,https://www.worldometers.info/world-population/martinique-population/
+MTQ,2022,population,361019.0,fill_if_missing,https://www.insee.fr/en/statistiques/serie/001760177,2022 value: https://www.insee.fr/en/statistiques/serie/001760177
+REU,2016,population,926628.0,fill_if_missing,https://www.worldometers.info/world-population/reunion-population/,https://www.worldometers.info/world-population/reunion-population/
+REU,2017,population,932739.0,fill_if_missing,https://www.worldometers.info/world-population/reunion-population/,https://www.worldometers.info/world-population/reunion-population/
+REU,2018,population,941187.0,fill_if_missing,https://www.worldometers.info/world-population/reunion-population/,https://www.worldometers.info/world-population/reunion-population/
+REU,2019,population,861210.0,fill_if_missing,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls
+REU,2020,population,863083.0,fill_if_missing,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls
+REU,2021,population,871157.0,fill_if_missing,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls,https://www.insee.fr/fr/statistiques/fichier/7752095/estim-pop-nreg-sexe-gca-1975-2024.xls
+REU,2022,population,881348.0,fill_if_missing,https://www.insee.fr/en/statistiques/serie/001760179,2022 value: https://www.insee.fr/en/statistiques/serie/001760179
+SMR,2016,population,33834.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SMR,2017,population,34056.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SMR,2018,population,34156.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SMR,2019,population,34178.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SMR,2020,population,34007.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SMR,2021,population,33745.0,fill_if_missing,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en,https://datacommons.org/place/country/SMR?utm_medium=explore&mprop=count&popt=Person&hl=en
+SSD,2022,population,11000000.0,fill_if_missing,https://thedocs.worldbank.org/en/doc/b3502c65235d8c72aef5f34d87ed6298-0500062021/related/data-ssd.pdf,2022 value (11.0 million): https://thedocs.worldbank.org/en/doc/b3502c65235d8c72aef5f34d87ed6298-0500062021/related/data-ssd.pdf
+TWN,2016,population,23512136.0,fill_if_missing,https://worldpopulationreview.com/countries/taiwan-population,"2015 as no 2016 data, https://worldpopulationreview.com/countries/taiwan-population"
+TWN,2017,population,23665024.0,fill_if_missing,https://worldpopulationreview.com/countries/taiwan-population,https://worldpopulationreview.com/countries/taiwan-population
+TWN,2018,population,23726185.0,fill_if_missing,https://worldpopulationreview.com/countries/taiwan-population,https://worldpopulationreview.com/countries/taiwan-population
+TWN,2019,population,23674138.0,fill_if_missing,https://worldpopulationreview.com/countries/taiwan-population,(year carried over; representative source)
+TWN,2020,population,23663459.0,fill_if_missing,https://worldpopulationreview.com/countries/taiwan-population,(year carried over; representative source)
+TWN,2021,population,23663459.0,fill_if_missing,https://worldpopulationreview.com/countries/taiwan-population,2020 data
+TWN,2022,population,23420111.0,fill_if_missing,https://www.worldometers.info/world-population/taiwan-population/,2022 value: https://www.worldometers.info/world-population/taiwan-population/
+VEN,2022,population,28213017.0,fill_if_missing,https://www.worldometers.info/world-population/venezuela-population/,2022 value: https://www.worldometers.info/world-population/venezuela-population/
+VGB,2022,population,38319.0,fill_if_missing,https://www.worldometers.info/world-population/british-virgin-islands-population/,2022 value: https://www.worldometers.info/world-population/british-virgin-islands-population/
+WLF,2016,population,12060.0,fill_if_missing,https://www.worldometers.info/world-population/wallis-and-futuna-islands-population/,https://www.worldometers.info/world-population/wallis-and-futuna-islands-population/
+WLF,2017,population,11936.0,fill_if_missing,https://www.worldometers.info/world-population/wallis-and-futuna-islands-population/,https://www.worldometers.info/world-population/wallis-and-futuna-islands-population/
+WLF,2018,population,11816.0,fill_if_missing,https://www.worldometers.info/world-population/wallis-and-futuna-islands-population/,https://www.worldometers.info/world-population/wallis-and-futuna-islands-population/
+WLF,2019,population,11502.0,fill_if_missing,https://www.worldometers.info/world-population/wallis-and-futuna-islands-population/,(year carried over; representative source)
+WLF,2020,population,11441.0,fill_if_missing,https://www.worldometers.info/world-population/wallis-and-futuna-islands-population/,(year carried over; representative source)
+WLF,2021,population,11369.0,fill_if_missing,https://www.worldometers.info/world-population/wallis-and-futuna-islands-population/,(year carried over; representative source)
+WLF,2022,population,11478.0,fill_if_missing,https://www.worldometers.info/world-population/wallis-and-futuna-islands-population/,2022 value: https://www.worldometers.info/world-population/wallis-and-futuna-islands-population/
+XKV,2016,population,1777557.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK
+XKV,2017,population,1791003.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK
+XKV,2018,population,1797085.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK
+XKV,2019,population,1788878.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,(year carried over; representative source)
+XKV,2020,population,1790133.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,(year carried over; representative source)
+XKV,2021,population,1786038.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,(year carried over; representative source)
+XKX,2016,population,1777557.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK
+XKX,2017,population,1791003.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK
+XKX,2018,population,1797085.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK
+XKX,2019,population,1788878.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,(year carried over; representative source)
+XKX,2020,population,1790133.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,(year carried over; representative source)
+XKX,2021,population,1786038.0,fill_if_missing,https://data.worldbank.org/indicator/SP.POP.TOTL?locations=XK,(year carried over; representative source)
+AIA,,wage_monthly,6218.348333333332,override,https://www.salaryexpert.com/salary/area/netherlands/the-valley--anguilla,Anguilla: Wage in USD - https://www.salaryexpert.com/salary/area/netherlands/the-valley--anguilla
+COK,,wage_monthly,2913.46,override,https://worldsalaries.com/average-salary-in-cook-islands/,Cook Islands: Average salary data in USD - https://worldsalaries.com/average-salary-in-cook-islands/
+GGY,,wage_monthly,9859.02,override,https://www.salaryexplorer.com/average-salary-wage-comparison-guernsey-c90,Guernsey: Average salary data in USD - https://www.salaryexplorer.com/average-salary-wage-comparison-guernsey-c90
+GIB,,wage_monthly,4462.0,override,https://worldsalaries.com/average-salary-in-gibraltar/,Gibraltar: Average salary data in USD - https://worldsalaries.com/average-salary-in-gibraltar/
+GLP,,wage_monthly,2277.85,override,https://www.salaryexplorer.com/average-salary-wage-comparison-guadalupe-t1601,Guadeloupe: Average salary data in USD - https://www.salaryexplorer.com/average-salary-wage-comparison-guadalupe-t1601
+GUF,,wage_monthly,1415.2524999999998,override,https://www.insee.fr/en/statistiques/serie/001781953,French Guiana: Average monthly wage in USD - https://www.insee.fr/en/statistiques/serie/001781953
+JEY,,wage_monthly,4393.44,override,https://www.gov.je/StatisticsPerformance/EmploymentEarnings/pages/earningsincomestatistics.aspx,Jersey: Average earnings (transformed to monthly) - https://www.gov.je/StatisticsPerformance/EmploymentEarnings/pages/earningsincomestatistics.aspx
+MAF,,wage_monthly,3833.3333333333335,override,https://www.sint-maarten.net/population/life,Saint Martin: Average annual wage in USD - https://www.sint-maarten.net/population/life
+TWN,,wage_monthly,1807.4166666666667,override,https://nhglobalpartners.com/countries/taiwan/hiring-employees/average-salary/,Taiwan: Average monthly wage in USD - https://nhglobalpartners.com/countries/taiwan/hiring-employees/average-salary/
+WLF,,wage_monthly,625.75,override,https://www.salaryexplorer.com/average-salary-wage-comparison-wallis-and-futuna-c239,Wallis and Futuna: Average salary in USD - https://www.salaryexplorer.com/average-salary-wage-comparison-wallis-and-futuna-c239

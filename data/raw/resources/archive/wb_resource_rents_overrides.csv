@@ -1,0 +1,40 @@
+iso3,year,commodity,rents_usd,source,confidence,notes
+# WB resource rents override layer.
+#
+# Each row replaces ONE (iso3, year, commodity) cell after the WB pull and
+# carry-fwd/bwd. Use to:
+#   - patch fake zeros (e.g. GIN minerals 2019-2021, LBR iron ore 2018-2020)
+#   - add countries WB never published (SSD, ERI)
+#   - correct under-counted years for African producers
+#
+# Columns:
+#   iso3        ISO3 code (uppercase)
+#   year        integer year (must fall in the panel range, currently 2016-2022)
+#   commodity   one of: total | oil_gas | coal | minerals
+#               total resets the partner total directly; per-commodity is
+#               preferred so the carve-out base aligns with HQ-share commodities.
+#               When per-commodity overrides land on a row, the total is
+#               recomputed as oil_gas + coal + minerals (forest excluded).
+#   rents_usd   USD rent value for that cell (current USD; do not pre-scale by
+#               GDP)
+#   source      short text source (printed into rent_source column as
+#               WB_OVERRIDE:<source>).
+#               Keep <50 chars. Example: "USGS bauxite × LME × 80% rent fraction"
+#   confidence  high | medium | low | estimate
+#   notes       free text; not consumed downstream
+#
+# All figures should be cited against primary sources (USGS Mineral Yearbook,
+# BP Statistical Review, IEA, EITI country reports, IMF Article IV reports,
+# company annual reports). Please verify before citing externally.
+#
+# === EXAMPLES (UNCOMMENT AND POPULATE) ===
+# SSD,2016,oil_gas,5800000000,IMF Art IV 2017 Tab 5 + EITI SSD,medium,South Sudan crude oil rents 2016
+# SSD,2017,oil_gas,3200000000,IMF Art IV 2017 + Petroleum Ministry annual,medium,
+# GIN,2019,minerals,1500000000,USGS bauxite Vol III + LME px,medium,Bauxite production resumed
+# GIN,2020,minerals,1700000000,USGS + CBG/EGA exports,medium,
+# GIN,2021,minerals,2400000000,USGS + EGA Boffa filings,medium,
+# LBR,2018,minerals,250000000,ArcelorMittal Liberia annual + iron ore px,medium,Yekepa iron ore
+# LBR,2019,minerals,260000000,ArcelorMittal Liberia annual,medium,
+# LBR,2020,minerals,290000000,ArcelorMittal Liberia + Bea Mountain Au,medium,
+# ERI,2016,minerals,300000000,Bisha mine quarterly reports (Nevsun/Zijin),medium,Cu/Zn/Au
+# ERI,2017,minerals,300000000,Bisha + Colluli prefeasibility,medium,

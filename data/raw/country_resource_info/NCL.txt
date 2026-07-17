@@ -1,0 +1,92 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  NCL  (New Caledonia)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: minerals (metals/other).
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 30%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: DSF + nickel code).
+The government's take arrives in three forms (split source: actual realized split from manual_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.0 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 1.0 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.0 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+This country is corrected by the ETR-gap method: the profit removed is inferred from the CbCR
+tax itself — the tax paid above what the 0% statutory rate would imply, converted to profit
+at the 30% resource rate. The royalty / income-tax / dividend split above feeds the
+'resources included' and minimum-royalty views, and is the fallback in any year where the gap
+is inert (observed ETR at or below the statutory rate).
+
+TAX RATES
+General statutory corporate income tax rate: 0.000. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.3. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: effective_resource_cit_rates.csv (combined effective rate).
+Notes on the tax regime: 30% CIT; nickel royalty cost-side
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For New Caledonia, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity, anchored on operator-level
+payment-to-government data where it exists.
+About 40.0% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    NCL (domestic): 40.0%
+    GBR: 12.1%
+    CHN: 7.6%
+    USA: 7.0%
+    AUS: 4.4%
+    CAN: 3.0%
+    BRA: 2.5%
+    MEX: 2.1%
+    other (64 more headquarters): 21.3%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016            0.29          0.08         0.290 |                    0.09                 0.00 |             0.20          0.08         0.426
+  2017            0.73          0.05         0.071 |                    0.13                 0.05 |             0.60          0.00         0.000
+  2018            0.58          0.05         0.082 |                    0.19                 0.05 |             0.38          0.00         0.000
+  2019            0.38          0.06         0.171 |                    0.19                 0.06 |             0.19          0.00         0.000
+  2020            1.20          0.05         0.041 |                    0.25                 0.05 |             0.94          0.00         0.000
+  2021            0.13          0.06         0.436 |                    0.13                 0.06 |             0.00          0.00         0.000
+  2022            0.61          0.05         0.080 |                    0.13                 0.00 |             0.48          0.05         0.098
+
+SOURCES AND CITATIONS
+  - Source for the combined resource rate: DSF + nickel code
+  - Source for the resource-revenue figure (confidence med): New Caledonia nickel (SLN/Eramet, KNS/Glencore, Prony). Sector pays almost nothing fiscally: no extraction royalty existed 2016-2022 (introduced 2023), majors loss-making/partly tax-exempt under a fiscal-stability pact, no dividends in 10+ yrs. ~$0.04-0.06bn/yr, almost entirely income tax from small profitable miners. Hand-collected 2026-06. Sources: IGF 'Avenir de la filiere du nickel en NC' Jul 2023 p18; ISEE; Pitoiset & Le Meur JSO n147 2018 (royalty=0).
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

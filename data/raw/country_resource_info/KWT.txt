@@ -1,0 +1,94 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  KWT  (Kuwait)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 55%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: Kuwait Petroleum Corp + IMF).
+The government's take arrives in three forms (split source: actual realized split from manual_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.3 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.0 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.7 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+This country is corrected by the ETR-gap method: the profit removed is inferred from the CbCR
+tax itself — the tax paid above what the 15% statutory rate would imply, converted to profit
+at the 15% resource rate. The royalty / income-tax / dividend split above feeds the
+'resources included' and minimum-royalty views, and is the fallback in any year where the gap
+is inert (observed ETR at or below the statutory rate).
+
+TAX RATES
+General statutory corporate income tax rate: 0.150. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.15. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: resource_profit_tax_rate.csv (income-tax-based, per commodity).
+This country's TOTAL government take from the resource sector is about 0.55 of profit, but
+that figure bundles three flows together: royalties, income tax, and state dividends.
+Only the income-tax part (0.15) is used to convert the CbCR income-tax line back
+into profit; the royalties and dividends are removed separately (as pre-profit royalties and
+state-equity income), so using the full 0.55 here would double-count them and understate
+the resource profit.
+Notes on the tax regime: 15% headline CIT but oil sector via KPC structure; effective fiscal take similar to Aramco range
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Kuwait, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity, anchored on operator-level
+payment-to-government data where it exists.
+About 95.0% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    KWT (domestic): 95.0%
+    USA: 1.1%
+    CHN: 0.6%
+    other (109 more headquarters): 3.4%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016            0.40          0.04         0.090 |                    0.31                 0.04 |             0.09          0.00         0.000
+  2017            0.93          0.03         0.033 |                    0.58                 0.03 |             0.35          0.01         0.017
+  2018            1.10          0.04         0.035 |                    0.57                 0.03 |             0.53          0.01         0.014
+  2019            1.48          0.05         0.033 |                    0.62                 0.02 |             0.87          0.03         0.035
+  2020            1.11          0.07         0.067 |                    0.57                 0.06 |             0.54          0.02         0.035
+  2021            1.80          0.04         0.024 |                    0.85                 0.02 |             0.94          0.02         0.023
+  2022            1.77          0.04         0.021 |                    1.08                 0.03 |             0.69          0.01         0.012
+
+SOURCES AND CITATIONS
+  - Resource tax rate for oil & gas (0.15, confidence low): no CIT on KPC; state takes revenue directly — most is equity-side; small profit-based component
+  - Source for the combined resource rate: Kuwait Petroleum Corp + IMF
+  - Source for the resource-revenue figure (confidence high): Kuwait oil: Kuwait MoF closing accounts (KPC oil line) / IMF Art IV. KPC pays no domestic oil CIT so post=0; pre=production/royalty, equity=NOC profit transfer. Sourced 2026-06 (2016-17 lower conf).
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

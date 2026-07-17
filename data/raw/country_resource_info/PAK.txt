@@ -1,0 +1,87 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  PAK  (Pakistan)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 40%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: FBR + petroleum policy).
+The government's take arrives in three forms (split source: actual realized split from manual_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.365 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.427 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.208 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+This country is corrected by the ETR-gap method: the profit removed is inferred from the CbCR
+tax itself — the tax paid above what the 30% statutory rate would imply, converted to profit
+at the 40% resource rate. The royalty / income-tax / dividend split above feeds the
+'resources included' and minimum-royalty views, and is the fallback in any year where the gap
+is inert (observed ETR at or below the statutory rate).
+
+TAX RATES
+General statutory corporate income tax rate: 0.296. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.4. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: effective_resource_cit_rates.csv (combined effective rate).
+Notes on the tax regime: 40% CIT for petroleum (pre-2024 super-tax adds further)
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Pakistan, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity, anchored on operator-level
+payment-to-government data where it exists.
+About 95.5% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    PAK (domestic): 95.5%
+    ITA: 3.0%
+    AUT: 0.7%
+    other (108 more headquarters): 0.8%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016            1.23          0.26         0.213 |                    0.55                 0.26 |             0.68          0.00         0.000
+  2017            2.98          0.85         0.285 |                    1.30                 0.70 |             1.68          0.14         0.086
+  2018            4.10          0.96         0.234 |                    0.91                 0.64 |             3.19          0.32         0.101
+  2019            4.60          0.63         0.137 |                    0.38                 0.28 |             4.22          0.35         0.084
+  2020            3.57          0.60         0.167 |                    0.08                 0.05 |             3.49          0.55         0.157
+  2021            5.01          1.21         0.242 |                    1.45                 1.07 |             3.56          0.14         0.039
+  2022            4.15          0.88         0.213 |                    1.16                 0.60 |             2.99          0.28         0.095
+
+SOURCES AND CITATIONS
+  - Source for the combined resource rate: FBR + petroleum policy
+  - Source for the resource-revenue figure (confidence med): Pakistan oil & gas (gas-dominated: OGDCL, PPL, MOL). Royalty from SBP/MoF Public Finance bulletin (all companies; downstream Gas Development Surcharge excluded); income tax + state dividends reconstructed from OGDCL (74.97% state) and PPL (67.51%) audited accounts grossed to the sector. Hand-collected 2026-06, +/-20-25%. Sources: SBP Statistical Bulletin Public Finance 2022; OGDCL Annual Report 2022; PPL FY22.
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

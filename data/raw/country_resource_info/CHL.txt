@@ -1,0 +1,93 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  CHL  (Chile)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: minerals (metals/other).
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 35%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: SII + Mining Royalty Law 2023).
+The government's take arrives in three forms (split source: actual realized split from manual_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.25 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.5 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.25 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+This country is corrected by the ETR-gap method: the profit removed is inferred from the CbCR
+tax itself — the tax paid above what the 27% statutory rate would imply, converted to profit
+at the 35% resource rate. The royalty / income-tax / dividend split above feeds the
+'resources included' and minimum-royalty views, and is the fallback in any year where the gap
+is inert (observed ETR at or below the statutory rate).
+
+TAX RATES
+General statutory corporate income tax rate: 0.266. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.35. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: resource_profit_tax_rate.csv (income-tax-based, per commodity).
+Notes on the tax regime: 27% CIT + new mining royalty (2023): copper price-linked 8% + ad-valorem 1%; ~5% effective
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Chile, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity, anchored on operator-level
+payment-to-government data where it exists.
+About 40.0% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    CHE: 45.8%
+    CHL (domestic): 40.0%
+    GBR: 3.5%
+    USA: 1.9%
+    CHN: 1.5%
+    AUS: 1.1%
+    CAN: 0.7%
+    MEX: 0.6%
+    other (60 more headquarters): 5.0%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016           18.98          3.08         0.162 |                    3.59                 1.06 |            15.39          2.02         0.131
+  2017           24.65          4.55         0.184 |                    5.66                 1.31 |            18.99          3.23         0.170
+  2018           25.92          5.77         0.222 |                    8.16                 2.16 |            17.76          3.60         0.203
+  2019           19.57          7.31         0.373 |                   10.96                 6.10 |             8.62          1.21         0.141
+  2020           12.90          2.89         0.224 |                    5.81                 1.50 |             7.09          1.39         0.196
+  2021           41.94          7.67         0.183 |                    7.95                 1.67 |            33.99          6.00         0.177
+  2022           68.25          8.21         0.120 |                   17.61                 3.68 |            50.64          4.53         0.089
+
+SOURCES AND CITATIONS
+  - Resource tax rate for minerals (metals/other) (0.35, confidence medium): CIT 27% + old specific mining tax (IEAM) 0-14% on operating margin; ~0.35 (new 2024 royalty raises it)
+  - Source for the combined resource rate: SII + Mining Royalty Law 2023
+  - Source for the resource-revenue figure (confidence low-med): COCHILCO / CEIC Chile govt mining revenue; copper-price driven; old IEAM specific mining tax pre-2024
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

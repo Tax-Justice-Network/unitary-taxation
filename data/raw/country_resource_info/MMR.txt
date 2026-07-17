@@ -1,0 +1,89 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  MMR  (Myanmar)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: coal, minerals (metals/other), oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 25%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: Internal Revenue Dept).
+The government's take arrives in three forms (split source: actual realized split from grd_extrapolated payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.403 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.023 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.574 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+The profit removed is read from the resource payments above: it is the LARGER of the income-
+tax-implied profit (income tax / resource rate) and the state-dividend (equity) amount. So for a
+state whose take is mostly dividends, the equity bucket is what determines the profit removed,
+with the matching tax removed at the resource rate.
+
+TAX RATES
+General statutory corporate income tax rate: 0.245. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.25. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: effective_resource_cit_rates.csv (combined effective rate).
+Notes on the tax regime: 25% CIT post-2018; gas-PSC complicated
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Myanmar, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity.
+About 16.1% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    MYS: 20.7%
+    IRQ: 16.2%
+    MMR (domestic): 16.1%
+    KOR: 8.1%
+    USA: 7.3%
+    FRA: 4.4%
+    GBR: 3.3%
+    THA: 3.1%
+    other (98 more headquarters): 20.7%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016            0.42          0.01         0.025 |                    0.30                 0.01 |             0.12          0.00         0.009
+  2017            0.85          0.10         0.120 |                    0.18                 0.04 |             0.66          0.06         0.090
+  2018            0.93          0.12         0.126 |                    0.05                 0.02 |             0.87          0.10         0.115
+  2019            1.26          0.14         0.111 |                    0.35                 0.06 |             0.91          0.08         0.092
+  2020            1.30          0.16         0.121 |                    0.32                 0.02 |             0.97          0.13         0.136
+  2021            0.74          0.08         0.107 |                    0.00                -0.00 |             0.74          0.08         0.107
+  2022            1.02          0.26         0.257 |                    0.30                 0.04 |             0.72          0.22         0.307
+
+SOURCES AND CITATIONS
+  - Source for the combined resource rate: Internal Revenue Dept
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

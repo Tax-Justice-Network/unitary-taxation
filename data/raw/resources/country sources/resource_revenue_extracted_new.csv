@@ -1,0 +1,45 @@
+# Staging table of resource-related GOVERNMENT REVENUE extracted from country-specific sources
+# (IMF Article IV reports, Libya MoF revenue/expenditure statements, EIA, Turkey MAPEG annual reports).
+# Created from data/raw/resource revenues country sources/ on 2026-05-13.
+# total_resource_revenue_usd_bn = source-country government resource revenue for that commodity-year, USD billions.
+# frac_pre_profit + frac_post_profit + frac_equity = 1 (royalties / income-tax+special-tax / state-dividends).
+# Where the source did not separate components, the default 0.30/0.45/0.25 split (per task instructions) is used and noted.
+# domestic_share = fraction attributed to source-country NOC/state firms.
+source_iso3,commodity,year,total_resource_revenue_usd_bn,frac_pre_profit,frac_post_profit,frac_equity,domestic_share,confidence,source_note
+ARE,oil_gas,2016,46.6,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2021 Table 3b: Oil revenue 165.3 AED bn / 3.6725 = $45.0 bn (use 2016 actual from Table 3 published 2021); Oil revenue actually 171.0 from earlier proj. Used 165.3. Split estimated (royalty/CIT/ADNOC dividend not separated)."
+ARE,oil_gas,2017,54.1,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2021 Table 3b actual 2017: Oil revenue 198.7 AED bn / 3.6725 = $54.1; profit transfers from NOC = 53.2 AED bn = $14.5 bn (equity)."
+ARE,oil_gas,2018,82.6,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2021 Table 3b actual 2018: Oil revenue 303.4 AED bn / 3.6725 = $82.6 bn; NOC profit transfers 74.3 AED bn = $20.2 bn (equity)."
+ARE,oil_gas,2019,69.0,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2021 Table 3b actual 2019: Oil revenue 253.4 AED bn / 3.6725 = $69.0 bn; NOC profit transfers 67.6 AED bn = $18.4 bn."
+ARE,oil_gas,2020,43.5,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2021 Table 3b estimate 2020: Oil revenue 159.6 AED bn / 3.6725 = $43.5 bn; NOC profit transfers 38.3 AED bn = $10.4 bn (equity)."
+ARE,oil_gas,2021,66.7,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2022 Table 3a: 2021 Hydrocarbon revenue 245.1 AED bn / 3.6725 = $66.7 bn; NOC profit transfers 78.5 AED bn = $21.4 bn."
+ARE,oil_gas,2022,103.4,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2022 Table 3a projection 2022: Hydrocarbon revenue 379.6 AED bn / 3.6725 = $103.4 bn; NOC profit transfers 117.4 AED bn = $32.0 bn (equity). 2022 was a projection in 2022 Art IV; flagged for review."
+DZA,oil_gas,2016,15.4,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2021 Table 5a actual: Hydrocarbon revenue 1,683 DZD bn / 109.45 DZD/USD = $15.4 bn (incl. Sonatrach dividends; split = royalty/CIT/dividend not separated)."
+DZA,oil_gas,2017,19.6,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2021 Table 5a actual: 2,177 DZD bn / 110.97 = $19.6 bn (incl. Sonatrach dividends)."
+DZA,oil_gas,2018,24.8,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2021 Table 5a actual: 2,887 DZD bn / 116.59 = $24.8 bn (incl. Sonatrach dividends)."
+DZA,oil_gas,2019,22.4,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2021 Table 5a actual: 2,668 DZD bn / 119.36 = $22.4 bn (incl. Sonatrach dividends)."
+DZA,oil_gas,2020,15.2,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2021 Table 5a actual: 1,922 DZD bn / 126.78 = $15.2 bn (incl. Sonatrach dividends)."
+DZA,oil_gas,2021,19.3,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2023 Table 3a actual: 2,609 DZD bn / 135.06 = $19.3 bn (incl. Sonatrach dividends)."
+DZA,oil_gas,2022,39.9,0.30,0.45,0.25,0.95,med-high,"IMF Art IV 2023 Table 3a actual: 5,658 DZD bn / 141.95 = $39.9 bn (incl. Sonatrach dividends)."
+IRN,oil_gas,2016,27.7,0.20,0.30,0.50,0.98,low-med,"IMF Art IV 2018 Table 3 (FY2016/17): Augmented CG oil revenue 1,012,660 rial bn / 31,457 (avg official 2016/17) = $32.2 bn (or $27.9 at market). Used official. Split: NIOC pre/post split unknown; instructions default 0.30/0.45/0.25 but adjusted to higher equity share to reflect NIOC dividends + NDFI transfers. Pre-sanctions snapback period."
+IRN,oil_gas,2017,32.6,0.20,0.30,0.50,0.98,low-med,"IMF Art IV 2018 Table 3 (FY2017/18 projection): Oil revenue 1,236,712 rial bn / ~38,000 = ~$32.5 bn; this is staff projection. Confidence reduced."
+IRN,oil_gas,2018,30.0,0.20,0.30,0.50,0.98,low,"Post-sanctions rial collapse; IMF 2018 projection unreliable. EIA OPEC Net Oil Export Revenue series gives Iran ~$60 bn in 2018 (pre-sanctions). Used $30 bn as fiscal-revenue proxy (lower than export revenue). Confidence low."
+IRN,oil_gas,2019,18.0,0.20,0.30,0.50,0.98,low,"Heavy sanctions; EIA estimates oil exports collapsed to ~1 mb/d. Conservative $18 bn fiscal-revenue estimate (rough)."
+IRN,oil_gas,2020,15.0,0.20,0.30,0.50,0.98,low,"Pandemic + sanctions; EIA estimates exports ~0.5 mb/d. Conservative $15 bn."
+IRN,oil_gas,2021,37.0,0.20,0.30,0.50,0.98,low-med,"EIA Country Analysis Brief 2024 (p3): Iran oil companies net oil export revenues ~$37 bn in 2021 (China shipments rising). Used as proxy for government oil revenue (NIOC dominated)."
+IRN,oil_gas,2022,53.0,0.20,0.30,0.50,0.98,low-med,"EIA Country Analysis Brief 2024 (p3): ~$53 bn net oil export revenues in 2022 (rising oil prices + increased exports to China). Proxy for government oil revenue."
+LBY,oil_gas,2016,5.0,0.30,0.45,0.25,0.85,low,"No Libya MoF report for 2016 in source set. Carried over the prior manual estimate (NOC + JV partners; highly disrupted period; CBL official rate 1.36 LYD/USD). Confidence low."
+LBY,oil_gas,2017,14.0,0.30,0.45,0.25,0.85,low,"No 2017 Libya report; prior manual estimate retained. Confidence low."
+LBY,oil_gas,2018,24.0,0.30,0.45,0.25,0.85,low,"No 2018 Libya report; prior manual estimate retained. Confidence low."
+LBY,oil_gas,2019,24.0,0.30,0.45,0.25,0.85,low,"No 2019 Libya report; prior manual estimate retained. Confidence low."
+LBY,oil_gas,2020,6.0,0.30,0.45,0.25,0.85,low,"No 2020 Libya report; prior manual estimate retained (production blockade Q2-Q3 2020). Confidence low."
+LBY,oil_gas,2021,23.1,0.13,0.00,0.87,0.85,medium,"Libya MoF Revenue/Expenditure Statement 2023 (comparator column for 2021): Oil revenue 103.4 LYD bn / 4.48 LYD/USD = $23.1 bn (post-Jan-2021 CBL devaluation). Royalties 2021: 0 LYD (none reported). Most revenue is NOC equity transfers/concession profit-share."
+LBY,oil_gas,2022,22.1,0.13,0.00,0.87,0.85,medium,"Libya MoF Revenue/Expenditure Statement 2022: Oil revenue 105.5 LYD bn / 4.78 = $22.1 bn; oil royalties 13.6 LYD bn ($2.85 bn, ~13%); previous-year royalties 11.4 LYD bn; remainder is NOC equity/profit-share transfers."
+TUR,minerals,2018,0.27,0.85,0.00,0.15,0.50,medium,"MAPEG 2019 Annual Report p43: Mining Devlet Hakkı (state royalty) 2018 accrued = 1,307,732,357 TRY = 1.31 bn / 4.83 TRY/USD = $0.27 bn. Mining royalty is pre-profit by definition; 15% equity component represents ETI/state mining enterprise contributions."
+TUR,minerals,2019,0.19,0.85,0.00,0.15,0.50,medium,"MAPEG 2021 Annual Report Table 40: 2019 Mining Devlet Hakkı accrued 1,090,725,059 TRY / 5.67 = $0.19 bn (collected 866M = $0.15 bn)."
+TUR,minerals,2020,0.20,0.85,0.00,0.15,0.50,medium,"MAPEG 2021 Annual Report Table 40: 2020 Mining Devlet Hakkı accrued 1,384,343,019 TRY / 7.01 = $0.20 bn."
+TUR,minerals,2021,0.27,0.85,0.00,0.15,0.50,medium,"MAPEG 2022 Annual Report Table 77: 2021 Mining Devlet Hakkı accrued 2,396,099,705 TRY / 8.85 = $0.27 bn."
+TUR,minerals,2022,0.23,0.85,0.00,0.15,0.50,medium,"MAPEG 2022 Annual Report Table 77: 2022 Mining Devlet Hakkı accrued 3,782,362,447 TRY / 16.53 = $0.23 bn."
+TUR,oil_gas,2019,0.18,0.00,0.00,1.00,0.50,medium,"MAPEG 2019 Annual Report p40 Table 19: 2019 Petrolden Devlet Hissesi (petroleum state share) = 998,628,521 TRY / 5.67 = $0.18 bn. Treated as state-share/equity-style take (post-revenue royalty/share, not CIT)."
+TUR,oil_gas,2020,0.13,0.00,0.00,1.00,0.50,medium,"MAPEG 2021 Annual Report Table 40: 2020 Petrolden Devlet Hissesi 880,713,399 TRY / 7.01 = $0.13 bn."
+TUR,oil_gas,2021,0.22,0.00,0.00,1.00,0.50,medium,"MAPEG 2021 Annual Report Table 40: 2021 Petrolden Devlet Hissesi 1,959,711,260 TRY / 8.85 = $0.22 bn."
+TUR,oil_gas,2022,0.36,0.00,0.00,1.00,0.50,medium,"MAPEG 2022 Annual Report Table 77: 2022 Petrolden Devlet Hissesi 5,918,023,133 TRY / 16.53 = $0.36 bn."

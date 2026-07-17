@@ -1,0 +1,94 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  CAN  (Canada)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: minerals (metals/other), oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 30%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: CRA + provincial budgets).
+The government's take arrives in three forms (split source: actual realized split from manual_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.702 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.292 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.006 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+This country is corrected by the ETR-gap method: the profit removed is inferred from the CbCR
+tax itself — the tax paid above what the 26% statutory rate would imply, converted to profit
+at the 30% resource rate. The royalty / income-tax / dividend split above feeds the
+'resources included' and minimum-royalty views, and is the fallback in any year where the gap
+is inert (observed ETR at or below the statutory rate).
+
+TAX RATES
+General statutory corporate income tax rate: 0.264. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.3. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: resource_profit_tax_rate.csv (income-tax-based, per commodity).
+Notes on the tax regime: 15% federal + ~12% provincial average (AB 8%, SK 12%); mining and oil royalties cost-side
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Canada, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity, anchored on operator-level
+payment-to-government data where it exists.
+About 53.8% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    CAN (domestic): 53.8%
+    FRA: 20.2%
+    CHE: 10.3%
+    NLD: 3.8%
+    GBR: 2.7%
+    NOR: 2.7%
+    BRA: 2.0%
+    USA: 0.9%
+    other (60 more headquarters): 3.6%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016           81.26         12.18         0.150 |                   21.12                 6.37 |            60.14          5.81         0.097
+  2017          167.85         24.75         0.147 |                    7.21                 1.55 |           160.65         23.20         0.144
+  2018          143.31         30.54         0.213 |                   40.59                12.26 |           102.72         18.27         0.178
+  2019          166.68         27.83         0.167 |                   28.69                10.76 |           138.00         17.07         0.124
+  2020          139.71         21.64         0.155 |                   22.67                 7.15 |           117.05         14.49         0.124
+  2021          362.46         35.04         0.097 |                   18.15                 2.81 |           344.31         32.23         0.094
+  2022          300.08         64.99         0.217 |                   44.03                19.54 |           256.05         45.44         0.177
+
+SOURCES AND CITATIONS
+  - Resource tax rate for oil & gas (0.27, confidence low): federal CIT 15% + provincial ~12-15%; royalties are pre-profit
+  - Resource tax rate for minerals (metals/other) (0.3, confidence low): federal+provincial CIT ~26% + provincial mining tax; ~0.30
+  - Source for the combined resource rate: CRA + provincial budgets
+  - Source for the resource-revenue figure (confidence low): provincial mining taxes/royalties; CIT; Barrick/Teck/Nutrien CA + many foreign
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

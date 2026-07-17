@@ -1,0 +1,56 @@
+iso3,country_name,resource_revenue_usd,year,source,confidence,prefer_over_eiti,notes
+# Manual fills for countries with significant WB resource rents but no GRD coverage,
+# or with stale/partial EITI data that materially understates actual capture.
+#
+# Used by scripts/compute_carveout_floor.py and compute_hq_carveout_yearly.py.
+# Priority order: GRD (if value > 0) > MANUAL (if prefer_over_eiti=TRUE) > EITI > MANUAL > 0.
+#   - prefer_over_eiti=TRUE  → manual value supersedes EITI (used for stale/partial EITI)
+#   - prefer_over_eiti=FALSE → manual value only used when no GRD and no EITI
+#
+# Each row documents: value, year, source, confidence (high/medium/low/estimate), notes.
+# All figures in current USD. Please verify against primary sources before citing.
+#
+# CATEGORY 1 — OECD / BRICS+ countries missing from GRD entirely
+AUS,Australia,32000000000,2023,"ABS Govt Finance Statistics + state royalty annual reports (WA iron ore + QLD coal dominant) + federal PRRT (ATO corporate tax statistics)",medium,FALSE,"State-level dominates: WA iron ore royalties ~A$10B; QLD coal royalties ~A$15B (2022-23 peak); federal PRRT ~A$2B"
+CAN,Canada,25000000000,2023,"Statistics Canada Table 10-10-0147 (provincial Crown revenues) + AB/SK/NL/BC budget papers",medium,FALSE,"Alberta oil/gas royalties ~C$20B (2022-23); Saskatchewan potash; NL offshore oil. Federal royalties marginal (jurisdictional split)"
+CHN,China,35000000000,2022,"Ministry of Finance — resource tax (资源税) series + State Taxation Administration annual report",low,FALSE,"Resource tax ~¥200B 2022 ≈ US$28B; plus mineral compensation fees and SOE dividends hard to isolate; excludes SOE retained earnings"
+BRA,Brazil,14000000000,2023,"ANM (mining royalty CFEM annual report) + ANP (oil special participation + royalties, anp.gov.br)",medium,FALSE,"CFEM ~R$9B 2023; oil special participation + royalties ~R$60B 2023; total ~R$70B ≈ US$14B"
+IND,India,21000000000,2023,"Ministry of Petroleum annual report (royalty + cess) + Ministry of Mines Mineral Concession Rules returns; state-level compiled",low,FALSE,"Royalty + cess on oil/gas/coal/minerals; varies by state; rough estimate ≈ ₹1.75T"
+ZAF,South Africa,700000000,2023,"SARS — Mineral & Petroleum Resources Royalty collections (annual tax statistics)",high,FALSE,"MPRR ~R10-12B; low capture rate vs. WB rents reflects profit-based design"
+UZB,Uzbekistan,3000000000,2022,"Ministry of Finance execution report + Uzbekneftegaz and Navoi MMC annual reports",low,FALSE,"Gold + gas + copper; strong SOE role complicates measurement"
+MYS,Malaysia,9000000000,2023,"Petronas Activity Outlook + Ministry of Finance federal revenue statement — dividend + petroleum income tax",medium,FALSE,"PETRONAS dividend to federal govt ~RM40B 2023; petroleum income tax separate"
+THA,Thailand,2500000000,2023,"Department of Mineral Fuels — petroleum concession royalty statistics (dmf.go.th)",medium,FALSE,"Natural gas + oil royalties; mining minor"
+POL,Poland,3000000000,2022,"OECD Revenue Statistics — 5128 (other taxes on specific goods/services) + KGHM dividend reports",medium,FALSE,"Coal + copper (KGHM dividend + mining tax)"
+TUR,Turkey,1500000000,2022,"OECD Revenue Statistics + MTA Türkiye mining statistics",low,FALSE,"Limited hydrocarbon production; coal dominant domestically"
+ROU,Romania,1200000000,2022,"OECD Revenue Statistics + Romgaz/Petrom annual reports",medium,FALSE,"Gas + oil + salt royalties; recent increases from Black Sea gas"
+CZE,Czechia,400000000,2022,"OECD Revenue Statistics",medium,FALSE,"Coal + lithium exploration; historically low"
+JPN,Japan,100000000,2022,"OECD Revenue Statistics",high,FALSE,"Minimal domestic extraction"
+ISR,Israel,1500000000,2023,"Ministry of Finance — natural gas levy (Sheshinski) + Tax Authority annual report",high,FALSE,"Gas royalty + Sheshinski levy on Tamar/Leviathan ~NIS5B 2023"
+ITA,Italy,500000000,2022,"OECD Revenue Statistics + MISE (Ministero dello Sviluppo Economico) hydrocarbon reports",medium,FALSE,"Limited domestic O&G; some royalties on Adriatic"
+ESP,Spain,200000000,2022,"OECD Revenue Statistics",high,FALSE,"Minimal domestic extraction"
+FIN,Finland,150000000,2022,"OECD Revenue Statistics + Finnish Minerals Strategy reports",medium,FALSE,"Metal mining royalty (new 2023); Talvivaara/Terrafame etc."
+NZL,New Zealand,300000000,2023,"Treasury — Crown Minerals royalties annual return (mbie.govt.nz)",high,FALSE,"Gas royalties; mining minor"
+SWE,Sweden,100000000,2022,"OECD Revenue Statistics",high,FALSE,"Iron ore (LKAB state-owned); small royalty base"
+PAK,Pakistan,1200000000,2023,"OGDCL + PPL annual reports + gas development surcharge (MoF) statistics",low,FALSE,"Mostly gas; royalty + GIDC"
+BGD,Bangladesh,600000000,2023,"Petrobangla + Bangladesh Bank quarterly reports",low,FALSE,"Mostly gas"
+KEN,Kenya,100000000,2023,"Kenya Treasury Budget Review and Outlook Paper (annual)",low,FALSE,"Titanium + soda ash mining; minor oil discoveries"
+SRB,Serbia,400000000,2023,"Ministry of Finance + NIS annual report + Serbian Mining Agency",low,FALSE,"Oil (NIS/Gazprom Neft) + copper (Zijin-Bor)"
+BLR,Belarus,800000000,2022,"IMF Article IV (2022) + Ministry of Finance execution reports",low,FALSE,"Potash (Belaruskali); oil refining transit"
+NCL,New Caledonia,300000000,2023,"Government of New Caledonia — nickel royalty reports (SLN/KNS)",medium,FALSE,"Nickel royalty; SOE structure complicates"
+#
+# CATEGORY 2 — EITI override: countries with stale or scope-limited EITI data where manual estimate is more reliable
+USA,United States,32000000000,2023,"ONRR Statistical Information (ONRR.gov) + NCSL State Tax Actions + Tax Policy Center severance tax compilation; includes federal (ONRR onshore + offshore ~US$12B) and state severance/royalties (TX/AK/ND/WY/NM/OK/LA ~US$20B)",medium,TRUE,"US withdrew from EITI in November 2017; remaining EITI data (2015) is federal-only and excludes state severance taxes which are the bulk of US extractive revenue"
+AZE,Azerbaijan,10000000000,2022,"State Oil Fund (SOFAZ) annual report + Ministry of Finance execution; SOCAR profit transfers",low,TRUE,"EITI data is 2015-only; SOFAZ transfers + SOCAR taxes + signature bonuses have shifted significantly post-2015"
+COG,Congo (Brazzaville),2500000000,2022,"Ministère des Finances — loi de règlement + SNPC reports",low,TRUE,"EITI 2017 data is stale; oil dominates; SOE SNPC complicates measurement"
+CMR,Cameroon,1000000000,2022,"Ministère des Finances + SNH (National Hydrocarbons Corp) annual reports",low,TRUE,"EITI 2017 is stale; oil revenue declined with field maturity"
+CIV,Côte d'Ivoire,800000000,2023,"Ministère du Budget + PETROCI reports",low,TRUE,"EITI 2018 stale; growing gas + newly discovered Baleine oil field"
+MMR,Myanmar,1500000000,2022,"CHRB + EITI estimates pre-2018 extrapolation (partial data post-2021 military coup)",low,TRUE,"EITI 2018 stale; gas dominant; sanctions and coup complicate reporting; estimate is best available"
+YEM,Yemen,300000000,2023,"IMF Article IV + news estimates; extraction largely halted by civil war",low,TRUE,"EITI 2011 is ancient and reflected pre-war levels (US$5.5B); actual current capture tiny"
+CAF,Central African Republic,30000000,2023,"Ministère des Finances budget execution",low,TRUE,"EITI 2010 ancient; diamonds + gold; small fiscal capacity"
+SLB,Solomon Islands,5000000,2023,"Ministry of Finance + logging/mining reports",low,TRUE,"EITI 2015 stale; extractive sector minimal"
+# NOTES on coverage gaps NOT filled here:
+# - UK (2023): EITI data recent, covers offshore-dominated production → reliable as-is
+# - Norway (2023): EITI captures full fiscal take incl. oil fund transfers → reliable
+# - Indonesia (2021): EITI includes PSC cost-recovery flows which inflates apparent capture → acknowledged caveat but no simple adjustment
+# - Mexico: GRD value used (low at $0.8B); Pemex dividend flows may not be fully captured but GRD priority stands
+# - African countries with fresh EITI (2020+): trusted without manual override

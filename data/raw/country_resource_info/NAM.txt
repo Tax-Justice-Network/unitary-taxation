@@ -1,0 +1,97 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  NAM  (Namibia)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: minerals (metals/other).
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 42%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: NamRA).
+The government's take arrives in three forms (split source: actual realized split from grd_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.385 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.358 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.257 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+This country is corrected by the ETR-gap method: the profit removed is inferred from the CbCR
+tax itself — the tax paid above what the 32% statutory rate would imply, converted to profit
+at the 38% resource rate. The royalty / income-tax / dividend split above feeds the
+'resources included' and minimum-royalty views, and is the fallback in any year where the gap
+is inert (observed ETR at or below the statutory rate).
+
+TAX RATES
+General statutory corporate income tax rate: 0.320. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.375. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: resource_profit_tax_rate.csv (income-tax-based, per commodity).
+This country's TOTAL government take from the resource sector is about 0.42 of profit, but
+that figure bundles three flows together: royalties, income tax, and state dividends.
+Only the income-tax part (0.375) is used to convert the CbCR income-tax line back
+into profit; the royalties and dividends are removed separately (as pre-profit royalties and
+state-equity income), so using the full 0.42 here would double-count them and understate
+the resource profit.
+Notes on the tax regime: 32% diamond CIT + 10% non-diamond mining; royalty cost-side
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Namibia, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity.
+About 20.0% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    NAM (domestic): 20.0%
+    GBR: 16.4%
+    CHN: 9.8%
+    USA: 9.4%
+    AUS: 5.8%
+    CAN: 4.0%
+    BRA: 3.2%
+    MEX: 2.8%
+    other (64 more headquarters): 28.5%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016            0.36          0.07         0.204 |                    0.04                 0.01 |             0.32          0.06         0.197
+  2017            0.53          0.08         0.148 |                    0.08                 0.01 |             0.45          0.07         0.155
+  2018            0.59          0.09         0.155 |                    0.08                 0.02 |             0.51          0.07         0.147
+  2019            0.36          0.08         0.214 |                    0.06                 0.02 |             0.30          0.06         0.202
+  2020            0.29          0.08         0.293 |                    0.05                 0.01 |             0.23          0.07         0.299
+  2021            0.69          0.09         0.130 |                    0.16                 0.05 |             0.53          0.04         0.082
+  2022            0.54          0.08         0.146 |                    0.06                 0.01 |             0.48          0.07         0.136
+
+SOURCES AND CITATIONS
+  - Resource tax rate for minerals (metals/other) (0.375, confidence medium): non-diamond mining CIT 37.5%; diamonds 55%
+  - Source for the combined resource rate: NamRA
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

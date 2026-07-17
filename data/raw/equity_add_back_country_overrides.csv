@@ -1,0 +1,27 @@
+iso3,add_back_equity,reason
+# Equity / SOE-dividend add-back overrides used by 3_resource_contribution.py
+# Default for any country not listed here is TRUE (add equity back to profit).
+# Set FALSE for countries whose dominant SOE itself reports to CbCR — its
+# dividends to the state are paid out of post-tax profit that is already in
+# the CbCR profit-before-tax line, so adding back captured equity would
+# double-count.
+SAU,FALSE,Aramco (~81.5% state) reports to Saudi CbCR; dividends are post-tax distributions of profit already booked in CbCR.
+NOR,FALSE,Equinor (~67% state) reports to Norwegian CbCR. SDFI/Petoro is genuinely outside CbCR but EITI does not separate it cleanly; net call avoids Equinor double-count.
+BRA,FALSE,Petrobras (majority state) reports to Brazilian CbCR; Treasury dividends are post-tax of CbCR profit.
+MEX,FALSE,Pemex (100% state) reports to Mexican CbCR; bulk of state transfer is via DUC/duties already in captured_deductible.
+CHN,FALSE,Sinopec (70%) and CNOOC (64%) report to Chinese CbCR; CNPC operations via PetroChina also captured.
+RUS,FALSE,Rosneft and Gazprom report to Russian CbCR (pre-2022); state dividends post-tax of CbCR profit.
+MYS,FALSE,Petronas (100% state) reports to Malaysian CbCR; dividends to government are post-tax of CbCR profit.
+IDN,FALSE,Pertamina (100% state) reports to Indonesian CbCR.
+COL,FALSE,Ecopetrol (~88% state) reports to Colombian CbCR; Treasury dividends are post-tax.
+ARE,FALSE,ADNOC (100% Abu Dhabi); UAE entered CbCR but dominant SOE revenue would risk double-count if any equity figure ever populated.
+# Countries where the SOE does NOT report to CbCR — equity add-back IS appropriate
+# (default TRUE). Listed here only for documentation; commented out so default applies.
+# DZA,TRUE,Sonatrach 100% state; Algeria not an OECD CbCR reporter.
+# NGA,TRUE,NNPC; Nigeria not an OECD CbCR reporter.
+# AGO,TRUE,Sonangol; Angola not an OECD CbCR reporter.
+# IRQ,TRUE,Iraq state oil; not in CbCR.
+# IRN,TRUE,NIOC; not in CbCR.
+# VEN,TRUE,PDVSA; not in CbCR.
+# KWT,TRUE,KPC; Kuwait not an OECD CbCR reporter historically.
+# QAT,TRUE,QatarEnergy; reporting weak/incomplete.

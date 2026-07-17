@@ -1,0 +1,100 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  USA  (United States)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: coal, minerals (metals/other), oil & gas.
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 26%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: IRS + state DoR averages).
+The government's take arrives in three forms (split source: actual realized split from manual_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.531 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.469 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.0 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+The profit removed is read from the resource payments above: it is the LARGER of the income-
+tax-implied profit (income tax / resource rate) and the state-dividend (equity) amount. So for a
+state whose take is mostly dividends, the equity bucket is what determines the profit removed,
+with the matching tax removed at the resource rate.
+
+TAX RATES
+General statutory corporate income tax rate: 0.285. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.25. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: resource_profit_tax_rate.csv (income-tax-based, per commodity).
+This country's TOTAL government take from the resource sector is about 0.26 of profit, but
+that figure bundles three flows together: royalties, income tax, and state dividends.
+Only the income-tax part (0.25) is used to convert the CbCR income-tax line back
+into profit; the royalties and dividends are removed separately (as pre-profit royalties and
+state-equity income), so using the full 0.26 here would double-count them and understate
+the resource profit.
+Notes on the tax regime: 21% federal CIT + ~5% state corporate tax (avg of TX/OK/AK/ND/NM/WY); state severance taxes separate (treated as cost-side)
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For United States, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity, anchored on operator-level
+payment-to-government data where it exists.
+About 70.0% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    USA (domestic): 70.0%
+    GBR: 15.2%
+    NLD: 3.9%
+    FRA: 2.7%
+    CHE: 1.9%
+    ITA: 1.4%
+    CHN: 1.0%
+    NOR: 0.8%
+    other (67 more headquarters): 3.1%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016          507.59        199.81         0.394 |                   26.02                11.31 |           481.56        188.50         0.391
+  2017          776.55        250.18         0.322 |                   38.40                11.59 |           738.15        238.58         0.323
+  2018          640.83        164.74         0.257 |                   56.08                15.28 |           584.75        149.47         0.256
+  2019          967.80        232.92         0.241 |                   56.23                11.77 |           911.57        221.15         0.243
+  2020         1020.75        220.44         0.216 |                   33.89                 6.35 |           986.85        214.09         0.217
+  2021         2177.55        353.70         0.162 |                   65.30                10.04 |          2112.25        343.67         0.163
+  2022         1676.03        388.09         0.232 |                  100.54                21.57 |          1575.49        366.52         0.233
+
+SOURCES AND CITATIONS
+  - Resource tax rate for oil & gas (0.23, confidence low): federal CIT 21% + state CIT; severance taxes are pre-profit
+  - Resource tax rate for minerals (metals/other) (0.25, confidence low): federal CIT 21% + state; hardrock has ~no federal royalty
+  - Resource tax rate for coal (0.25, confidence low): federal CIT 21% + state; coal royalties/severance are pre-profit
+  - Source for the combined resource rate: IRS + state DoR averages
+  - Source for the resource-revenue figure (confidence low): federal+state coal royalties/severance pre-profit; CIT
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.

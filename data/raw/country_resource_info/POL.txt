@@ -1,0 +1,92 @@
+==============================================================================
+COUNTRY RESOURCE INFO  —  POL  (Poland)
+==============================================================================
+
+This sheet details how the profit and tax reported for this country in country-by-country reports (CbCR)
+are adjusted to take out resource-sector (oil, gas and mining) activity, before the
+remaining profit is reallocated between countries in the unitary-taxation analysis.
+Resource-related profits that are currently taxed as part of the source country's
+resource-rent capture strategy are removed from the profit pool to be distributed under
+unitary taxation. Resource-related taxes are also removed from the paid taxes.
+Otherwise, countries would lose the revenues they legitimately receive
+from multinationals' extraction of their resources.
+
+All monetary values are in billion US dollars.
+
+RESOURCES
+Relevant resources: coal, minerals (metals/other).
+
+RESOURCE RENT CAPTURE REGIME
+Overall, resource PROFIT in this country faces a combined effective tax rate of about 24%
+(corporate income tax plus any resource surtax / petroleum tax — a rate on profit, NOT on the
+economic rent or on gross revenue; source: Ministerstwo Finansów).
+The government's take arrives in three forms (split source: actual realized split from manual_distributed payment streams), which affect the reported
+profit and tax differently, so the correction tracks them separately:
+  - Royalties / production entitlements, paid before profit is taxed: 0.382 of the take.
+    These are a cost that already lowered the reported profit, so they are not deducted again
+    from reported profit (the 'resources included' view instead adds them back).
+  - Resource income tax / corporate tax, paid on profit: 0.474 of the take.
+    This is the part that is removed from the reported tax line when resources are excluded.
+  - State or national-oil-company dividends from government equity stakes: 0.144 of the take.
+    This is a return on ownership rather than a tax.
+
+HOW THE RESOURCE PROFIT IS REMOVED FOR THIS COUNTRY
+This country is corrected by the ETR-gap method: the profit removed is inferred from the CbCR
+tax itself — the tax paid above what the 19% statutory rate would imply, converted to profit
+at the 24% resource rate. The royalty / income-tax / dividend split above feeds the
+'resources included' and minimum-royalty views, and is the fallback in any year where the gap
+is inert (observed ETR at or below the statutory rate).
+
+TAX RATES
+General statutory corporate income tax rate: 0.190. This is the rate applied to ordinary
+(non-resource) company profit, and it is the baseline the correction compares against.
+Source: the project's statutory CIT-rate dataset (OECD Corporate Tax Statistics and the Tax Foundation).
+Resource profit-tax rate: 0.24. This is the rate at which resource-sector profit is
+taxed, and it converts a known resource tax payment into the profit behind it (profit = tax / rate).
+Source: effective_resource_cit_rates.csv (combined effective rate).
+Notes on the tax regime: 19% CIT + hydrocarbon production tax 5%
+
+ALLOCATION OF RESOURCE-RELATED PROFITS TO DIFFERENT HEADQUARTERS
+The resource profit removed above is attributed to the home (headquarter) countries of the
+multinationals that earned it, so that under unitary taxation it is taken out of the correct
+parents' worldwide profit pools instead of being reallocated like ordinary profit.
+For Poland, only a national resource-revenue total is known, so it is split across headquarter
+countries using Orbis ownership shares for each commodity, anchored on operator-level
+payment-to-government data where it exists.
+About 78.4% of the take is kept by this country's own state and domestic firms
+(the domestic share); the take is attributed across headquarters as follows:
+    POL (domestic): 78.4%
+    CHN: 4.2%
+    GBR: 3.8%
+    USA: 2.4%
+    AUS: 1.8%
+    CAN: 0.8%
+    RUS: 0.7%
+    BRA: 0.6%
+    other (67 more headquarters): 7.3%
+
+SAMPLE COVERAGE
+Years for which an estimate exists: [2016, 2017, 2018, 2019, 2020, 2021, 2022].
+
+RESOURCE CORRECTION, YEAR BY YEAR (US$ billion)
+Each row shows, for one year: what this country reported in CbCR (added up over all the parent
+companies that reported it), how much of that was removed as resource, and what is left after
+the correction and carried into the unitary-taxation analysis. The reported figures are from the
+OECD Country-by-Country Report Database; the removed amounts are from this resource correction.
+'corrected' columns = reported minus removed; ETR = tax / profit; amounts capped at the reported
+cell value.
+    yr profit_reported  tax_reported  ETR_reported | resource_profit_removed resource_tax_removed | profit_corrected tax_corrected ETR_corrected
+  2016           11.73          1.61         0.137 |                    3.98                 1.11 |             7.74          0.50         0.064
+  2017           20.67          3.26         0.158 |                    6.42                 1.47 |            14.25          1.79         0.126
+  2018           25.65          5.55         0.217 |                   17.24                 5.28 |             8.40          0.28         0.033
+  2019           20.29          4.79         0.236 |                   11.48                 3.97 |             8.81          0.83         0.094
+  2020           18.88          6.16         0.326 |                   15.84                 6.02 |             3.04          0.14         0.045
+  2021           23.02          4.17         0.181 |                   10.90                 2.76 |            12.12          1.41         0.116
+  2022           20.20          4.27         0.212 |                   13.51                 3.70 |             6.69          0.57         0.085
+
+SOURCES AND CITATIONS
+  - Source for the combined resource rate: Ministerstwo Finansów
+  - Source for the resource-revenue figure (confidence low): KGHM Polska Miedz Report on Payments to Governments 2016-2022 (extractive payments, mineral extraction tax + royalties); OECD Revenue Statistics 5128 (other taxes on specific goods/services) + KGHM dividend reports; 2022 anchored on $3B total fills entry (coal $2.2B + minerals $0.8B); 2016-21 extrapolated by WB rent ratios. JSW + PGG + Bogdanka coal-sector payment reports NOT YET INTEGRATED.
+  - Detailed, figure-by-figure sources are documented in the files
+    docs/extractive/manual_resource_data_sources.md and
+    docs/extractive/manual_resource_sources_overview.md.
