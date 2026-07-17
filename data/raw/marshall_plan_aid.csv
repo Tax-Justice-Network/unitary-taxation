@@ -1,0 +1,38 @@
+# Marshall Plan (European Recovery Program) economic aid by recipient, 3 April 1948 - 30 June 1952,
+# in millions of US dollars OF THE TIME (nominal).
+# PRIMARY SOURCE (totals): Congressional Research Service (2018), "The Marshall Plan: Design,
+#   Accomplishments, and Historic Significance", CRS Report R45079, Table 2, itself citing
+#   USAID, Bureau for Program & Policy Coordination, November 17, 1971.
+#   https://crsreports.congress.gov/product/pdf/R/R45079
+#   (mirror: https://www.everycrsreport.com/reports/R45079.html)
+# SUPPLEMENTARY SOURCE (grants/loans split): Wikipedia, "Marshall Plan", table "Economic aid,
+#   3 April 1948 to 30 June 1952" (https://en.wikipedia.org/wiki/Marshall_Plan). That table matches
+#   CRS Table 2 line-for-line EXCEPT Italy, where it shows 1,208.8 - an amount inconsistent with its
+#   own stated grand total of 13,325.8 (columns then sum to 13,025.8). CRS's Italy = 1,508.8 restores
+#   the total, so the CRS totals are authoritative; Italy's grants/loans split is therefore flagged
+#   low confidence (it belongs to the inconsistent 1,208.8 row).
+# The "Regional" row (no iso3) = US contribution to the European Payments Union ($361.4M), general
+#   freight account ($33.5M) and multi-country technical assistance ($12.1M); it enters aggregate
+#   comparisons only. Belgium-Luxembourg is reported jointly (loans: $65M BEL + $3M LUX, grants not
+#   separable) -> compared against the combined BEL+LUX estimate. Netherlands includes aid extended
+#   for the Dutch East Indies before sovereignty transfer on 30 Dec 1949 ($101.4M: $84.2M grants,
+#   $17.2M loans). Germany (FRG) loans include $16.9M initial loan plus $200M of grants converted to
+#   loans under the agreement of 27 Feb 1953.
+# Stated grand totals: total 13,325.8 / grants 11,820.7 / loans 1,505.1.
+recipient,iso3,aid_total_musd,grants_musd,loans_musd,confidence,source_url,note
+Austria,AUT,677.8,677.8,0.0,high,https://crsreports.congress.gov/product/pdf/R/R45079,
+Belgium-Luxembourg,BEL+LUX,559.3,491.3,68.0,high,https://crsreports.congress.gov/product/pdf/R/R45079,Joint reporting; loans $65M BEL + $3M LUX; grants not separable
+Denmark,DNK,273.0,239.7,33.3,high,https://crsreports.congress.gov/product/pdf/R/R45079,
+France,FRA,2713.6,2488.0,255.6,high,https://crsreports.congress.gov/product/pdf/R/R45079,
+Germany (FRG),DEU,1390.6,1173.7,216.9,high,https://crsreports.congress.gov/product/pdf/R/R45079,Loans incl. $16.9M initial + $200M grants converted to loans (27 Feb 1953 agreement)
+Greece,GRC,706.7,706.7,0.0,high,https://crsreports.congress.gov/product/pdf/R/R45079,
+Iceland,ISL,29.3,24.0,5.3,high,https://crsreports.congress.gov/product/pdf/R/R45079,
+Ireland,IRL,147.5,19.3,128.2,high,https://crsreports.congress.gov/product/pdf/R/R45079,
+Italy (incl. Trieste),ITA,1508.8,1113.2,95.6,low,https://crsreports.congress.gov/product/pdf/R/R45079,Total from CRS (sum-consistent); Wikipedia's 1208.8 breaks its own grand total and its grants/loans split does not sum to the CRS total
+Netherlands,NLD,1083.5,916.8,166.7,high,https://crsreports.congress.gov/product/pdf/R/R45079,Incl. aid for Dutch East Indies before 30 Dec 1949 ($101.4M: $84.2M grants / $17.2M loans)
+Norway,NOR,255.3,216.1,39.2,high,https://crsreports.congress.gov/product/pdf/R/R45079,
+Portugal,PRT,51.2,15.1,36.1,high,https://crsreports.congress.gov/product/pdf/R/R45079,
+Sweden,SWE,107.3,86.9,20.4,high,https://crsreports.congress.gov/product/pdf/R/R45079,
+Turkey,TUR,225.1,140.1,85.0,high,https://crsreports.congress.gov/product/pdf/R/R45079,
+United Kingdom,GBR,3189.8,2895.0,384.8,high,https://crsreports.congress.gov/product/pdf/R/R45079,
+Regional,,407.0,407.0,0.0,high,https://crsreports.congress.gov/product/pdf/R/R45079,EPU $361.4M + general freight $33.5M + multi-country technical assistance $12.1M; aggregate comparisons only

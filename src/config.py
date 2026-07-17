@@ -94,6 +94,9 @@ _TOPIC_REMAP_EXACT = {
     # embedded in that sample's folder).
     "country_overview_reported": "unitary_taxation/reported_only/country_overview",
     "country_overview_gravity": "unitary_taxation/gravity/country_overview",
+    # Context comparisons (9t): headline UT gains vs outstanding IMF credit and
+    # vs the Marshall Plan — reported-only sample deliverable.
+    "context_comparisons": "unitary_taxation/reported_only/context_comparisons",
     # Cross-sample tidy long table + negative-estimate explanations (9g long CSV +
     # 9h) — these explicitly compare the two samples, so they stay cross-sample.
     "deliverables/country_sheet": "unitary_taxation/across_samples/country_overview",

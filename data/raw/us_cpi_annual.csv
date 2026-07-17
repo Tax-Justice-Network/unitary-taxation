@@ -1,0 +1,16 @@
+# US CPI-U, all items, US city average, ANNUAL AVERAGES, index 1982-84 = 100.
+# Source: BLS series CUUR0000SA0 (https://data.bls.gov/timeseries/CUUR0000SA0);
+# convenient tabulation: https://www.usinflationcalculator.com/inflation/consumer-price-index-and-annual-percent-changes-from-1913-to-2008/
+# Used ONLY to express Marshall Plan aid (1948-52 nominal USD) in 2025 USD - the
+# pipeline's own 2016-2022 estimates use config.US_GDP_DEFLATOR_2017100 instead,
+# which starts in 2016 and cannot reach 1948.
+# NOTE: the 2025 annual average (321.943) excludes October 2025 (BLS data gap from
+# the 2025 lapse in appropriations) - an 11-month average.
+year,cpi_u,confidence,note
+1948,24.1,high,
+1949,23.8,high,
+1950,24.1,high,Mid-period anchor year used for the Marshall aid adjustment
+1951,26.0,high,
+1952,26.5,high,
+2024,313.689,high,
+2025,321.943,medium,11-month average; October 2025 missing (lapse in appropriations)
