@@ -1,0 +1,227 @@
+ISO3,employees + payroll,CCCTB,Three-factor,Double-weighted sales,Sales + employees,# formulas with a loss,loses under ALL formulas,worst loss (any formula),Country,Income group,Region
+ABW,374.8,151.8,135.0,137.8,233.4,0,False,135.0,Aruba,investment_hub,Caribbean/American isl.
+AFG,-11370.0,-10362.8,-10192.3,-10211.1,-10561.9,5,True,-11370.0,Afghanistan,low_income,Asia
+AGO,-6376.3,-1605.1,-1158.6,-752.4,-2223.9,5,True,-6376.3,Angola,lower_middle_income,Africa
+AIA,0.0,0.0,0.0,0.0,0.0,0,False,0.0,Anguilla,investment_hub,Caribbean/American isl.
+ALB,449.0,367.8,484.1,495.0,663.1,0,False,367.8,Albania,upper_middle_income,Europe
+AND,-23.2,-6.1,-6.6,-9.0,-22.5,5,True,-23.2,Andorra,high_income,Europe
+ARE,-39276.9,-35688.4,-37020.5,-36398.8,-38678.3,5,True,-39276.9,United Arab Emirates,investment_hub,Asia
+ARG,10051.4,19463.5,24277.7,28574.3,32650.2,0,False,10051.4,Argentina,upper_middle_income,Latin America
+ARM,432.3,212.7,496.5,465.7,833.7,0,False,212.7,Armenia,upper_middle_income,Asia
+ASM,-101.7,-275.7,-252.7,-287.7,-212.6,5,True,-287.7,American Samoa,high_income,Oceania
+ATG,61.0,87.4,94.3,108.4,115.8,0,False,61.0,Antigua and Barbuda,high_income,Caribbean/American isl.
+AUS,33544.4,-2219.1,-14463.5,-27498.8,-35813.2,4,False,-35813.2,Australia,high_income,Oceania
+AUT,10219.6,9434.2,6572.4,9913.2,9638.4,0,False,6572.4,Austria,high_income,Europe
+AZE,55.1,284.6,425.9,602.5,777.6,0,False,55.1,Azerbaijan,upper_middle_income,Asia
+BDI,6.6,9.2,11.3,11.4,12.6,0,False,6.6,Burundi,low_income,Africa
+BEL,84729.2,61551.3,45032.6,38494.2,25930.5,0,False,25930.5,Belgium,high_income,Europe
+BEN,79.7,262.2,352.5,440.2,510.9,0,False,79.7,Benin,lower_middle_income,Africa
+BFA,-2414.0,-2360.9,-1984.9,-2032.9,-1724.5,5,True,-2414.0,Burkina Faso,low_income,Africa
+BGD,810.1,9443.7,10372.6,14751.2,15759.4,0,False,810.1,Bangladesh,lower_middle_income,Asia
+BGR,1206.0,912.5,1328.2,1379.7,1990.8,0,False,912.5,Bulgaria,high_income,Europe
+BHR,-54.2,-47.9,-46.3,-47.7,-47.6,5,True,-54.2,Bahrain,high_income,Asia
+BHS,-239.9,0.0,0.0,0.0,0.0,1,False,-239.9,Bahamas,investment_hub,Caribbean/American isl.
+BIH,-52.3,-212.3,-51.4,-106.5,81.6,4,False,-212.3,Bosnia and Herzegovina,upper_middle_income,Europe
+BLR,244.0,931.4,1102.7,1571.6,1860.4,0,False,244.0,Belarus,upper_middle_income,Europe
+BLZ,-48.0,41.4,57.6,34.9,-15.9,2,False,-48.0,Belize,upper_middle_income,Caribbean/American isl.
+BMU,-3772.2,-3630.8,-3643.2,-3683.5,-3808.9,5,True,-3808.9,Bermuda,investment_hub,Caribbean/American isl.
+BOL,909.6,1918.7,2169.7,2125.4,1861.4,0,False,909.6,Bolivia,lower_middle_income,Latin America
+BRA,21760.7,41259.1,72323.2,76358.7,100420.9,0,False,21760.7,Brazil,upper_middle_income,Latin America
+BRB,-517.4,-433.7,-432.5,-435.3,-480.8,5,True,-517.4,Barbados,investment_hub,Caribbean/American isl.
+BRN,240.3,259.8,225.3,241.4,215.3,0,False,215.3,Brunei Darussalam,high_income,Asia
+BTN,-153.6,-337.6,-245.0,-287.9,-143.5,5,True,-337.6,Bhutan,lower_middle_income,Asia
+BWA,-235.0,-173.2,-62.3,6.1,145.3,3,False,-235.0,Botswana,upper_middle_income,Africa
+CAF,-295.1,-729.1,-364.0,-584.5,-216.8,5,True,-729.1,Central African Republic,low_income,Africa
+CAN,24177.9,-3520.8,-10647.2,-19279.4,-24844.7,4,False,-24844.7,Canada,high_income,Northern America
+CHE,-34722.2,-15574.2,-21150.1,-10314.1,-15563.2,5,True,-34722.2,Switzerland,investment_hub,Europe
+CHL,11310.3,4960.4,7626.7,2432.3,2997.0,0,False,2432.3,Chile,high_income,Latin America
+CHN,-172275.2,-115329.0,-35216.7,-52128.7,-7840.8,5,True,-172275.2,China (People’s Republic of),upper_middle_income,Asia
+CIV,154.3,1448.1,1869.2,2470.8,2843.5,0,False,154.3,Côte d’Ivoire,lower_middle_income,Africa
+CMR,124.9,1053.6,1332.0,1779.1,2034.7,0,False,124.9,Cameroon,lower_middle_income,Africa
+COD,-5939.8,-516.9,390.0,-184.1,-2574.0,4,False,-5939.8,Democratic Republic of the Congo,low_income,Africa
+COG,-115.2,2040.1,2213.3,1793.9,525.9,1,False,-115.2,Congo,lower_middle_income,Africa
+COK,47.3,16.7,14.1,11.6,21.1,0,False,11.6,Cook Islands,investment_hub,Oceania
+COL,13405.5,17869.4,24966.1,23259.1,26425.8,0,False,13405.5,Colombia,upper_middle_income,Latin America
+COM,-91.7,-146.0,-113.1,-127.4,-81.7,5,True,-146.0,Comoros,lower_middle_income,Africa
+CPV,-156.4,-307.5,-200.6,-285.5,-186.1,5,True,-307.5,Cabo Verde,upper_middle_income,Africa
+CRI,8331.6,3578.6,4932.6,4325.8,7593.8,0,False,3578.6,Costa Rica,high_income,Latin America
+CUB,1880.0,3544.1,3874.0,5021.5,5660.8,0,False,1880.0,Cuba,upper_middle_income,Latin America
+CUW,165.1,108.8,114.6,120.8,159.2,0,False,108.8,Curaçao,investment_hub,Caribbean/American isl.
+CYM,-2523.9,-2478.0,-2489.4,-2506.0,-2557.1,5,True,-2557.1,Cayman Islands,investment_hub,Caribbean/American isl.
+CYP,538.9,461.5,438.8,562.9,682.4,0,False,438.8,Cyprus,investment_hub,Europe
+CZE,10449.8,7403.2,8732.6,9668.5,13375.8,0,False,7403.2,Czechia,high_income,Europe
+DEU,185489.2,175819.7,148769.8,181475.6,182531.0,0,False,148769.8,Germany,high_income,Europe
+DJI,8.3,62.1,75.3,80.5,65.8,0,False,8.3,Djibouti,lower_middle_income,Africa
+DMA,91.1,75.9,89.7,73.2,78.9,0,False,73.2,Dominica,upper_middle_income,Caribbean/American isl.
+DNK,-4750.8,-3337.9,-6492.5,-5568.9,-8681.3,5,True,-8681.3,Denmark,high_income,Europe
+DOM,2842.7,2684.0,3961.0,4283.3,5963.1,0,False,2684.0,Dominican Republic,upper_middle_income,Latin America
+DZA,-4857.0,1163.3,1701.7,3832.7,3530.4,1,False,-4857.0,Algeria,upper_middle_income,Africa
+ECU,-226.3,821.8,1661.2,2163.9,2993.7,1,False,-226.3,Ecuador,upper_middle_income,Latin America
+EGY,-3432.0,831.0,3856.8,5181.9,7401.5,1,False,-3432.0,Egypt,lower_middle_income,Africa
+ESP,55890.9,53964.4,49808.0,58718.9,63758.0,0,False,49808.0,Spain,high_income,Europe
+EST,1607.1,1568.9,1612.3,1939.6,2280.3,0,False,1568.9,Estonia,investment_hub,Europe
+ETH,-265.7,2019.5,2660.0,3825.4,4470.7,1,False,-265.7,Ethiopia,low_income,Africa
+FIN,14307.6,7644.0,3583.7,4956.8,5349.4,0,False,3583.7,Finland,high_income,Europe
+FJI,57.0,12.5,84.1,74.4,157.6,0,False,12.5,Fiji,upper_middle_income,Oceania
+FLK,33.2,12.7,6.8,5.4,8.5,0,False,5.4,Falkland Islands (Malvinas),high_income,Caribbean/American isl.
+FRA,118075.6,176907.4,171224.8,211005.2,213520.2,0,False,118075.6,France,high_income,Europe
+FRO,393.6,222.0,148.1,109.7,108.8,0,False,108.8,Faroe Islands,high_income,Europe
+FSM,-862.4,-967.7,-913.5,-950.2,-879.5,5,True,-967.7,Micronesia,lower_middle_income,Oceania
+GAB,-2186.6,-1064.7,-992.8,-1024.4,-1547.5,5,True,-2186.6,Gabon,upper_middle_income,Africa
+GBR,139497.4,131284.9,123688.5,129547.6,130023.7,0,False,123688.5,United Kingdom,high_income,Europe
+GEO,699.2,466.1,669.8,684.1,1014.2,0,False,466.1,Georgia,upper_middle_income,Asia
+GGY,-85.2,-84.2,-87.5,-88.6,-93.3,5,True,-93.3,Bailiwick of Guernsey,investment_hub,Europe
+GHA,-1595.8,1288.9,1812.8,2386.5,1983.2,1,False,-1595.8,Ghana,lower_middle_income,Africa
+GIB,-576.4,-576.9,-577.4,-577.2,-577.1,5,True,-577.4,Gibraltar,investment_hub,Europe
+GIN,-1278.3,-977.1,-797.8,-788.5,-762.9,5,True,-1278.3,Guinea,lower_middle_income,Africa
+GLP,1337.6,632.4,582.7,522.5,775.1,0,False,522.5,Guadeloupe,high_income,Caribbean/American isl.
+GMB,-463.7,-620.1,-420.9,-556.0,-411.5,5,True,-620.1,Gambia,low_income,Africa
+GNB,-1247.7,-1155.2,-1072.3,-1167.7,-1230.7,5,True,-1247.7,Guinea-Bissau,low_income,Africa
+GNQ,-686.4,-354.8,-334.6,-223.8,-272.9,5,True,-686.4,Equatorial Guinea,upper_middle_income,Africa
+GRC,2593.2,5239.6,5871.6,7139.8,7684.1,0,False,2593.2,Greece,high_income,Europe
+GRD,54.9,94.8,100.1,91.3,67.8,0,False,54.9,Grenada,upper_middle_income,Caribbean/American isl.
+GRL,705.4,317.6,225.1,203.0,282.1,0,False,203.0,Greenland,high_income,Northern America
+GTM,3227.8,2895.8,4088.8,4279.3,5808.1,0,False,2895.8,Guatemala,upper_middle_income,Latin America
+GUF,-83.2,-58.4,-51.9,-27.5,-9.3,5,True,-83.2,French Guiana,high_income,Caribbean/American isl.
+GUM,831.2,355.6,348.2,303.3,491.7,0,False,303.3,Guam,high_income,Oceania
+GUY,-83.6,129.7,184.8,194.9,157.3,1,False,-83.6,Guyana,high_income,Caribbean/American isl.
+HKG,-33976.3,-25426.1,-26563.6,-28197.0,-35015.7,5,True,-35015.7,Hong Kong (China),investment_hub,Asia
+HND,3676.2,2121.5,3293.5,3104.7,4862.9,0,False,2121.5,Honduras,lower_middle_income,Latin America
+HRV,593.1,535.6,788.0,843.6,1165.0,0,False,535.6,Croatia,high_income,Europe
+HTI,479.0,691.7,792.7,821.5,836.0,0,False,479.0,Haiti,lower_middle_income,Caribbean/American isl.
+HUN,2916.5,1456.4,2748.7,2465.3,4213.1,0,False,1456.4,Hungary,investment_hub,Europe
+IDN,10079.3,-11649.3,7329.8,-4878.0,13058.4,2,False,-11649.3,Indonesia,upper_middle_income,Asia
+IMN,-2044.1,-1786.6,-1803.9,-1877.6,-2110.6,5,True,-2110.6,Isle of Man,investment_hub,Europe
+IND,62946.2,74858.3,133751.8,148105.7,214945.6,0,False,62946.2,India,lower_middle_income,Asia
+IOT,-2.6,-2.6,-2.6,-2.6,-2.6,5,True,-2.6,British Indian Ocean Territory,investment_hub,Africa
+IRL,-44197.6,-15469.6,-16789.4,-7815.3,-14756.4,5,True,-44197.6,Ireland,investment_hub,Europe
+IRN,-8874.8,714.1,1046.6,5389.0,5001.1,1,False,-8874.8,Iran,upper_middle_income,Asia
+IRQ,-2838.2,2246.7,2417.2,4431.6,4361.3,1,False,-2838.2,Iraq,upper_middle_income,Asia
+ISL,1292.6,1500.0,1377.9,1470.8,1333.5,0,False,1292.6,Iceland,high_income,Europe
+ISR,-2363.3,1693.3,1285.4,4142.6,4474.0,1,False,-2363.3,Israel,high_income,Asia
+ITA,23430.6,61146.5,62502.2,81681.3,82627.2,0,False,23430.6,Italy,high_income,Europe
+JAM,1479.8,1235.8,1593.9,1572.5,2018.7,0,False,1235.8,Jamaica,upper_middle_income,Caribbean/American isl.
+JEY,-356.2,-316.4,-317.1,-326.4,-358.7,5,True,-358.7,Jersey,investment_hub,Europe
+JOR,1054.5,1020.2,1367.2,1460.3,1849.7,0,False,1020.2,Jordan,lower_middle_income,Asia
+JPN,-59174.2,-31741.2,-51303.8,-47406.7,-78444.2,5,True,-78444.2,Japan,high_income,Asia
+KAZ,-3506.1,1300.2,2242.3,3582.8,3235.5,1,False,-3506.1,Kazakhstan,upper_middle_income,Asia
+KEN,761.4,2798.9,3577.9,4615.0,5398.5,0,False,761.4,Kenya,lower_middle_income,Africa
+KGZ,-290.0,-198.2,-162.7,-156.6,-163.9,5,True,-290.0,Kyrgyzstan,lower_middle_income,Asia
+KHM,2855.5,817.7,1604.7,1153.4,2510.1,0,False,817.7,Cambodia,lower_middle_income,Asia
+KIR,7.8,3.7,5.6,4.8,8.1,0,False,3.7,Kiribati,lower_middle_income,Oceania
+KNA,38.9,8.1,11.4,15.1,36.6,0,False,8.1,Saint Kitts and Nevis,high_income,Caribbean/American isl.
+KOR,-43574.2,-10360.1,-18459.9,-9010.3,-25094.3,5,True,-43574.2,Korea,high_income,Asia
+KWT,695.1,2217.6,2303.2,3331.3,3575.4,0,False,695.1,Kuwait,high_income,Asia
+LAO,-7399.9,-6747.4,-6512.6,-6811.6,-7201.1,5,True,-7399.9,Lao People’s Democratic Republic,lower_middle_income,Asia
+LBN,772.8,1320.5,1432.6,1794.3,2001.4,0,False,772.8,Lebanon,lower_middle_income,Asia
+LBR,592.0,961.3,997.1,884.7,637.5,0,False,592.0,Liberia,investment_hub,Africa
+LBY,-15387.0,-12532.0,-12436.3,-11844.4,-12486.1,5,True,-15387.0,Libya,upper_middle_income,Africa
+LCA,19.9,33.6,44.2,60.0,77.5,0,False,19.9,Saint Lucia,upper_middle_income,Caribbean/American isl.
+LIE,1531.5,603.7,139.2,45.3,-63.6,1,False,-63.6,Liechtenstein,investment_hub,Europe
+LKA,2038.3,2922.2,3621.6,4354.1,5325.1,0,False,2038.3,Sri Lanka,lower_middle_income,Asia
+LSO,237.1,-119.5,81.8,-27.6,244.4,2,False,-119.5,Lesotho,lower_middle_income,Africa
+LTU,997.6,731.1,919.0,1055.6,1510.4,0,False,731.1,Lithuania,high_income,Europe
+LUX,49714.2,61816.4,60966.3,63998.4,59764.4,0,False,49714.2,Luxembourg,investment_hub,Europe
+LVA,1504.5,1107.3,1244.4,1382.7,1816.5,0,False,1107.3,Latvia,high_income,Europe
+MAC,-5103.3,-6412.6,-6666.7,-7231.3,-7341.4,5,True,-7341.4,Macau (China),high_income,Asia
+MAF,4.1,6.9,6.6,8.6,8.7,0,False,4.1,Saint Martin,high_income,Caribbean/American isl.
+MAR,4687.3,3735.3,6484.4,6743.1,10194.6,0,False,3735.3,Morocco,lower_middle_income,Africa
+MCO,-196.0,-386.0,-522.6,-545.2,-573.0,5,True,-573.0,Monaco,high_income,Europe
+MDA,694.4,398.4,645.8,541.5,832.6,0,False,398.4,Moldova,upper_middle_income,Europe
+MDG,-420.6,-414.5,-207.0,-200.4,12.2,4,False,-420.6,Madagascar,low_income,Africa
+MDV,-3572.5,-3357.9,-3256.5,-3386.2,-3520.6,5,True,-3572.5,Maldives,upper_middle_income,Asia
+MEX,33952.2,15866.0,53927.8,44161.7,81096.6,0,False,15866.0,Mexico,upper_middle_income,Latin America
+MHL,-6.8,-6.1,-6.0,-6.3,-7.1,5,True,-7.1,Marshall Islands,upper_middle_income,Oceania
+MKD,749.3,208.7,436.2,295.7,654.6,0,False,208.7,North Macedonia,upper_middle_income,Europe
+MLI,-2248.2,-1184.8,-756.8,-955.2,-1261.8,5,True,-2248.2,Mali,low_income,Africa
+MLT,500.1,778.6,773.4,843.3,763.9,0,False,500.1,Malta,investment_hub,Europe
+MMR,1702.7,2429.1,3112.5,3523.1,4246.7,0,False,1702.7,Myanmar,lower_middle_income,Asia
+MNE,109.8,188.0,235.1,151.8,96.1,0,False,96.1,Montenegro,upper_middle_income,Europe
+MNG,-2908.6,-2425.6,-2206.7,-2303.3,-2426.5,5,True,-2908.6,Mongolia,upper_middle_income,Asia
+MNP,205.1,70.0,65.1,43.0,83.9,0,False,43.0,Northern Mariana Islands,high_income,Oceania
+MOZ,6519.9,7263.1,7922.0,7779.1,7915.7,0,False,6519.9,Mozambique,low_income,Africa
+MRT,-1948.2,-1680.4,-1518.0,-1555.0,-1562.7,5,True,-1948.2,Mauritania,lower_middle_income,Africa
+MTQ,379.4,249.5,230.8,232.4,280.2,0,False,230.8,Martinique,high_income,Caribbean/American isl.
+MUS,-1392.4,-1363.3,-1281.1,-1363.7,-1381.0,5,True,-1392.4,Mauritius,investment_hub,Africa
+MWI,482.0,-745.0,139.5,-237.8,894.3,2,False,-745.0,Malawi,low_income,Africa
+MYS,-1073.3,-4793.8,1425.7,-943.6,4616.9,3,False,-4793.8,Malaysia,upper_middle_income,Asia
+NAM,473.1,202.8,384.6,321.1,559.9,0,False,202.8,Namibia,lower_middle_income,Africa
+NCL,-5742.9,-5313.5,-5270.9,-5520.8,-5925.2,5,True,-5925.2,New Caledonia,high_income,Oceania
+NER,-4480.7,-2979.9,-2720.7,-3061.7,-3888.2,5,True,-4480.7,Niger,low_income,Africa
+NGA,-9511.5,12990.8,14586.0,22382.3,20377.3,1,False,-9511.5,Nigeria,lower_middle_income,Africa
+NIC,3159.8,1334.7,2400.3,1982.9,3548.5,0,False,1334.7,Nicaragua,lower_middle_income,Latin America
+NLD,3272.7,11098.2,4272.4,13299.5,7866.7,0,False,3272.7,Netherlands,investment_hub,Europe
+NOR,-27455.6,-45036.7,-51868.4,-58213.6,-62242.8,5,True,-62242.8,Norway,high_income,Europe
+NPL,-6509.1,-5490.7,-5257.3,-5029.1,-5082.4,5,True,-6509.1,Nepal,lower_middle_income,Asia
+NRU,42.8,12.8,14.3,10.8,23.6,0,False,10.8,Nauru,high_income,Oceania
+NZL,2777.7,-2731.6,-3956.9,-3045.0,-672.0,4,False,-3956.9,New Zealand,high_income,Oceania
+OMN,-258.2,449.6,466.1,841.7,993.9,1,False,-258.2,Oman,high_income,Asia
+PAK,-849.9,7479.0,9455.4,13636.9,15613.8,1,False,-849.9,Pakistan,lower_middle_income,Asia
+PAN,-372.5,-36.9,234.2,-193.9,-502.3,4,False,-502.3,Panama,investment_hub,Latin America
+PER,-4774.3,-563.8,3728.6,306.2,-1159.6,3,False,-4774.3,Peru,upper_middle_income,Latin America
+PHL,31946.0,23204.3,35872.6,36652.3,54389.8,0,False,23204.3,Philippines,lower_middle_income,Asia
+PLW,0.0,0.0,0.0,0.0,0.0,0,False,0.0,Palau,high_income,Oceania
+PNG,-534.4,1078.6,1377.0,1215.3,551.1,1,False,-534.4,Papua New Guinea,lower_middle_income,Oceania
+POL,25866.3,19834.5,25518.4,26718.4,36523.0,0,False,19834.5,Poland,high_income,Europe
+PRI,40315.7,12186.3,-711.7,-310.4,674.4,2,False,-711.7,Puerto Rico,investment_hub,Caribbean/American isl.
+PRK,929.2,-528.0,243.5,-155.0,965.6,2,False,-528.0,Democratic People’s Republic of Korea,low_income,Asia
+PRT,8655.7,10648.1,12729.4,14989.2,18133.4,0,False,8655.7,Portugal,high_income,Europe
+PRY,671.4,484.9,727.3,702.6,1010.6,0,False,484.9,Paraguay,upper_middle_income,Latin America
+PSE,66.7,137.0,167.6,216.8,261.3,0,False,66.7,Palestinian Authority or West Bank and Gaza Strip,lower_middle_income,Asia
+PYF,-2746.6,-2576.3,-2566.6,-2651.3,-2814.0,5,True,-2814.0,French Polynesia,high_income,Oceania
+QAT,-1186.3,652.0,512.3,1599.7,1742.9,1,False,-1186.3,Qatar,high_income,Asia
+REU,-3538.7,-4274.2,-4157.0,-4344.6,-4037.3,5,True,-4344.6,Réunion,high_income,Africa
+ROU,12470.2,11221.2,13820.2,14909.2,19185.6,0,False,11221.2,Romania,high_income,Europe
+RUS,1252.8,28464.0,34596.5,48541.6,55098.3,0,False,1252.8,Russia,high_income,Europe
+RWA,55.2,206.3,310.3,349.9,417.0,0,False,55.2,Rwanda,low_income,Africa
+SAU,-57306.6,-192529.5,-192668.4,-265687.1,-270692.5,5,True,-270692.5,Saudi Arabia,high_income,Asia
+SDN,-2759.5,-1914.3,-1368.7,-1644.4,-1812.3,5,True,-2759.5,Sudan,low_income,Africa
+SEN,-115.6,762.0,1012.9,1240.2,1272.7,1,False,-115.6,Senegal,lower_middle_income,Africa
+SGP,-28333.9,-26389.8,-29262.9,-27372.4,-30685.5,5,True,-30685.5,Singapore,investment_hub,Asia
+SLB,-813.6,-813.1,-750.4,-800.3,-786.5,5,True,-813.6,Solomon Islands,lower_middle_income,Oceania
+SLE,-2453.5,-2136.9,-1799.0,-2111.4,-2241.8,5,True,-2453.5,Sierra Leone,low_income,Africa
+SLV,3004.8,1710.1,2720.0,2521.7,3980.9,0,False,1710.1,El Salvador,upper_middle_income,Latin America
+SMR,88.1,109.0,108.8,104.3,89.0,0,False,88.1,San Marino,high_income,Europe
+SOM,-1323.2,-1262.9,-1035.9,-1060.4,-855.7,5,True,-1323.2,Somalia,low_income,Africa
+SRB,2004.7,1157.6,1714.8,1673.1,2591.8,0,False,1157.6,Serbia,upper_middle_income,Europe
+SSD,-33.9,-28.9,40.6,54.0,128.5,2,False,-33.9,South Sudan,low_income,Africa
+STP,66.0,45.4,57.4,52.1,69.1,0,False,45.4,Sao Tome and Principe,lower_middle_income,Africa
+SUR,489.7,565.2,667.0,619.4,635.8,0,False,489.7,Suriname,upper_middle_income,Caribbean/American isl.
+SVK,4826.1,3624.4,4627.7,5135.2,7102.4,0,False,3624.4,Slovak Republic,high_income,Europe
+SVN,712.1,367.8,293.3,399.7,616.8,0,False,293.3,Slovenia,high_income,Europe
+SWE,11485.8,11144.3,6166.7,10299.8,8942.8,0,False,6166.7,Sweden,high_income,Europe
+SWZ,-926.0,-1235.0,-1081.5,-1167.2,-944.7,5,True,-1235.0,Eswatini,lower_middle_income,Africa
+SXM,419.2,267.2,240.4,221.6,252.0,0,False,221.6,Sint Maarten,high_income,Caribbean/American isl.
+SYC,17.1,42.4,52.5,73.3,84.8,0,False,17.1,Seychelles,investment_hub,Africa
+SYR,-11.2,420.0,473.5,695.7,731.9,1,False,-11.2,Syrian Arab Republic,low_income,Asia
+TCA,0.0,0.0,0.0,0.0,0.0,0,False,0.0,Turks and Caicos Islands,high_income,Caribbean/American isl.
+TCD,-5315.5,-3710.7,-3079.8,-3713.8,-4508.1,5,True,-5315.5,Chad,low_income,Africa
+TGO,-1524.4,-1422.9,-1182.5,-1319.9,-1264.7,5,True,-1524.4,Togo,low_income,Africa
+THA,-1900.6,7232.1,14346.2,19065.8,26132.7,1,False,-1900.6,Thailand,upper_middle_income,Asia
+TJK,-4469.8,-4534.1,-4200.8,-4331.6,-4095.8,5,True,-4534.1,Tajikistan,lower_middle_income,Asia
+TKM,-9855.7,-8237.3,-8005.5,-7938.0,-8433.0,5,True,-9855.7,Turkmenistan,upper_middle_income,Asia
+TLS,-1381.0,-1461.5,-1374.5,-1445.1,-1388.0,5,True,-1461.5,Timor-Leste,lower_middle_income,Asia
+TON,-134.1,-134.7,-129.8,-135.2,-135.4,5,True,-135.4,Tonga,upper_middle_income,Oceania
+TTO,-346.2,651.5,799.2,881.4,570.4,1,False,-346.2,Trinidad and Tobago,high_income,Caribbean/American isl.
+TUN,1533.9,1121.3,1796.5,1901.6,2854.4,0,False,1121.3,Tunisia,lower_middle_income,Africa
+TUR,-5835.7,3111.6,9302.8,13613.3,19519.5,1,False,-5835.7,Türkiye,upper_middle_income,Asia
+TWN,196.3,9927.4,10264.6,17102.7,19213.2,0,False,196.3,Chinese Taipei,high_income,Asia
+TZA,-600.0,616.2,1143.1,1671.3,2109.6,1,False,-600.0,Tanzania,lower_middle_income,Africa
+UGA,486.3,1432.3,1645.7,2009.5,2097.7,0,False,486.3,Uganda,low_income,Africa
+UKR,3424.8,4096.5,5765.8,6299.7,8109.2,0,False,3424.8,Ukraine,upper_middle_income,Europe
+URY,-367.4,56.4,261.2,536.2,736.0,1,False,-367.4,Uruguay,high_income,Latin America
+USA,683124.6,612862.7,474109.4,502884.7,398571.0,0,False,398571.0,United States,high_income,Northern America
+UZB,-801.5,221.3,281.4,739.7,725.4,1,False,-801.5,Uzbekistan,lower_middle_income,Asia
+VCT,233.0,291.9,315.3,272.8,224.7,0,False,224.7,Saint Vincent and the Grenadines,upper_middle_income,Caribbean/American isl.
+VEN,18740.6,20930.3,21435.4,22387.1,22698.5,0,False,18740.6,Venezuela,upper_middle_income,Latin America
+VGB,-2380.2,-2101.7,-2105.6,-2174.0,-2394.3,5,True,-2394.3,British Virgin Islands,investment_hub,Caribbean/American isl.
+VIR,4720.6,1856.6,1478.4,1226.9,1660.0,0,False,1226.9,United States Virgin Islands,high_income,Caribbean/American isl.
+VNM,25250.9,14837.7,21830.2,22998.8,36289.7,0,False,14837.7,Viet Nam,lower_middle_income,Asia
+VUT,-4.9,-4.3,-4.2,-4.4,-4.8,5,True,-4.9,Vanuatu,lower_middle_income,Oceania
+WLF,0.0,0.0,0.0,0.0,0.0,0,False,0.0,Wallis and Futuna,high_income,Oceania
+WSM,-122.0,-115.8,-106.7,-111.7,-110.9,5,True,-122.0,Samoa,upper_middle_income,Oceania
+XKV,2454.7,696.7,1459.6,848.7,1896.4,0,False,696.7,Kosovo,lower_middle_income,Europe
+YEM,-2528.3,-2174.8,-1948.2,-1840.6,-1675.9,5,True,-2528.3,Yemen,low_income,Asia
+ZAF,10535.8,9594.0,18068.9,15165.0,21053.5,0,False,9594.0,South Africa,upper_middle_income,Africa
+ZMB,2371.1,2543.1,2998.0,2960.3,3287.5,0,False,2371.1,Zambia,lower_middle_income,Africa
+ZWE,-1403.7,-852.6,-567.3,-433.1,-297.6,5,True,-1403.7,Zimbabwe,lower_middle_income,Africa
