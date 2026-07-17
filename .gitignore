@@ -1,42 +1,97 @@
 .env
 __pycache__
-# Ignore everything under final, intermediate, raw
-/data/2024/final/*
-/data/2024/intermediate/*
-/data/2024/raw/*
+# Local tool settings and personal working notes — not part of the public repo.
+.claude/settings.local.json
+todos_and_thougts.txt
+# ── Data ──────────────────────────────────────────────────────────────────
+# The pipeline is meant to be REPRODUCIBLE. The curated/public data INPUTS and the
+# small Orbis-derived bridge tables are committed; the pipeline's own OUTPUTS are
+# regenerable and are NOT committed. Specific exclusions:
 
-# But keep the subdirectories themselves
-!/data/2024/final/analysis/
-!/data/2024/final/estimations/
-!/data/2024/final/figures/
-!/data/2024/intermediate/
-!/data/2024/raw/
+# 1) Orbis raw — PROPRIETARY, must not be shared. Reproducibility is preserved
+#    because the Orbis-DERIVED bridge tables it produces ARE committed (see §5),
+#    so the Orbis-raw steps (3_1, 3_2, build_hq_shares_by_source,
+#    build_cbcr_universe_*) can be skipped — everything from 1_8 onward reads them.
+/data/raw/orbis/
+/data/raw/resources/orbis_extractives_broad*.csv
 
-/data/2024/final/analysis/*
-/data/2024/final/estimations/*
-/data/2024/final/figures/*
+# 2) Files over GitHub's 100 MB limit — large PUBLIC downloads. Obtain them per
+#    the instructions in src/config.py, then re-run the pipeline.
+/data/raw/gravity/
+/data/raw/OECD.CTP.TPS,DSD_CBCR@DF_CBCRI,*.csv
+# BaTIS bulk trade-in-services download (~2.8 GB; read by 1b_destination_based_sales.py):
+/data/raw/OECD-WTO_BATIS_data_BPM6-1/
+*.mp4
 
-# Except .gitkeep files
-!/data/2024/final/.gitkeep
-!/data/2024/intermediate/.gitkeep
-!/data/2024/raw/.gitkeep
-!/data/2024/final/analysis/.gitkeep
-!/data/2024/final/estimations/.gitkeep
-!/data/2024/final/figures/.gitkeep
+# 3) Provenance source documents (NOT read by any script — only the curated CSVs
+#    extracted from them are). Excluded for now to keep the repo lean.
+/data/raw/EITI reports/
+
+# 4) Old-year archive — not needed to reproduce the current run.
+/data/archive/
+
+# 5) Pipeline OUTPUTS (intermediate working files + the final cbcr_main_* datasets)
+#    are REGENERABLE by re-running, so they are not committed — EXCEPT the
+#    Orbis-derived bridge tables (cannot be regenerated without the proprietary
+#    Orbis raw) and the hand-curated effective_resource_cit_rates.csv.
+/data/intermediate/**
+/data/final/**
+!/data/intermediate/**/
+!/data/final/**/
+!/data/intermediate/extractive/hq_shares_by_commodity_yearly.csv
+!/data/intermediate/extractive/hq_shares_by_source_commodity_yearly.csv
+!/data/intermediate/extractive/cbcr_universe_presence.csv
+!/data/final/effective_resource_cit_rates.csv
+
+# 6) Material NOT used by the current pipeline — provenance source documents
+#    (company filings, government reports, images extracted from them) and
+#    generated reports. Kept on disk for transparency / future use, but not
+#    committed; the pipeline reads only the curated CSVs extracted from them.
+# Resource/EITI source documents — keep ONLY the curated extraction tables:
+/data/raw/resources/country sources/**
+!/data/raw/resources/country sources/brazil_anp_extracted.csv
+!/data/raw/resources/country sources/lesotho_revenue_extracted.csv
+!/data/raw/resources/country sources/petrobras_union_dividends_extracted.csv
+!/data/raw/resources/country sources/turkey_cit_extractive_extracted.csv
+!/data/raw/resources/country sources/China_resource_tax_from_statistical_yearbooks.txt
+!/data/raw/resources/country sources/resource_revenue_extracted_new.csv
+# (The generated per-country resource reports in data/raw/country_resource_info/
+#  ARE committed — kept as a reference deliverable.)
+# Public CbCR report PDFs (provenance, not a pipeline input):
+/data/raw/pCbCR/
+# Climate-finance SOURCE workbooks (only the curated cpi_africa_*.csv are read):
+/data/raw/climate_finance/*.xlsx
+/data/raw/Data-Landscape-of-Climate-Finance-in-Africa-2024.xlsx
+# Unused German trade-tax tables (only 71231-0001 is read, by the us_only sub-project):
+/data/raw/corporate_taxes_germany/71231-0002_en/
+/data/raw/corporate_taxes_germany/71231-0003_en/
+/data/raw/corporate_taxes_germany/71231-0010_en/
+/data/raw/corporate_taxes_germany/71231-0011_en/
+/data/raw/corporate_taxes_germany/71231-0012_en/
+# Other unused loose inputs / strays:
+/data/raw/ReadMe_AAMNE.xlsx
+/data/raw/CbcR_reporters_over_time.xlsx
+/data/raw/cthi_unilateral_cross_scores.csv
+/data/raw/Interactive Budget Dashboard 2026_Budget Data_Tabel.csv
+/data/output/
+
+# Keep the folder skeleton everywhere.
+!**/.gitkeep
 
 
-#git check-ignore -v /output/tables/2024/Final_Full_CBCR_Datasets
-#git check-ignore -v /data/final
-#git rm --cached /output/tables/2024/Datasets_to_Perform_Analysis/*.csv
-# git rm --cached /output/tables/2024/Datasets_to_Perform_Analysis/\*.csv
-#git rm --cached /output/tables/2024/Final_Full_CBCR_Datasets/*.csv
-
-
-# Home-group sub-project (us_/eu_multinationals): per-spec UT estimation outputs
-# are large (~120MB each) and fully regenerable by
-# src/us_only/estimate_us_multinationals.py. Keep the figures and small summary
-# tables; ignore the heavy per-spec CSV dirs for any home group.
-/output/*/tables/disaggregated/
+# ── Output ─────────────────────────────────────────────────────────────────
+# output/ is REGENERABLE and enormous (~90 GB; unitary_taxation alone is 80 GB of
+# per-spec result CSVs + bootstrap draws, several files over GitHub's 100 MB
+# limit). Only the unitary-taxation DELIVERABLES are committed — the report
+# FIGURES (.png), the headline .xlsx tables, and the small cross-sample summaries
+# (across_samples/). Everything else (per-spec CSVs, the other analyses, archive)
+# is ignored; regenerate by re-running scripts 5–9.
+/output/**
+!/output/**/
+!/output/unitary_taxation/**/*.png
+!/output/unitary_taxation/**/*.xlsx
+!/output/unitary_taxation/across_samples/**
+!**/.gitkeep
 
 
 ## Core latex/pdflatex auxiliary files:
