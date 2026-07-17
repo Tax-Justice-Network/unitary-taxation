@@ -93,10 +93,18 @@ average = deflated sum ÷ 6.
 ## Output files
 
 - `tables/ut_gains_vs_imf_credit.csv` — per-country + aggregate/income-group
-  rows: IMF credit (bn 2025 USD), annual UT gain, years-to-repay.
+  rows: IMF credit (bn 2025 USD), annual UT gain, years-to-repay. Aggregate
+  rows carry THREE averages: the pooled ratio `years_to_repay` (Σcredit ÷
+  Σgain — the headline), plus the unweighted `years_to_repay_country_median`
+  and `_mean` over the `n_countries_in_avg` countries with positive gain AND
+  debt. The mean is outlier-dominated (near-zero-gain countries: Haiti
+  ~1,700 yrs) — quote the pooled figure or the median, never the mean.
 - `tables/ut_gains_vs_marshall_plan.csv` — per-recipient + aggregate: nominal
-  and 2025-USD aid (total & grants), annual & cumulative gain, Marshall Plans
-  per 6 years, years per Marshall Plan (total & grants-only).
+  and 2025-USD aid (total & grants & GDP-deflator sensitivity), annual &
+  cumulative gain, Marshall Plans per 6 years, years per Marshall Plan
+  (total & grants-only). The aggregate row also carries
+  `years_per_plan_country_median` / `_mean` over the 11 recipients with
+  positive gains (mean pulled up by Greece 23.3 / Austria 7.3).
 - `figures/fig_ut_gains_vs_imf_credit.png` — years-to-repay, 15 largest
   debtors with positive gains.
 - `figures/fig_ut_gains_vs_marshall_aggregate.png` — headline aggregate bars.

@@ -135,18 +135,30 @@ def part1_imf(gains):
             "imf_credit_bn", "gain_bn", "years_to_repay", "gain_negative_or_zero"]
     out = m[cols].sort_values("imf_credit_bn", ascending=False)
 
-    # aggregates: all IDS debtors with estimates, and per income group
+    # aggregates: all IDS debtors with estimates, and per income group. The
+    # pooled ratio (sum credit / sum gain) is the headline; the unweighted
+    # country mean/median (only countries with positive gain AND debt) are
+    # carried alongside — the mean explodes on near-zero-gain countries
+    # (Haiti ~1,700 yrs), so the median is the quotable "typical country".
     agg_rows = []
     scope = m.dropna(subset=["gain_bn"])
     for label, sub in ([("ALL IDS debtor countries", scope)] +
                        [(f"income group: {g}", scope[scope.wb_income_group == g])
                         for g in sorted(scope.wb_income_group.dropna().unique())]):
         credit, gain = sub["imf_credit_bn"].sum(), sub["gain_bn"].sum()
+        yc = sub.loc[(sub["gain_bn"] > 0) & (sub["imf_credit_bn"] > 0),
+                     "years_to_repay"]
         agg_rows.append(dict(country=label, iso3="", wb_income_group="",
                              credit_year="", imf_credit_bn=credit, gain_bn=gain,
                              years_to_repay=(credit / gain if gain > 0 else np.nan),
+                             years_to_repay_country_median=yc.median(),
+                             years_to_repay_country_mean=yc.mean(),
+                             n_countries_in_avg=len(yc),
                              gain_negative_or_zero=gain <= 0))
     out = pd.concat([pd.DataFrame(agg_rows), out], ignore_index=True).round(2)
+    out = out[cols[:7] + ["years_to_repay_country_median",
+                          "years_to_repay_country_mean", "n_countries_in_avg",
+                          "gain_negative_or_zero"]]
     f = TABLES / "ut_gains_vs_imf_credit.csv"
     out.to_csv(f, index=False)
     print(f"wrote {f}")
@@ -222,6 +234,9 @@ def part2_marshall(gains):
     tot_aid, tot_grants = aid["aid_total_2025bn"].sum(), aid["aid_grants_2025bn"].sum()
     tot_aid_gdpdef = aid["aid_total_2025bn_gdpdef"].sum()
     tot_gain = aid["gain_bn"].sum(skipna=True)            # Regional row is NaN
+    # country mean/median of years-per-plan across recipients that gain
+    # (losers never accumulate a plan; they enter only the pooled aggregate)
+    ypc = aid.loc[aid["gain_bn"] > 0, "years_per_marshall_plan"].dropna()
     agg = dict(recipient="ALL RECIPIENTS (aggregate)", iso3="",
                aid_total_musd=aid["aid_total_musd"].sum(),
                grants_musd=aid["grants_musd"].sum(),
@@ -231,14 +246,19 @@ def part2_marshall(gains):
                marshall_plans_per_6yr=tot_gain * N_YEARS / tot_aid,
                marshall_plans_per_6yr_gdpdef=tot_gain * N_YEARS / tot_aid_gdpdef,
                years_per_marshall_plan=tot_aid / tot_gain,
-               years_per_marshall_plan_grants=tot_grants / tot_gain)
+               years_per_marshall_plan_grants=tot_grants / tot_gain,
+               years_per_plan_country_median=ypc.median(),
+               years_per_plan_country_mean=ypc.mean(),
+               n_countries_in_avg=len(ypc))
     out = pd.concat([pd.DataFrame([agg]), aid], ignore_index=True)
     keep = ["recipient", "iso3", "aid_total_musd", "grants_musd", "loans_musd",
             "aid_total_2025bn", "aid_grants_2025bn", "aid_total_2025bn_gdpdef",
             "gain_bn", "cum_gain_bn",
             "marshall_plans_per_6yr", "marshall_plans_per_6yr_gdpdef",
             "years_per_marshall_plan",
-            "years_per_marshall_plan_grants", "confidence", "note"]
+            "years_per_marshall_plan_grants",
+            "years_per_plan_country_median", "years_per_plan_country_mean",
+            "n_countries_in_avg", "confidence", "note"]
     out = out[[c for c in keep if c in out.columns]].round(2)
     f = TABLES / "ut_gains_vs_marshall_plan.csv"
     out.to_csv(f, index=False)
