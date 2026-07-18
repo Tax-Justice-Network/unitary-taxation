@@ -178,20 +178,38 @@ include and why*:
   the share of each jurisdiction in global destination-based sales"), so roughly-proportional
   omissions wash out — the whole approach is defended on that basis.
 
-**Consequence for the resource-origin suggestion.** Under the destination principle as OECD
-defines it, a resource exporter's destination sales genuinely *are* ≈0 (it exports; it does
-not sell to local final consumers). So the key giving resource exporters little weight is the
-measure **working as intended**, not a defect. "Keep resources at origin" is therefore a
-**deviation** from the destination principle, motivated by a *source* claim — and the project
-already implements the source/resource claim through the **`excl_resource` carve-out**
-(royalty taxation at source). Layering resource-origin onto the sales key would express the
-same source claim twice (the double-protection flagged above), which is why the carve-out,
-not the sales key, is its principled home.
+**Consequence for the resource-origin suggestion — but read with the all-sector caveat
+below.** Under the destination principle as OECD defines it, a resource exporter's destination
+sales genuinely *are* ≈0 (it exports; it does not sell to local final consumers), so on OECD's
+own terms the key is working as intended.
 
-**Revised recommendation:** keep the destination sales factor as a *pure* destination measure
-(principled per OECD 92–93); carry the resource/source claim in the carve-out. If a
-resource-origin sales variant is still wanted, present it honestly as a **deviation from** the
-destination principle for sensitivity — never combined with `excl_resource`.
+**BUT we already left OECD's frame.** OECD's CFB key covers only **consumer-facing** sectors —
+its `cfb_sectors` list (Table 2.2 Panel B) **excludes** mining `B05T09` and agriculture
+`A01T03`. Our headline `mne_share` deliberately uses **all 41 sectors** (B2B, finance, primary
+included) for scope-consistency with the all-sector CbCR `unrelated_party_revenues` slot it
+replaces. So resources are in our key **only because of that broadening**, and "the destination
+principle says exporters correctly get ≈0" invokes a principle we already stretched past its
+domain for exactly these sectors (crude oil sold to a refinery has no "final consumer market").
+Resource-origin is therefore **not** a betrayal of a clean principle — it is another pragmatic,
+sector-specific choice inside an already-pragmatic all-sector construction. The import-omission
+logic (para 93) is unaffected by this, as it is a method argument, not a sector one (and is
+*more* binding for B2B, which has no household-consumption analog at all).
+
+**So the decision rests on practicalities, not OECD fidelity:**
+1. **Carve-out overlap** — resources are already protected at source by `excl_resource`;
+   resource-origin on the sales key does it a second time. Main reason for caution; argues for
+   *never* combining the two.
+2. **AAMNE coverage** — reaches NGA/CHL/KAZ/COL, not the imputed LICs.
+3. **Scope-symmetry** — going all-sector was to keep destination a like-for-like replacement of
+   the all-sector, hub-distorted CbCR origin key (which can't be sector-split); treating
+   resources specially in destination alone reintroduces an origin/destination scope mismatch.
+
+**Revised recommendation:** the destination sales factor is defensible as-is; the resource/
+source claim is most cleanly carried by the `excl_resource` carve-out. A resource-origin sales
+variant is a **legitimate pragmatic option** (not a principle violation) — best run as a
+**sensitivity on the baseline (resource-included) dataset**, where there is no carve-out to
+double up with, and reported as "resources credited at source in the sales factor." Never
+combine it with `excl_resource`.
 
 **Status:** conceptual / proposed. Not implemented — no code, key columns, or `DEST_MEASURES`
 entries added yet.
