@@ -31,22 +31,24 @@ list (one consistent core; the lists never disagree on a shared jurisdiction):
   & García-Bernardo (2020). Drives the GB dividend double-counting correction in
   `1_clean.py` (10% of haven profits, non-US MNCs, 2016–2019). **Changing it changes
   the cleaned profit figures.** (`tax_havens` is a backward-compatible alias.)
-- **`TAX_HAVENS_REPRESENTATION`** (30) — drives the `investment_hub` income-group
+- **`TAX_HAVENS_REPRESENTATION`** (29) — drives the `investment_hub` income-group
   classification in figures/tables. **Rule (2026-07-18):** the GB cleaning list,
   UNIONed with every jurisdiction that has a **CTHI-2025 Haven Score ≥ 65**
   (`data/raw/cthi_2025_scores.csv`) AND booked **inward-shifted profit
-  (reported − theoretical profit > 0) in at least ONE year** (2016–2022 excl
+  (reported − theoretical profit > 0) in at least TWO years** (2016–2022 excl
   2020, current headline reported-only / excl_resource / sales_employees_**destmnedds**
   / etrdef_domfor), plus the manual substance keep **`_EXTRA_MANUAL` = {IOT}**
   (BIOT, unscored). Puerto Rico and Barbados are GB profit centres, so the GB
   leg keeps them despite having no CTHI score. No general FSI fallback —
   **Saudi Arabia stays out (HOME-BIAS, ~98% home-booked)**. The non-GB outcome
-  set `_EXTRA_CTHI_GE65_ANYYEAR_SHIFT` = Panama, UAE, Cyprus, **Hungary**,
-  Curaçao, **Liberia**, Monaco, Guernsey, Liechtenstein, Aruba, Seychelles,
-  Anguilla. Vs the 2026-07-11 rule (CTHI-2024>65 + *pooled* net-recipient) this
-  **ADDS Hungary + Liberia** (pooled net losers, but each has a positive-shift
-  year the any-year test catches) and **DROPS Cook Islands** (no CTHI, no shift
-  year); **Guernsey** now qualifies on outcome (no longer a manual add).
+  set `_EXTRA_CTHI_GE65_2YR_SHIFT` = Monaco, Panama, Curaçao, Seychelles, Cyprus,
+  Aruba, UAE, **Liberia**, Guernsey, Liechtenstein, Anguilla. Vs the 2026-07-11
+  rule (CTHI-2024>65 + *pooled* net-recipient) this **ADDS Liberia** (3 shift
+  years) and **DROPS Cook Islands** (no CTHI, no shift year); **Guernsey** now
+  qualifies on outcome (no longer a manual add). **Hungary is EXCLUDED** — CTHI 69
+  but a single inward-shift year (2016), a large net loser (~−28bn) otherwise;
+  the ≥2-year gate exists to reject such single-year outliers (Anguilla is the
+  thinnest keeper, exactly 2 years).
   `TAX_HAVENS_REPRESENTATION_NARROW` is a deprecated alias of the main list.
   Purely presentational (no effect on estimates). See `docs/tax_haven_lists.md`.
   Misalignment haven ID in script 5 is **ETR-threshold-based** (15%), not

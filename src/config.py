@@ -387,13 +387,13 @@ TAX_HAVENS_CLEANING = _GB_PROFIT_CENTRES | _GB_COORDINATION_CENTRES  # 17 jurisd
 #       group in the figures. This is purely presentational (no effect on any
 #       estimate). The definition is OUTCOME-based — a jurisdiction is presented
 #       as a haven iff the GB cleaning list contains it, OR it has a CTHI-2025
-#       Haven Score >= 65 AND booked inward-shifted profit in at least one year —
+#       Haven Score >= 65 AND booked inward-shifted profit in at least two years —
 #       and is FROZEN below as TAX_HAVENS_REPRESENTATION (the outcome was
 #       evaluated once on the current headline run; freezing is safe because
 #       the list feeds no estimate, only the `investment_hub` display group).
 # ─────────────────────────────────────────────────────────────────────────────
 
-# 2) TAX_HAVENS_REPRESENTATION (30) — used for REPRESENTATION / reporting
+# 2) TAX_HAVENS_REPRESENTATION (29) — used for REPRESENTATION / reporting
 #    (income-group classification: these jurisdictions are shown as the
 #    "investment_hub" group in figures and tables). It feeds NO cleaning
 #    correction, so it is purely presentational (no effect on estimates).
@@ -403,35 +403,36 @@ TAX_HAVENS_CLEANING = _GB_PROFIT_CENTRES | _GB_COORDINATION_CENTRES  # 17 jurisd
 #      (a) has a CTHI-2025 Haven Score >= 65
 #          (data/raw/cthi_2025_scores.csv, cthi_2025_score), AND
 #      (b) booked INWARD-shifted profit (reported_profit − theoretical_profit
-#          > 0) in AT LEAST ONE year, 2016–2022 excl 2020, on the current
+#          > 0) in AT LEAST TWO years, 2016–2022 excl 2020, on the current
 #          headline spec (reported-only / excl_resource /
 #          sales_employees_destmnedds / etrdef_domfor / etrmax_inf),
 #    plus the MANUAL substance keep BIOT (no CTHI score). Puerto Rico and
 #    Barbados are GB profit centres, so the GB leg keeps them despite having no
 #    CTHI score. Jurisdictions without a CTHI score are otherwise NOT eligible
 #    (Saudi Arabia stays out — HOME-BIAS, ~98% home-booked, see note below).
-#    Vs the 2026-07-11 list this ADDS Hungary (CTHI 69) and Liberia (CTHI 67) —
-#    pooled net LOSERS, but each has a positive-shift year the "any-year" test
-#    catches — and DROPS Cook Islands (no CTHI score AND no inward-shift year).
-#    Guernsey now qualifies on the outcome rule (CTHI 100 + a +311m year) so it
-#    is no longer a manual add. Reproduce the outcome set with the CTHI-2025
-#    swap check; see docs/tax_haven_lists.md.
-_EXTRA_CTHI_GE65_ANYYEAR_SHIFT = {
-    # ISO: CTHI-2025 Haven Score, max single-year inward profit shift (m USD,
-    # headline destmnedds). Non-GB jurisdictions only (GB members that also pass
+#    Vs the 2026-07-11 list this ADDS Liberia (CTHI 67, 3 inward-shift years) and
+#    DROPS Cook Islands (no CTHI score AND no inward-shift year). Guernsey now
+#    qualifies on the outcome rule (CTHI 100, 3 years) so it is no longer a
+#    manual add. HUNGARY was CONSIDERED but EXCLUDED: CTHI 69 with a single
+#    inward-shift year (2016, +4.2bn) but a large net LOSER in all five other
+#    window years (~−28bn pooled), so it fails the >=2-year gate — the gate is
+#    set at 2 precisely to reject such single-year outliers. Anguilla is the
+#    thinnest keeper (exactly 2 years). See docs/tax_haven_lists.md.
+_EXTRA_CTHI_GE65_2YR_SHIFT = {
+    # ISO: CTHI-2025 Haven Score, #inward-shift years (of 6), max single-year
+    # shift (m USD, headline destmnedds). Non-GB only (GB members that also pass
     # arrive via TAX_HAVENS_CLEANING).
-    "PAN",  # Panama 72, +33,394
-    "ARE",  # United Arab Emirates 84, +13,437
-    "CYP",  # Cyprus 79, +12,656
-    "HUN",  # Hungary 69, +4,189
-    "CUW",  # Curaçao 72, +1,762
-    "LBR",  # Liberia 67, +526
-    "MCO",  # Monaco 66, +446
-    "GGY",  # Guernsey 100, +311
-    "LIE",  # Liechtenstein 67, +253
-    "ABW",  # Aruba 71, +144
-    "SYC",  # Seychelles 70, +75
-    "AIA",  # Anguilla 100, +35
+    "MCO",  # Monaco 66, 6 yrs, +446
+    "PAN",  # Panama 72, 5 yrs, +33,394
+    "CUW",  # Curaçao 72, 5 yrs, +1,762
+    "SYC",  # Seychelles 70, 5 yrs, +75
+    "CYP",  # Cyprus 79, 4 yrs, +12,656
+    "ABW",  # Aruba 71, 4 yrs, +144
+    "ARE",  # United Arab Emirates 84, 3 yrs, +13,437
+    "LBR",  # Liberia 67, 3 yrs, +526
+    "GGY",  # Guernsey 100, 3 yrs, +311
+    "LIE",  # Liechtenstein 67, 3 yrs, +253
+    "AIA",  # Anguilla 100, 2 yrs, +35  (at the >=2 threshold)
 }
 # Manual substance keep — no CTHI score, retained as a classic haven.
 # Puerto Rico / Barbados need no entry here (GB profit centres). Cook Islands
@@ -443,7 +444,7 @@ _EXTRA_MANUAL = {
     "IOT",  # British Indian Ocean Territory — no CTHI / no FSI, kept on substance
 }
 TAX_HAVENS_REPRESENTATION = (
-    TAX_HAVENS_CLEANING | _EXTRA_CTHI_GE65_ANYYEAR_SHIFT | _EXTRA_MANUAL
+    TAX_HAVENS_CLEANING | _EXTRA_CTHI_GE65_2YR_SHIFT | _EXTRA_MANUAL
 )
 
 # DEPRECATED alias: the narrow variant is retired — its purpose (dropping the

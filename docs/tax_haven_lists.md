@@ -3,8 +3,8 @@
 Two lists, defined in `src/config.py`, for two distinct purposes:
 
 1. **`TAX_HAVENS_CLEANING`** (17) — García-Bernardo list, drives the cleaning correction.
-2. **`TAX_HAVENS_REPRESENTATION`** (30) — GB list ∪ (CTHI-2025 Haven Score ≥ 65 AND
-   inward-shifted profit in ≥1 year) ∪ manual {BIOT} (presentational).
+2. **`TAX_HAVENS_REPRESENTATION`** (29) — GB list ∪ (CTHI-2025 Haven Score ≥ 65 AND
+   inward-shifted profit in ≥2 years) ∪ manual {BIOT} (presentational).
 
 A third, ETR-threshold definition was **explored but not adopted**; its candidate
 jurisdictions are documented at the bottom for reference.
@@ -22,7 +22,7 @@ Drives the GB dividend double-counting correction in `1_clean.py` (10% of haven
 profits, non-US MNCs, 2016–2019). **Changing it changes the cleaned profit
 figures.** (`tax_havens` is a backward-compatible alias.)
 
-## 2. Representation list — `TAX_HAVENS_REPRESENTATION` (30)
+## 2. Representation list — `TAX_HAVENS_REPRESENTATION` (29)
 
 Used for the `investment_hub` income-group classification shown in figures/tables.
 Feeds **no** cleaning correction — purely presentational, no effect on estimates.
@@ -34,7 +34,7 @@ net-recipient" rule):** a jurisdiction is presented as a tax haven iff
 2. it has a **CTHI-2025 Haven Score ≥ 65**
    (`data/raw/cthi_2025_scores.csv`, `cthi_2025_score`) **AND** booked
    **inward-shifted profit** (`reported_profit − theoretical_profit > 0`) in
-   **at least ONE year**, 2016–2022 excl 2020, on the current headline spec
+   **at least TWO years**, 2016–2022 excl 2020, on the current headline spec
    (reported-only / excl_resource / `sales_employees_destmnedds` / `domfor` ETR
    / etrmax_inf), **OR**
 3. it is the **manual substance keep** (`_EXTRA_MANUAL = {IOT}`): British Indian
@@ -45,33 +45,39 @@ net-recipient" rule):** a jurisdiction is presented as a tax haven iff
    Arabia stays out** (unscored by CTHI; ~98% home-booked → **home-bias**, not a
    haven).
 
-The "at least one year" test (condition 2) is deliberately more permissive than
-the old *pooled* net-recipient test: a jurisdiction that received shifted profit
-in some year but nets negative over the whole window still counts.
+The "at least two years" test (condition 2) is more permissive than the old
+*pooled* net-recipient test (a jurisdiction can net negative over the window and
+still count) but the **2-year** threshold rejects single-year outliers — see the
+Hungary note below.
 
-`_EXTRA_CTHI_GE65_ANYYEAR_SHIFT` (condition-2 jurisdictions not already GB):
+`_EXTRA_CTHI_GE65_2YR_SHIFT` (condition-2 jurisdictions not already GB):
 
-| ISO3 | Jurisdiction | CTHI-2025 Haven Score | Max single-year inward shift (m USD) |
-|---|---|--:|--:|
-| PAN | Panama | 72 | +33,394 |
-| ARE | United Arab Emirates | 84 | +13,437 |
-| CYP | Cyprus | 79 | +12,656 |
-| HUN | Hungary | 69 | +4,189 |
-| CUW | Curaçao | 72 | +1,762 |
-| LBR | Liberia | 67 | +526 |
-| MCO | Monaco | 66 | +446 |
-| GGY | Guernsey | 100 | +311 |
-| LIE | Liechtenstein | 67 | +253 |
-| ABW | Aruba | 71 | +144 |
-| SYC | Seychelles | 70 | +75 |
-| AIA | Anguilla | 100 | +35 |
+| ISO3 | Jurisdiction | CTHI-2025 Haven Score | # inward-shift years (of 6) | Max single-year shift (m USD) |
+|---|---|--:|--:|--:|
+| MCO | Monaco | 66 | 6 | +446 |
+| PAN | Panama | 72 | 5 | +33,394 |
+| CUW | Curaçao | 72 | 5 | +1,762 |
+| SYC | Seychelles | 70 | 5 | +75 |
+| CYP | Cyprus | 79 | 4 | +12,656 |
+| ABW | Aruba | 71 | 4 | +144 |
+| ARE | United Arab Emirates | 84 | 3 | +13,437 |
+| LBR | Liberia | 67 | 3 | +526 |
+| GGY | Guernsey | 100 | 3 | +311 |
+| LIE | Liechtenstein | 67 | 3 | +253 |
+| AIA | Anguilla | 100 | 2 | +35 |
 
-**Vs the 2026-07-11 list (29):** **ADDS Hungary and Liberia** — pooled net
-*losers* under the old test, but each has a positive-shift year the any-year test
-catches; **DROPS Cook Islands** — no CTHI score *and* no inward-shift year (the
-one manual add that failed both gates). **Guernsey** now qualifies on the outcome
-rule (CTHI 100 + a +$311m year), so it is no longer a manual add. Net: 29 − COK +
-HUN + LBR = **30**.
+**Vs the 2026-07-11 list (29):** **ADDS Liberia** (3 inward-shift years:
+2018/2019/2022); **DROPS Cook Islands** (no CTHI score *and* no inward-shift
+year). **Guernsey** now qualifies on outcome (CTHI 100, 3 years), no longer a
+manual add. Net: 29 − COK + LBR = **29**.
+
+**Hungary considered and EXCLUDED.** CTHI 69 with a single inward-shift year
+(2016, +$4.2bn) but a large net *loser* in all five other window years
+(2017 −12.4, 2018 −3.8, 2019 −0.6, 2021 −8.7, 2022 −7.1 bn; ≈ −$28bn pooled). The
+2-year gate exists precisely to reject such single-year outliers — under a "≥1
+year" test Hungary would enter (the only member with a single positive year);
+under "≥2 years" it is the sole additional drop. **Anguilla** is the thinnest
+keeper (exactly 2 years); a "≥3 years" gate would drop it next.
 
 `TAX_HAVENS_REPRESENTATION_NARROW` is a **deprecated alias** of the main list.
 
