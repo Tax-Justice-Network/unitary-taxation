@@ -386,60 +386,64 @@ TAX_HAVENS_CLEANING = _GB_PROFIT_CENTRES | _GB_COORDINATION_CENTRES  # 17 jurisd
 #   (b) REPRESENTATION havens — which jurisdictions are SHOWN as the haven country
 #       group in the figures. This is purely presentational (no effect on any
 #       estimate). The definition is OUTCOME-based — a jurisdiction is presented
-#       as a haven iff the GB cleaning list contains it, OR it has a CTHI-2024
-#       Haven Score > 65 AND is a net profit-shifting RECIPIENT in our results —
-#       and is FROZEN below as TAX_HAVENS_REPRESENTATION (the net-recipient status
-#       was evaluated once on the 2026-07 headline run; freezing is safe because
+#       as a haven iff the GB cleaning list contains it, OR it has a CTHI-2025
+#       Haven Score >= 65 AND booked inward-shifted profit in at least one year —
+#       and is FROZEN below as TAX_HAVENS_REPRESENTATION (the outcome was
+#       evaluated once on the current headline run; freezing is safe because
 #       the list feeds no estimate, only the `investment_hub` display group).
 # ─────────────────────────────────────────────────────────────────────────────
 
-# 2) TAX_HAVENS_REPRESENTATION (27) — used for REPRESENTATION / reporting
+# 2) TAX_HAVENS_REPRESENTATION (30) — used for REPRESENTATION / reporting
 #    (income-group classification: these jurisdictions are shown as the
 #    "investment_hub" group in figures and tables). It feeds NO cleaning
 #    correction, so it is purely presentational (no effect on estimates).
-#    RULE (adopted 2026-07-11, replacing the old "CTHI ≥ 67 ∪ GB ∪ substance"
-#    rule): the GB cleaning list, UNIONed with every jurisdiction that
-#      (a) has a CTHI-2024 Haven Score > 65
-#          (data/raw/cthi_unilateral_cross_scores.csv, cthi_2024_score), AND
-#      (b) is a net profit-shifting RECIPIENT in our results — pooled net
-#          misalignment > 0 over 2016–2022 excl 2020 on the headline spec
-#          (reported-only / excl_resource / sales_employees_destcfb /
-#          etrdef_average / etrmax_inf),
-#    plus the MANUAL additions below (Guernsey, Cook Is, BIOT). Other
-#    jurisdictions without a CTHI score are NOT eligible (no general FSI
-#    fallback — e.g. SAU 69 / NZL 66 / CHL 66 / MYS 73 stay out; Saudi Arabia
-#    is classified as HOME-BIAS, see _EXTRA_MANUAL note). All GB members except
-#    the Bahamas (net ≈ 0 in the reported sample) pass the outcome rule on
-#    their own; the union keeps the GB set intact anyway.
-#    Vs the old rule this DROPS Hungary, Costa Rica, Latvia, Lebanon, Estonia,
-#    Liberia (CTHI-scored but net LOSERS in our results) and ADDS Monaco
-#    (CTHI 66, below the old ≥67 cutoff). See docs/tax_haven_lists.md.
-_EXTRA_CTHI_GT_65_NET_RECIPIENT = {
-    # ISO: CTHI-2024 Haven Score, pooled net misalignment (bn USD, excl 2020)
-    "AIA",  # Anguilla 100, +0.01
-    "ARE",  # United Arab Emirates 82, +10.6
-    "CYP",  # Cyprus 79, +17.4
-    "PAN",  # Panama 72, +36.4
-    "CUW",  # Curaçao 72, +3.5
-    "ABW",  # Aruba 71, +0.2
-    "SYC",  # Seychelles 70, +0.2
-    "LIE",  # Liechtenstein 67, +0.3
-    "MCO",  # Monaco 66, +2.4
+#    RULE (adopted 2026-07-18, replacing the 2026-07-11 "CTHI-2024>65 & pooled
+#    net-recipient" rule): the GB cleaning list, UNIONed with every jurisdiction
+#    that
+#      (a) has a CTHI-2025 Haven Score >= 65
+#          (data/raw/cthi_2025_scores.csv, cthi_2025_score), AND
+#      (b) booked INWARD-shifted profit (reported_profit − theoretical_profit
+#          > 0) in AT LEAST ONE year, 2016–2022 excl 2020, on the current
+#          headline spec (reported-only / excl_resource /
+#          sales_employees_destmnedds / etrdef_domfor / etrmax_inf),
+#    plus the MANUAL substance keep BIOT (no CTHI score). Puerto Rico and
+#    Barbados are GB profit centres, so the GB leg keeps them despite having no
+#    CTHI score. Jurisdictions without a CTHI score are otherwise NOT eligible
+#    (Saudi Arabia stays out — HOME-BIAS, ~98% home-booked, see note below).
+#    Vs the 2026-07-11 list this ADDS Hungary (CTHI 69) and Liberia (CTHI 67) —
+#    pooled net LOSERS, but each has a positive-shift year the "any-year" test
+#    catches — and DROPS Cook Islands (no CTHI score AND no inward-shift year).
+#    Guernsey now qualifies on the outcome rule (CTHI 100 + a +311m year) so it
+#    is no longer a manual add. Reproduce the outcome set with the CTHI-2025
+#    swap check; see docs/tax_haven_lists.md.
+_EXTRA_CTHI_GE65_ANYYEAR_SHIFT = {
+    # ISO: CTHI-2025 Haven Score, max single-year inward profit shift (m USD,
+    # headline destmnedds). Non-GB jurisdictions only (GB members that also pass
+    # arrive via TAX_HAVENS_CLEANING).
+    "PAN",  # Panama 72, +33,394
+    "ARE",  # United Arab Emirates 84, +13,437
+    "CYP",  # Cyprus 79, +12,656
+    "HUN",  # Hungary 69, +4,189
+    "CUW",  # Curaçao 72, +1,762
+    "LBR",  # Liberia 67, +526
+    "MCO",  # Monaco 66, +446
+    "GGY",  # Guernsey 100, +311
+    "LIE",  # Liechtenstein 67, +253
+    "ABW",  # Aruba 71, +144
+    "SYC",  # Seychelles 70, +75
+    "AIA",  # Anguilla 100, +35
 }
-# Manual additions, kept on substance where the outcome rule cannot or does not
-# apply. Guernsey: CTHI 100 but a small net LOSER in our results (−5.0bn) — kept
-# as a classic haven regardless of its outcome sign. Cook Islands / BIOT: not
-# scored by CTHI (COK FSI 72), kept on substance as before.
-# Saudi Arabia was CONSIDERED (no CTHI; FSI 69; net recipient +64.5bn) but
-# deliberately NOT added (2026-07-11): its excess profit is ~98% home-booked —
-# own-MNE domestic over-booking, i.e. a HOME-BIAS country, not a haven.
+# Manual substance keep — no CTHI score, retained as a classic haven.
+# Puerto Rico / Barbados need no entry here (GB profit centres). Cook Islands
+# was dropped 2026-07-18 (no CTHI score and no inward-shift year).
+# Saudi Arabia was CONSIDERED (no CTHI; FSI 69; net recipient) but deliberately
+# NOT added: its excess profit is ~98% home-booked — own-MNE domestic
+# over-booking, i.e. a HOME-BIAS country, not a haven.
 _EXTRA_MANUAL = {
-    "GGY",  # Guernsey — CTHI 100; net loser in results, kept on substance
-    "COK",  # Cook Islands — no CTHI (FSI 72), kept on substance
     "IOT",  # British Indian Ocean Territory — no CTHI / no FSI, kept on substance
 }
 TAX_HAVENS_REPRESENTATION = (
-    TAX_HAVENS_CLEANING | _EXTRA_CTHI_GT_65_NET_RECIPIENT | _EXTRA_MANUAL
+    TAX_HAVENS_CLEANING | _EXTRA_CTHI_GE65_ANYYEAR_SHIFT | _EXTRA_MANUAL
 )
 
 # DEPRECATED alias: the narrow variant is retired — its purpose (dropping the
