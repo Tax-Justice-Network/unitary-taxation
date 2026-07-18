@@ -159,5 +159,39 @@ employees factor are what neutralise the hub problem.
   consumption — a limitation wider than resources (it undercounts every heavily-traded
   manufacture at the point of consumption). The `+ IMGR` option above is the fuller fix.
 
+### What the OECD (2020) actually argues — and why it tempers the above
+OECD (2020), *Tax Challenges Arising from Digitalisation – Economic Impact Assessment*,
+ch. 2, paras 91–99 (`docs/OECD_2020_destinationbasedsales.pdf`) is explicit about *what to
+include and why*:
+- **Para 92** defines the proxy: `turnover of MNE entities in J − exports of MNE entities
+  from J`.
+- **Para 93** gives the reason it is NOT a consumption measure: it is "a better proxy…
+  than… more aggregated measures that **do not distinguish MNE and non-MNE sales** (e.g.
+  household consumption in national accounts)." So imports are omitted **deliberately** —
+  the only data that isolates MNEs (AAMNE, by ownership) gives turnover and exports, not
+  final consumption. **This corrects the `+ IMGR` idea above:** `IMGR` is the importing
+  MNE's *own input imports*, not *imported final sales into J* — and para 93 states remote/
+  imported final sales "are not included either at their point of destination" because the
+  data cannot locate them. `+ IMGR` would add a different quantity, not reconstruct
+  consumption.
+- Para 93 also stresses the measure targets **shares, not levels** ("the aim… is to measure
+  the share of each jurisdiction in global destination-based sales"), so roughly-proportional
+  omissions wash out — the whole approach is defended on that basis.
+
+**Consequence for the resource-origin suggestion.** Under the destination principle as OECD
+defines it, a resource exporter's destination sales genuinely *are* ≈0 (it exports; it does
+not sell to local final consumers). So the key giving resource exporters little weight is the
+measure **working as intended**, not a defect. "Keep resources at origin" is therefore a
+**deviation** from the destination principle, motivated by a *source* claim — and the project
+already implements the source/resource claim through the **`excl_resource` carve-out**
+(royalty taxation at source). Layering resource-origin onto the sales key would express the
+same source claim twice (the double-protection flagged above), which is why the carve-out,
+not the sales key, is its principled home.
+
+**Revised recommendation:** keep the destination sales factor as a *pure* destination measure
+(principled per OECD 92–93); carry the resource/source claim in the carve-out. If a
+resource-origin sales variant is still wanted, present it honestly as a **deviation from** the
+destination principle for sensitivity — never combined with `excl_resource`.
+
 **Status:** conceptual / proposed. Not implemented — no code, key columns, or `DEST_MEASURES`
 entries added yet.
