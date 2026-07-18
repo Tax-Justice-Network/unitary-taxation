@@ -81,3 +81,83 @@ the bilateral factor has none — ownership presence already encodes nexus.
 Both gated blocks print loud fallback/skip messages until the files arrive; the loaders
 (`_load_batis_dds_imports`, Part D) are column-tolerant and raise with the found columns
 if a layout isn't recognised — extend the mapping there when the real files land.
+
+## Methodology note: `GO`, imports, the sales hub, and the resource sector (2026-07-18)
+
+Conceptual note (discussion, not yet implemented) on making the origin/destination
+split "more focused", and the data constraints that bound what is feasible.
+
+### What `GO` is, and why the current key excludes imports
+`GO` is **gross output** in the OECD **ICIO** sense (Cadestin et al. 2018), ownership-split
+(F / D_MNE / D_OTH): the full production value (`GO = GVA + intermediate consumption`) of
+firms **located in the host country**, by ISIC industry, current-price million USD. It is
+measured **where production happens** — an imported good's value sits in the *exporter's*
+`GO`, never the importer's (trade-sector output is on a *margins* basis, so the importing
+country picks up only the distribution margin on an import).
+
+Consequently the AAMNE leg `mne_sales = GO − EXGR` (`1b:355`) is **domestic production
+minus exports = domestic production absorbed at home**. It contains **no imports**. For
+goods it is therefore a *domestic-market-activity* proxy, **not** a *final-consumption*
+measure. Imports enter the headline key only through (a) the separate **BaTIS leg**
+(digitally-deliverable **services** imports) and (b) the thin local distribution margin on
+imported goods.
+
+**The data actually carries imports.** `AAMNE_MNE_XVEM.csv` has columns
+`GO, GVA, EXGR, IMGR` — the gross-imports variable `IMGR` is present but **unused**. So a
+true apparent-consumption/absorption measure `GO − EXGR + IMGR` is constructible from the
+same file (77 AAMNE economies). The current omission is a construction choice inherited from
+the OECD CFB "turnover − exports" proxy, not a data limitation. Caveats before using it:
+`IMGR` over all sectors already includes **services** imports, so adding it would
+**double-count the BaTIS leg** (they are alternative ways to bring imports in); and it is
+still 77-economy coverage (imputed countries have no `IMGR`).
+
+### The sales-hub / origin problem, and why related-party sales are not the fix
+On the **origin** side we use the CbCR `unrelated_party_revenues` slot. Two problems:
+1. **No sector detail** in CbCR — resources cannot be isolated on the origin side at all.
+2. **Sales-hub distortion.** If coffee grown in Brazil is distributed via a Swiss hub to
+   German customers, the third-party sale is booked in **Switzerland** — neither producer
+   nor consumer.
+
+The tempting fix ("use *related-party* sales in the hub case, since they trace Brazil→
+Switzerland") is rejected: (i) we cannot identify which cells are hub re-exports (no sector,
+no counterparty detail); (ii) related-party sales are **booked intra-group transfers** — the
+single most transfer-price-manipulable number in the data. Using them as an apportionment
+factor would re-import into the formula exactly the manipulation unitary taxation exists to
+remove. The hub problem is instead handled **structurally**: destination reallocation makes
+booking hubs wash out (Switzerland produces/consumes ~no coffee, so it carries ~no weight in
+a real-economy key), and the **employees factor** (half the headline formula) independently
+down-weights hubs (they employ almost nobody).
+
+### Where the coffee lands under each measure
+| Measure | Credited to | Verdict |
+|---|---|---|
+| Origin (CbCR unrelated-party) | Switzerland (hub) | booking artifact |
+| Destination (`GO − EXGR`) | ~nobody — exported from Brazil, and Germany only books the distribution margin | loses the value |
+| Destination + imports (`GO − EXGR + IMGR`) | Germany (consumer) | right for market sectors |
+| Destination, resources kept at origin (`GO`) | Brazil (producer) | right for resources |
+
+### Suggested refinement (data-feasible)
+Keep destination-based sales as the headline, but **treat the natural-resource sectors as
+origin within it** — i.e. do **not** deduct exports (use `GO`, not `GO − EXGR`) for **mining
+`B05T09` + agriculture `A01T03`**. Rationale: (a) AAMNE has the sector detail to do it
+cleanly; (b) `GO` is already a production concept located at the producer, so declining to
+subtract resource exports is *consistent* with the measure rather than a hack; (c) it needs
+no manipulable booked number. On the CbCR/origin side make **no** change — document that
+origin sales are hub-distorted and sector-blind, and that destination reallocation plus the
+employees factor are what neutralise the hub problem.
+
+**Limitations to state alongside it:**
+- The `GO` tweak reaches only the **77 AAMNE economies** (lifts NGA/CHL/KAZ/COL, not the
+  imputed LICs NER/MWI/BFA…). The AAMNE leg is imputed for non-AAMNE countries as a macro
+  ratio (`log(mne_sales/GDP) ~ log GDP + log GDP p.c. + log trade`, `1b:409`) with **no
+  sector information**, so there is nothing resource-specific to adjust there. Reaching the
+  LICs needs a separate origin term from data that covers them (WB natural-resource rents,
+  the extractive panel, or Comtrade mining+ag exports) — a second, larger step.
+- It refines the **destination** measure only; the origin measure stays as the
+  hub-distorted, sector-blind CbCR series used as the contrast case.
+- For goods generally, "destination" here is domestic-market-activity, not final
+  consumption — a limitation wider than resources (it undercounts every heavily-traded
+  manufacture at the point of consumption). The `+ IMGR` option above is the fuller fix.
+
+**Status:** conceptual / proposed. Not implemented — no code, key columns, or `DEST_MEASURES`
+entries added yet.
