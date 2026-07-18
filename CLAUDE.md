@@ -31,20 +31,22 @@ list (one consistent core; the lists never disagree on a shared jurisdiction):
   & García-Bernardo (2020). Drives the GB dividend double-counting correction in
   `1_clean.py` (10% of haven profits, non-US MNCs, 2016–2019). **Changing it changes
   the cleaned profit figures.** (`tax_havens` is a backward-compatible alias.)
-- **`TAX_HAVENS_REPRESENTATION`** (29) — drives the `investment_hub` income-group
-  classification in figures/tables. **Rule (2026-07-11):** the GB cleaning list,
-  UNIONed with every jurisdiction that has a CTHI-2024 Haven Score > 65
-  (`data/raw/cthi_unilateral_cross_scores.csv`) AND is a net profit-shifting
-  RECIPIENT in our results (pooled net misalignment > 0, 2016–2022 excl 2020,
-  headline spec reported-only / excl_resource / sales_employees_destcfb), plus
-  the manual additions `_EXTRA_MANUAL` = {**GGY** (CTHI 100 but net loser, kept
-  on substance), **COK**, **IOT** (unscored, kept on substance)}. No general FSI
-  fallback for unscored jurisdictions — **Saudi Arabia was considered (FSI 69,
-  net recipient +$64.5bn) and rejected: ~98% home-booked → HOME-BIAS country,
-  not a haven**. `_EXTRA_CTHI_GT_65_NET_RECIPIENT` = Anguilla, UAE, Cyprus,
-  Panama, Curaçao, Aruba, Seychelles, Liechtenstein, Monaco. Vs the old CTHI≥67
-  rule this drops the net-loser scored havens Hungary, Costa Rica, Latvia,
-  Lebanon, Estonia, Liberia and adds Monaco.
+- **`TAX_HAVENS_REPRESENTATION`** (30) — drives the `investment_hub` income-group
+  classification in figures/tables. **Rule (2026-07-18):** the GB cleaning list,
+  UNIONed with every jurisdiction that has a **CTHI-2025 Haven Score ≥ 65**
+  (`data/raw/cthi_2025_scores.csv`) AND booked **inward-shifted profit
+  (reported − theoretical profit > 0) in at least ONE year** (2016–2022 excl
+  2020, current headline reported-only / excl_resource / sales_employees_**destmnedds**
+  / etrdef_domfor), plus the manual substance keep **`_EXTRA_MANUAL` = {IOT}**
+  (BIOT, unscored). Puerto Rico and Barbados are GB profit centres, so the GB
+  leg keeps them despite having no CTHI score. No general FSI fallback —
+  **Saudi Arabia stays out (HOME-BIAS, ~98% home-booked)**. The non-GB outcome
+  set `_EXTRA_CTHI_GE65_ANYYEAR_SHIFT` = Panama, UAE, Cyprus, **Hungary**,
+  Curaçao, **Liberia**, Monaco, Guernsey, Liechtenstein, Aruba, Seychelles,
+  Anguilla. Vs the 2026-07-11 rule (CTHI-2024>65 + *pooled* net-recipient) this
+  **ADDS Hungary + Liberia** (pooled net losers, but each has a positive-shift
+  year the any-year test catches) and **DROPS Cook Islands** (no CTHI, no shift
+  year); **Guernsey** now qualifies on outcome (no longer a manual add).
   `TAX_HAVENS_REPRESENTATION_NARROW` is a deprecated alias of the main list.
   Purely presentational (no effect on estimates). See `docs/tax_haven_lists.md`.
   Misalignment haven ID in script 5 is **ETR-threshold-based** (15%), not
