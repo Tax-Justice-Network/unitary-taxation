@@ -106,6 +106,23 @@ _TAD_ISO_OVERRIDES = {
 
 TABLES, FIGURES = config.output_dirs("context_comparisons")
 
+# Optional mirror of the two deliverable comparison tables to the TJN shared
+# drive. Guarded on the folder existing, so it no-ops on any other machine and
+# leaves the public repo unaffected. Override with env CONTEXT_TABLES_MIRROR.
+_MIRROR = Path(os.environ.get(
+    "CONTEXT_TABLES_MIRROR",
+    r"C:\Users\aliso\Tax Justice Network Ltd\TJN - Shared Documents"
+    r"\Research team\Projects long-term\Unitary taxation\Tables"))
+CONTEXT_MIRROR = _MIRROR if _MIRROR.is_dir() else None
+
+
+def _mirror_table(path):
+    """Copy a written table to the shared drive if the mirror folder exists."""
+    if CONTEXT_MIRROR is not None:
+        import shutil
+        shutil.copy2(path, CONTEXT_MIRROR / Path(path).name)
+        print(f"  mirrored -> {CONTEXT_MIRROR / Path(path).name}")
+
 
 def cname(iso):
     over = getattr(config, "COUNTRY_NAME_OVERRIDES", {})
@@ -244,6 +261,7 @@ def part1_imf(gains):
     f = TABLES / "ut_gains_vs_imf_credit.csv"
     ct.to_csv(f, index=False)
     print(f"wrote {f}  ({len(ct)} countries)")
+    _mirror_table(f)
 
     # aggregates — console + figure note only, NOT a deliverable table.
     # Two population-consistent statements:
@@ -351,6 +369,7 @@ def part2_marshall(gains):
     f = TABLES / "ut_gains_vs_marshall_plan.csv"
     ct.to_csv(f, index=False)
     print(f"wrote {f}  ({len(ct)} recipients)")
+    _mirror_table(f)
     print(ct.to_string(index=False))
 
     # aggregates — console + figure note only, NOT a deliverable table. The
