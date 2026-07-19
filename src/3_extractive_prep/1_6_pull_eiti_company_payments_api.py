@@ -187,7 +187,12 @@ _KW = [
                 # French: participation de l'État / part de production / vente de la part de l'État
                 "participation de l", "part de production", "part de l'etat", "part de l’etat",
                 "part de l'état", "part de l’état", "vente de la part", "revenus de la propriete",
-                "revenus de la propriété")),
+                "revenus de la propriété",
+                # State production-share sold by the NOC (empty GFS label, spelled-out
+                # English names): Nigeria federation crude, Norway SDFI, Indonesia PSC
+                # lifting, Iraq state oil export -> all state's share of production.
+                "direct financial interest", "federation crude", "sales of federation",
+                "government lifting", "oil products export")),
     ("royalty_like", ("royalt", "redevance", "regalia", "bonus", "licence", "license", "permis", "permit",
                       "surface", "superficiaire", "rent", "loyers", "infrastructure", "training fund",
                       "redevance miniere", "ad valorem", "extraction tax", "severance", "exploration",
