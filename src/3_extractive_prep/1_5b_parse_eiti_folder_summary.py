@@ -19,6 +19,7 @@ Usage: python 1_5b_parse_eiti_folder_summary.py
 import os
 import re
 import sys
+import unicodedata
 import warnings
 
 import pandas as pd
@@ -56,18 +57,33 @@ _KW = [
                  "accise", "payroll", "social security", "social contribution", "personal income tax",
                  "pay as you earn", "(paye)", "property tax", "motor vehicle", "stamp dut", "fines", "penalt",
                  "amende", "co2 tax", "carbon tax", "emission tax", "pollution tax", "salaire", "sales tax",
-                 "turnover tax", "registration fee", "trade tax")),
+                 "turnover tax", "registration fee", "trade tax",
+                 # French: personal income tax & social contributions (excluded, not CIT)
+                 "personnes physiques", "revenu des personnes", "irpp", "(its)", "assurance",
+                 "cotisation", "timbre", "enregistrement")),
     ("cit", ("income, profits and capital", "income tax", "corporate tax", "corporation tax", "company tax",
              "profits tax", "profit tax", "petroleum profits tax", "supplemental petroleum tax", "windfall",
-             "additional profit", "solidarity contribution", "impot sur les societes", "impuesto a las ganancias")),
+             "additional profit", "solidarity contribution", "impuesto a las ganancias",
+             # French income/profit-tax GFS labels & stream names. "benefice" is the
+             # distinctive token in every income/profit-tax GFS label ("Impôts …sur le
+             # revenu, le bénéfice…"); "societe" catches "Impôt(s) sur les sociétés"
+             # (robust to singular/plural and intervening words like "ordinaires").
+             "benefice", "impot sur les societe", "impots sur les societe", "sur les societe",
+             "bic", "impot sur le revenu des societe")),
     ("equity", ("dividend", "government participation", "state participation", "state-owned enterprise",
                 "produced petroleum sold", "crude oil export sales", "profit oil", "share of profit",
                 "production entitlement", "carried interest", "winstaandeel", "sdfi", "concessionary sale",
-                "concession fee", "state's share")),
+                "concession fee", "state's share",
+                # French: participation de l'État / part de production / vente de la part de l'État
+                "participation de l", "part de production", "part de l'etat", "part de l’etat",
+                "part de l'état", "part de l’état", "vente de la part", "revenus de la propriete",
+                "revenus de la propriété")),
     ("royalty_like", ("royalt", "redevance", "regalia", "bonus", "licence", "license", "permis", "permit",
                       "surface", "superficiaire", "rent", "loyers", "infrastructure", "training fund",
                       "redevance miniere", "ad valorem", "extraction tax", "severance", "exploration",
-                      "exploitation", "administrative fee", "data fee", "mining fee")),
+                      "exploitation", "administrative fee", "data fee", "mining fee",
+                      # French: droits fixes / taxe d'extraction / patente miniere
+                      "droits fixes", "droit fixe", "taxe d'extraction", "patente")),
 ]
 BUCKET = {"royalty_like": "pre", "cit": "post", "equity": "equity"}
 _ISO = {"Cote d_Ivoire": "CIV", "Democratic Republic of the Congo": "COD",
@@ -76,13 +92,20 @@ _ISO = {"Cote d_Ivoire": "CIV", "Democratic Republic of the Congo": "COD",
         "Central African Republic": "CAF", "Timor-Leste": "TLS"}
 
 
+def _strip_accents(s):
+    """Fold accents so unaccented keywords match accented French labels
+    ('Impôt sur les sociétés' -> 'impot sur les societes')."""
+    s = unicodedata.normalize("NFKD", str(s))
+    return "".join(c for c in s if not unicodedata.combining(c)).lower()
+
+
 def classify(gfs_label, fallback_text=""):
     b = GFS_LABEL_TO_BUCKET.get((gfs_label or "").strip())
     if b:
         return b
-    t = " " + (str(gfs_label or "") + " " + str(fallback_text or "")).lower() + " "
+    t = " " + _strip_accents((str(gfs_label or "") + " " + str(fallback_text or ""))) + " "
     for bucket, kws in _KW:
-        if any(k in t for k in kws):
+        if any(_strip_accents(k) in t for k in kws):
             return bucket
     # generic top-level "Taxes (11E)" with no finer match (e.g. a stream just
     # labelled "Taxes") — for extractives the dominant tax is income/profit tax,
@@ -102,21 +125,63 @@ def _iso3(folder):
         return None
 
 
+def _pick_sheet(xl):
+    """The 'Part 4 - Government revenues' sheet, in English or French templates."""
+    for s in xl.sheet_names:
+        low = s.lower()
+        if "part 4" in low or "partie 4" in low:
+            return s
+    for s in xl.sheet_names:
+        low = s.lower()
+        if "government revenue" in low or "recettes de" in low:
+            return s
+    return None
+
+
 def parse_file(path):
-    """-> (total_usd, {pre,post,equity: value in file currency}, n_streams) or None."""
+    """-> (total_usd, {pre,post,equity: value in file currency}, n_streams) or None.
+
+    Handles both the English and the French EITI Summary Data templates. The
+    French (and some 'EN') templates use 'Partie 4 - Recettes de l'État' /
+    'GFS Niveau 1' / 'Nom du flux de revenus' / 'Valeur des revenus' instead of
+    the English 'Part 4 - Government revenues' / 'GFS Level 1' / 'Revenue stream
+    name' / 'Revenue value', so column/sheet/header detection is language-agnostic.
+    """
     try:
-        raw = pd.read_excel(path, sheet_name="Part 4 - Government revenues", header=None)
+        xl = pd.ExcelFile(path)
     except Exception:
         return None
-    hdr = next((i for i, r in raw.iterrows()
-                if any("GFS Level 1" in str(x) for x in r)), None)
+    sheet = _pick_sheet(xl)
+    if sheet is None:
+        return None
+    try:
+        raw = pd.read_excel(path, sheet_name=sheet, header=None)
+    except Exception:
+        return None
+
+    def _is_hdr(r):
+        j = " ".join(str(x) for x in r).lower()
+        return (("gfs level 1" in j or "gfs niveau 1" in j)
+                and ("revenue stream" in j or "flux de revenu" in j))
+
+    hdr = next((i for i, r in raw.iterrows() if _is_hdr(r)), None)
     if hdr is None:
         return None
-    df = pd.read_excel(path, sheet_name="Part 4 - Government revenues", header=hdr)
+    df = pd.read_excel(path, sheet_name=sheet, header=hdr)
     df.columns = [str(c).strip() for c in df.columns]
-    vcol = next((c for c in df.columns if "Revenue value" in c), None)
-    scol = next((c for c in df.columns if "Revenue stream name" in c), None)
-    gcols = [c for c in df.columns if c.startswith("GFS Level") or "GFS Classification" in c]
+
+    def _find(cands):
+        for c in df.columns:
+            cl = c.lower()
+            if any(k in cl for k in cands):
+                return c
+        return None
+
+    vcol = _find(["revenue value", "valeur des revenus", "valeur des recettes"])
+    scol = _find(["revenue stream name", "nom du flux de revenus"])
+    gcols = [c for c in df.columns
+             if c.startswith("GFS Level") or c.startswith("GFS Niveau")
+             or "gfs classification" in c.lower() or "classification sfp" in c.lower()]
     if not vcol or not scol:
         return None
     df[vcol] = pd.to_numeric(df[vcol], errors="coerce")
@@ -132,7 +197,7 @@ def parse_file(path):
     total_usd = None
     for _, r in raw.iterrows():
         cells = [str(x) for x in r]
-        if any("Total in USD" in c for c in cells):
+        if any(("Total in USD" in c) or ("Total en USD" in c) for c in cells):
             nums = pd.to_numeric(pd.Series(r), errors="coerce").dropna()
             if len(nums):
                 total_usd = float(nums.iloc[-1])
