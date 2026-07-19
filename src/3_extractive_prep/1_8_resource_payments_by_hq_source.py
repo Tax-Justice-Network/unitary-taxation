@@ -320,7 +320,40 @@ def _commodity_split_from_wb(row):
     return {"oil_gas": og / s, "coal": co / s, "minerals": mi / s}
 
 
-def grd_rows(non_eiti_with_manual, eiti_countries, year_set, hq_tbl, ds_tbl=None):
+def build_eiti_splits(eiti_df):
+    """Per-(source, year) pre/post/equity FRACTIONS from the API bilateral EITI
+    plus the folder Summary-Data splits (1_5b). Returns (by_year, by_country):
+    by_year[(iso, yr)] and by_country[iso] = (pre_f, post_f, eq_f). Used by
+    grd_rows to give a GRD-magnitude year the country's OWN EITI split instead of
+    the GRD tax-field / resource_taxes fallback (year-specific if available, else
+    the country average across its EITI years)."""
+    recs = []
+    if len(eiti_df):
+        a = eiti_df.groupby(["source_iso3", "year"])[
+            ["pre_profit_payments_usd", "post_profit_payments_usd", "equity_income_usd"]].sum()
+        for (iso, y), r in a.iterrows():
+            recs.append((iso, int(y), float(r.iloc[0]), float(r.iloc[1]), float(r.iloc[2])))
+    fp = EXT_INT / "eiti_folder_summary_splits.csv"
+    if fp.exists():
+        f = pd.read_csv(fp)
+        for _, r in f.iterrows():
+            recs.append((r["iso3"], int(r["year"]), float(r["frac_pre_profit"]),
+                         float(r["frac_post_profit"]), float(r["frac_equity"])))
+    if not recs:
+        return {}, {}
+    df = pd.DataFrame(recs, columns=["iso", "year", "pre", "post", "eq"]).drop_duplicates(
+        ["iso", "year"], keep="first")   # API (added first) wins over folder on the same cell
+    df = df.assign(t=df["pre"] + df["post"] + df["eq"])
+    df = df[df["t"] > 0]
+    df = df.assign(pf=df["pre"] / df["t"], qf=df["post"] / df["t"], ef=df["eq"] / df["t"])
+    by_year = {(r.iso, int(r.year)): (r.pf, r.qf, r.ef) for r in df.itertuples()}
+    avg = df.groupby("iso")[["pf", "qf", "ef"]].mean()
+    by_country = {i: (r.pf, r.qf, r.ef) for i, r in avg.iterrows()}
+    return by_year, by_country
+
+
+def grd_rows(non_eiti_with_manual, eiti_countries, year_set, hq_tbl, ds_tbl=None,
+             eiti_by_year=None, eiti_by_country=None):
     ds_tbl = ds_tbl or {}
     rd = pd.read_csv(ROYALTY_DS)
     rd = rd[rd["year"].isin(year_set)].copy()
@@ -356,32 +389,39 @@ def grd_rows(non_eiti_with_manual, eiti_countries, year_set, hq_tbl, ds_tbl=None
             csplit = country_split.get(iso)   # carry the country's historical WB commodity mix
         if csplit is None:
             continue   # no WB rents in ANY year → leave to gap-year extrapolation
-        # pre/post/equity split from the GRD tax breakdown, with sane fallbacks
-        post = row.get("grd_tax_income_profits_capgains_resource_usd")
-        if not (isinstance(post, (int, float)) and np.isfinite(post)):
-            post = row.get("grd_cit_resource_usd")
-        if not (isinstance(post, (int, float)) and np.isfinite(post)):
-            # No resource income/profit-tax line: substitute the aggregate
-            # `resource_taxes`. The GRD (tn2021-11) defines Resource Taxes as
-            # "mostly corporate taxation of resource extraction", so it is a
-            # reasonable post-profit proxy (it may carry a minor indirect-tax
-            # share — ~10% mean, ~0% median where both lines exist). This lifts
-            # aggregate-only GRD countries out of the flat 50/30/20 default.
-            # PSA/royalty-heavy oil states where this lump likely embeds rent
-            # (e.g. Angola) should instead get a manual_resource_revenue entry,
-            # which overrides the GRD tier entirely.
-            post = row.get("grd_resource_taxes_usd")
-        post = float(post) if (isinstance(post, (int, float)) and np.isfinite(post)) else np.nan
-        nontax = row.get("grd_nontax_rev_resource_usd")
-        nontax = float(nontax) if (isinstance(nontax, (int, float)) and np.isfinite(nontax)) else np.nan
-        if np.isnan(post) and np.isnan(nontax):
-            pre_f, post_f, eq_f = 0.5, 0.3, 0.2
+        # EITI split-carry: if this country has an EITI-derived split (API
+        # bilateral or folder Summary Data, via build_eiti_splits), use it for
+        # this GRD-magnitude year instead of the GRD tax-field / resource_taxes
+        # fallback — year-specific if available, else the country's average EITI
+        # split. Carries each country's own fiscal-regime split onto the years its
+        # EITI report is missing (e.g. Kazakhstan 2018/2022, Gabon 2016-2020).
+        _sp = None
+        if eiti_by_year is not None:
+            _sp = eiti_by_year.get((iso, int(row["year"]))) or (eiti_by_country or {}).get(iso)
+        if _sp:
+            pre_f, post_f, eq_f = _sp
             pre, post, eq = tot * pre_f, tot * post_f, tot * eq_f
         else:
-            post = 0.0 if np.isnan(post) else post
-            eq = 0.4 * (0.0 if np.isnan(nontax) else nontax)
-            post = min(post, tot); eq = min(eq, max(tot - post, 0.0))
-            pre = max(tot - post - eq, 0.0)
+            # pre/post/equity split from the GRD tax breakdown, with sane fallbacks
+            post = row.get("grd_tax_income_profits_capgains_resource_usd")
+            if not (isinstance(post, (int, float)) and np.isfinite(post)):
+                post = row.get("grd_cit_resource_usd")
+            if not (isinstance(post, (int, float)) and np.isfinite(post)):
+                # No resource income/profit-tax line AND no EITI split: substitute
+                # the aggregate `resource_taxes` (GRD tn2021-11: "mostly corporate
+                # taxation of resource extraction"), a reasonable post-profit proxy.
+                post = row.get("grd_resource_taxes_usd")
+            post = float(post) if (isinstance(post, (int, float)) and np.isfinite(post)) else np.nan
+            nontax = row.get("grd_nontax_rev_resource_usd")
+            nontax = float(nontax) if (isinstance(nontax, (int, float)) and np.isfinite(nontax)) else np.nan
+            if np.isnan(post) and np.isnan(nontax):
+                pre_f, post_f, eq_f = 0.5, 0.3, 0.2
+                pre, post, eq = tot * pre_f, tot * post_f, tot * eq_f
+            else:
+                post = 0.0 if np.isnan(post) else post
+                eq = 0.4 * (0.0 if np.isnan(nontax) else nontax)
+                post = min(post, tot); eq = min(eq, max(tot - post, 0.0))
+                pre = max(tot - post - eq, 0.0)
         for comm, cf in csplit.items():
             if cf <= 0:
                 continue
@@ -560,7 +600,11 @@ def main():
         manual_pairs = set()
         print(f"  manual_distributed: 0 cells")
 
-    grd_df, _ = grd_rows(set(), set(), year_set, hq_tbl, ds_tbl=ds_tbl)
+    eiti_by_year, eiti_by_country = build_eiti_splits(eiti_df)
+    print(f"  EITI splits available for split-carry: {len(eiti_by_country)} countries "
+          f"({len(eiti_by_year)} country-years)")
+    grd_df, _ = grd_rows(set(), set(), year_set, hq_tbl, ds_tbl=ds_tbl,
+                         eiti_by_year=eiti_by_year, eiti_by_country=eiti_by_country)
     if len(grd_df):
         grd_pairs_before = set(map(tuple, grd_df[["source_iso3", "year"]].drop_duplicates().itertuples(index=False, name=None)))
         grd_df = grd_df[
