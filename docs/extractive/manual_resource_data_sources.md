@@ -156,3 +156,22 @@ columns onto the three resource-corrected datasets (`cbcr_main_excl_resource.csv
 `cbcr_main_incl_resource.csv`, `cbcr_main_excl_resource_floored.csv` — see the
 four-dataset scheme in CLAUDE.md; the old combined `cbcr_main_resource_corrected.csv`
 is retired).
+
+## Angola (AGO) — oil & gas  [added 2026-07-19]
+
+Angola joined EITI in 2022 and backfilled FY2020–2022, so it is **absent from our
+EITI API pull** (which predates accession) — the reports live only in
+`data/raw/EITI reports/Angola/`. The manual entry uses:
+- **Stream split** from the EITI Summary Data (`Part 4 - Government revenues`,
+  State General Account): `FY2020-2021 Angola Summary Data.xlsx` (FY2021) and
+  `2022_Summary-Data_ITIE-AO.xlsx` (FY2022). Mapping: **concessionary sales /
+  PSA profit-oil + mining royalties → pre-profit**; **petroleum income tax →
+  post-profit**; **Angola LNG participation → equity**. FY2021 = pre .68 / post
+  .29 / eq .03; FY2022 = pre .56 / post .44 (petroleum income tax rises with the
+  high 2022 oil price). The FY2021 split is applied to 2016–2021; FY2022 to 2022.
+- **Total** = the GRD LCU+FX magnitude (GRD's own gdp_lcu × %, ÷ period-average
+  FX), i.e. GRD magnitude + EITI split — the GRD figure alone had misclassified
+  Angola's PSA/concession revenue as "resource_taxes" (→ would have been ~all
+  post-profit; the EITI streams show it is ~68% pre-profit rent).
+- **`domestic_share` = 0.45** (Sonangol; Angolan production is majority
+  foreign-major-operated under PSAs) — medium confidence.
