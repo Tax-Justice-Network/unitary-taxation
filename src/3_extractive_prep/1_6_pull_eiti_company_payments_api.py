@@ -64,6 +64,7 @@ import random
 import re
 import sys
 import time
+import unicodedata
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -169,28 +170,47 @@ _KW = [
                  "accise", "payroll", "social security", "social contribution", "personal income tax",
                  "pay as you earn", "(paye)", "property tax", "motor vehicle", "stamp dut", "fines", "penalt",
                  "amende", "co2 tax", "carbon tax", "emission tax", "pollution tax", "salaire", "sales tax",
-                 "turnover tax", "registration fee", "trade tax")),
+                 "turnover tax", "registration fee", "trade tax",
+                 # French: personal income tax & social contributions (excluded, not CIT)
+                 "personnes physiques", "revenu des personnes", "irpp", "(its)", "assurance",
+                 "cotisation", "timbre", "enregistrement")),
     ("cit", ("income, profits and capital", "income tax", "corporate tax", "corporation tax", "company tax",
              "profits tax", "profit tax", "petroleum profits tax", "supplemental petroleum tax", "windfall",
-             "additional profit", "solidarity contribution", "impot sur les societes", "impuesto a las ganancias")),
+             "additional profit", "solidarity contribution", "impuesto a las ganancias",
+             # French income/profit-tax GFS labels & stream names (kept in sync with 1_5b)
+             "benefice", "impot sur les societe", "impots sur les societe", "sur les societe",
+             "bic", "impot sur le revenu des societe")),
     ("equity", ("dividend", "government participation", "state participation", "state-owned enterprise",
                 "produced petroleum sold", "crude oil export sales", "profit oil", "share of profit",
                 "production entitlement", "carried interest", "winstaandeel", "sdfi",
-                "concessionary sale", "concession fee", "state's share")),
+                "concessionary sale", "concession fee", "state's share",
+                # French: participation de l'État / part de production / vente de la part de l'État
+                "participation de l", "part de production", "part de l'etat", "part de l’etat",
+                "part de l'état", "part de l’état", "vente de la part", "revenus de la propriete",
+                "revenus de la propriété")),
     ("royalty_like", ("royalt", "redevance", "regalia", "bonus", "licence", "license", "permis", "permit",
                       "surface", "superficiaire", "rent", "loyers", "infrastructure", "training fund",
                       "redevance miniere", "ad valorem", "extraction tax", "severance", "exploration",
-                      "exploitation", "administrative fee", "data fee")),
+                      "exploitation", "administrative fee", "data fee",
+                      # French: droits fixes / taxe d'extraction / patente miniere
+                      "droits fixes", "droit fixe", "taxe d'extraction", "patente")),
 ]
+
+
+def _strip_accents(s):
+    """Fold accents so unaccented keywords match accented labels
+    ('Impôt sur les sociétés' -> 'impot sur les societes'). Kept in sync with 1_5b."""
+    s = unicodedata.normalize("NFKD", str(s))
+    return "".join(c for c in s if not unicodedata.combining(c)).lower()
 
 
 def classify(gfs_label, fallback_text=""):
     b = GFS_LABEL_TO_BUCKET.get((gfs_label or "").strip())
     if b:
         return b
-    t = " " + (str(gfs_label or "") + " " + str(fallback_text or "")).lower() + " "
+    t = " " + _strip_accents((str(gfs_label or "") + " " + str(fallback_text or ""))) + " "
     for bucket, kws in _KW:
-        if any(k in t for k in kws):
+        if any(_strip_accents(k) in t for k in kws):
             return bucket
     # generic top-level "Taxes (11E)" with no finer match -> for extractives the
     # dominant tax is income/profit tax, so post rather than dropping it.
