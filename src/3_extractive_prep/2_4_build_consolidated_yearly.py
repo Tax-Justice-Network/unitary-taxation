@@ -63,6 +63,7 @@ def main():
         "nontax_rev_resource", "total_rev_exgrants_exsc",
     ]
     grd = defaultdict(dict)  # (iso, year) -> field -> value (frac of GDP)
+    grd_gdp_lcu = {}         # (iso, year) -> the GRD's OWN GDP in LCU (absolute)
     with open(EXT_INT / "grd_resource_revenue.csv", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             iso = row["iso"]
@@ -74,6 +75,27 @@ def main():
                 v = _f(row.get(fld))
                 if v is not None and v != 0:
                     grd[(iso, yr)][fld] = v
+            _glcu = _f(row.get("gdp_lcu_mn"))
+            if _glcu is not None:
+                grd_gdp_lcu[(iso, yr)] = _glcu * 1e6   # millions -> absolute LCU
+
+    # ── 2b. FX — WB period-average official rate (PA.NUS.FCRF), LCU per USD ──
+    # Used to convert GRD resource revenue from % of GDP to USD via the GRD's OWN
+    # gdp_lcu (usd = % x gdp_lcu / FX), keeping the GRD figure internally
+    # consistent instead of multiplying the GRD % by an external (possibly rebased)
+    # WB USD GDP. Resource revenue is a full-year flow, so the period-average rate.
+    print("Reading FX (period-average official rate)...")
+    fx = {}   # (iso, year) -> LCU per USD (period average)
+    with open(RAW / "API_PA.NUS.FCRF_DS2_en_csv_v2_114.csv", encoding="utf-8-sig") as f:
+        _fx_lines = f.readlines()
+    for row in csv.DictReader(_fx_lines[4:]):   # 4 metadata rows precede the header
+        iso = row.get("Country Code")
+        if not iso:
+            continue
+        for yr in YEARS:
+            v = _f(row.get(str(yr)))
+            if v is not None and v > 0:
+                fx[(iso, yr)] = v
 
     # ── 3. EITI — per (iso, year), all payment types ──
     print("Reading EITI...")
@@ -194,14 +216,30 @@ def main():
                 v = _f(wb_row.get(k)) if wb_row else None
                 row[f"wb_{k}"] = v if v is not None else ""
 
-            gdp = _f(row["wb_gdp_current_usd"])
+            gdp = _f(row["wb_gdp_current_usd"])   # WB USD GDP: WB-rents conversion + GRD fallback
 
-            # GRD (frac of GDP × GDP)
+            # GRD → USD: reconstruct from the GRD's OWN GDP (LCU) and the
+            # period-average FX (usd = % × gdp_lcu ÷ FX), NOT the external WB USD
+            # GDP — its % was measured against gdp_lcu, so this stays internally
+            # consistent. Fall back to % × WB USD GDP only where gdp_lcu or FX is
+            # missing (e.g. dollarised economies with no FCRF row).
+            gdp_lcu = grd_gdp_lcu.get((iso, yr))
+            fx_yr = fx.get((iso, yr))
+            use_lcu = gdp_lcu is not None and fx_yr
+            row["grd_gdp_lcu_mn"] = f"{gdp_lcu / 1e6:.0f}" if gdp_lcu is not None else ""
+            row["fx_period_avg_lcu_per_usd"] = f"{fx_yr:.4f}" if fx_yr else ""
             grd_yr = grd.get((iso, yr), {})
             for fld in GRD_FIELDS:
                 v = grd_yr.get(fld)
                 row[f"grd_{fld}_frac_gdp"] = f"{v:.6f}" if v is not None else ""
-                row[f"grd_{fld}_usd"] = f"{v * gdp:.0f}" if (v is not None and gdp) else ""
+                if v is None:
+                    row[f"grd_{fld}_usd"] = ""
+                elif use_lcu:
+                    row[f"grd_{fld}_usd"] = f"{v * gdp_lcu / fx_yr:.0f}"
+                elif gdp:
+                    row[f"grd_{fld}_usd"] = f"{v * gdp:.0f}"
+                else:
+                    row[f"grd_{fld}_usd"] = ""
 
             # EITI
             eiti_yr = eiti.get((iso, yr), {})
