@@ -208,7 +208,7 @@ def net_gain_by_country(topic, formula, etr=ETR, rate=RATE, years=YEARS):
     if df.empty or formula not in set(df.get("formula_name", [])):
         return pd.DataFrame(
             columns=["iso_partner", "partner_jurisdiction", "wb_income_group",
-                     "net_gain_musd"]
+                     "region_tjn", "net_gain_musd"]
         )
     df = df[
         (df["formula_name"] == formula)
@@ -217,7 +217,8 @@ def net_gain_by_country(topic, formula, etr=ETR, rate=RATE, years=YEARS):
         & (df["year"].isin(years))
     ]
     g = (
-        df.groupby(["iso_partner", "partner_jurisdiction", "wb_income_group"],
+        df.groupby(["iso_partner", "partner_jurisdiction", "wb_income_group",
+                    "region_tjn"],
                    as_index=False, dropna=False)["revenue_gain_from_ut"]
         .sum()
         .rename(columns={"revenue_gain_from_ut": "net_gain_musd"})
@@ -229,6 +230,15 @@ def by_income(country_df):
     s = (country_df.groupby("wb_income_group")["net_gain_musd"].sum()
          .reindex(INCOME_GROUP_ORDER))
     return s
+
+
+REGION_ORDER = ["Africa", "Asia", "Latin America", "Caribbean/American isl.",
+                "Northern America", "Europe", "Oceania"]
+
+
+def by_region(country_df):
+    return (country_df.groupby("region_tjn")["net_gain_musd"].sum()
+            .reindex(REGION_ORDER))
 
 
 # ─── Grouped-bar helper ───────────────────────────────────────────────────────
@@ -269,6 +279,9 @@ def part1_gravity_scenario_figures():
                    index=False)
     by_inc.to_csv(tables_dir / "gravity_three_scenario_by_income_group_2016_22.csv",
                   index=False)
+    # region-breakdown counterpart
+    _s9.build_by_income(summary, gcol="region_tjn").to_csv(
+        tables_dir / "gravity_three_scenario_by_region_2016_22.csv", index=False)
     for n, scenario in enumerate(GRAVITY_SCENARIOS, start=1):
         print(f"  Scenario {n}: {scenario['label']} [{scenario['key']}]")
         _s9.make_scenario_figures(by_inc, scenario, figures_dir, n)
@@ -298,12 +311,13 @@ def part3_origin_vs_destination():
 
     # 3a — by income group, one panel per scenario. Three series: origin /
     # destination / destination + nexus.
-    inc_rows = []
+    inc_rows, reg_rows = [], []
     fig, axes = plt.subplots(1, 3, figsize=(18, 5.6), sharey=True)
     for ax, (key, label, _, grav_topic, _) in zip(axes, SCENARIOS):
-        orig = by_income(net_gain_by_country(grav_topic, ORIGIN_F))
-        dest = by_income(net_gain_by_country(grav_topic, DEST_F))
-        destnx = by_income(net_gain_by_country(grav_topic, DEST_NEXUS_F))
+        cg_o = net_gain_by_country(grav_topic, ORIGIN_F)
+        cg_d = net_gain_by_country(grav_topic, DEST_F)
+        cg_dn = net_gain_by_country(grav_topic, DEST_NEXUS_F)
+        orig, dest, destnx = by_income(cg_o), by_income(cg_d), by_income(cg_dn)
         grouped_income_bars(
             ax, {"Origin sales": orig, "Destination sales": dest,
                  "Destination + nexus": destnx},
@@ -315,6 +329,12 @@ def part3_origin_vs_destination():
             inc_rows.append({"scenario": key, "wb_income_group": ig,
                              "origin_musd": orig.get(ig), "destination_musd": dest.get(ig),
                              "destination_nexus_musd": destnx.get(ig)})
+        # region-breakdown counterpart of the same origin/destination comparison
+        ro, rd, rdn = by_region(cg_o), by_region(cg_d), by_region(cg_dn)
+        for rg in REGION_ORDER:
+            reg_rows.append({"scenario": key, "region_tjn": rg,
+                             "origin_musd": ro.get(rg), "destination_musd": rd.get(rg),
+                             "destination_nexus_musd": rdn.get(rg)})
     fig.suptitle(
         "Origin vs destination sales — Change in net UT revenue gain by income group "
         f"({WINDOW_LABEL}, sales+employees, avg ETR)   [{IMPUTED_BANNER}]",
@@ -328,6 +348,8 @@ def part3_origin_vs_destination():
     print(f"  wrote {f}")
     pd.DataFrame(inc_rows).to_csv(
         tables_dir / "compare_origin_vs_destination_by_income.csv", index=False)
+    pd.DataFrame(reg_rows).to_csv(
+        tables_dir / "compare_origin_vs_destination_by_region.csv", index=False)
 
     # 3b — low-income country-level table across all scenarios + a figure for the
     # baseline scenario showing which low-income countries lose under destination.
@@ -412,6 +434,8 @@ def part3c_destination_pct_figures():
     by_inc = _s9.build_by_income(summ)
     by_inc.to_csv(tables_dir / "gravity_destination_by_income_group_2016_22.csv",
                   index=False)
+    _s9.build_by_income(summ, gcol="region_tjn").to_csv(
+        tables_dir / "gravity_destination_by_region_2016_22.csv", index=False)
 
     scen_keys = [s["key"] for s in GRAVITY_SCENARIOS_DEST]
     # (metric column, axis label, filename tag)

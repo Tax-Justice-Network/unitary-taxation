@@ -139,9 +139,11 @@ def process_scenario(scenario, sample):
         gd = pd.DataFrame({
             "iso_partner": d["iso_partner"],
             "wb_income_group": d.get("wb_income_group"),
+            "region_tjn": d.get("region_tjn"),
             "overstated_revenue_musd": overstated / 1e6,
             "loss_recovery_profit_musd": loss_recovery * dfac / 1e6,
-        }).groupby(["iso_partner", "wb_income_group"], dropna=False, as_index=False).sum()
+        }).groupby(["iso_partner", "wb_income_group", "region_tjn"],
+                   dropna=False, as_index=False).sum()
 
         # headline revenue_gain_from_ut + taxable-profit change from country_estimates
         ce_path = os.path.join(mis_dir, f"country_estimates__{stub}.csv")
@@ -195,7 +197,7 @@ def main():
     long = pd.concat([r for r in allres if not r.empty], ignore_index=True)
 
     cols = ["sample", "scenario", "formula", "etr", "etr_threshold", "rate_mode", "exact",
-            "iso_partner", "wb_income_group",
+            "iso_partner", "wb_income_group", "region_tjn",
             "revenue_gain_from_ut", "overstated_revenue_musd",
             "revenue_gain_loss_consolidated_musd", "pct_overstated",
             "taxable_profit_change_musd", "loss_recovery_profit_musd", "loss_rate_col"]
@@ -222,15 +224,21 @@ def main():
 
     order = ["low_income", "lower_middle_income", "upper_middle_income",
              "high_income", "investment_hub"]
+    region_order = ["Africa", "Asia", "Latin America", "Caribbean/American isl.",
+                    "Northern America", "Europe", "Oceania"]
+    _val_cols = ["revenue_gain_from_ut", "overstated_revenue_musd",
+                 "revenue_gain_loss_consolidated_musd"]
     for sample in SAMPLES:
       for scen in SCENARIOS:
         hs = h[(h["sample"] == sample) & (h.scenario == scen)]
         if hs.empty:
             continue
         print(f"\n[sample={sample}]", end="")
-        byg = hs.groupby("wb_income_group")[
-            ["revenue_gain_from_ut", "overstated_revenue_musd",
-             "revenue_gain_loss_consolidated_musd"]].sum().reindex(order) / 1e3  # $B
+        byg = hs.groupby("wb_income_group")[_val_cols].sum().reindex(order) / 1e3  # $B
+        # region-breakdown counterpart
+        byr = hs.groupby("region_tjn")[_val_cols].sum().reindex(region_order) / 1e3
+        byr.to_csv(os.path.join(
+            tables_dir, f"loss_consolidation_by_region__{sample}__{scen}.csv"))
         tot_over = hs["overstated_revenue_musd"].sum() / 1e3
         win = hs[hs.revenue_gain_from_ut > 0]["revenue_gain_from_ut"].sum() / 1e3
         print(f"\n=== HEADLINE {sample}/{scen}: {HEADLINE_FORMULA}, {HEADLINE_RATE}, etrmax_{HEADLINE_THRESHOLD} ($B) ===")

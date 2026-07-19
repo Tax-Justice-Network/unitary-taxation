@@ -147,8 +147,9 @@ def load_gains():
         d = d[d["etr_threshold"].astype(str) == THRESH]
     d = d[d["year"].isin(YEARS)]
     d = d.assign(_v=d["revenue_gain_from_ut"] * d["year"].map(DEFL))
-    g = (d.groupby(["iso_partner", "wb_income_group"], as_index=False)["_v"].sum()
-           .rename(columns={"iso_partner": "iso3", "_v": "gain_bn"}))
+    g = (d.groupby(["iso_partner", "wb_income_group", "region_tjn"], as_index=False)["_v"].sum()
+           .rename(columns={"iso_partner": "iso3", "_v": "gain_bn",
+                            "region_tjn": "region"}))
     g["gain_bn"] = g["gain_bn"] / 1e3 / N_YEARS          # mUSD -> bn, per-year avg
     return g
 
@@ -255,12 +256,26 @@ def part1_imf(gains):
     ct = (aff.rename(columns={"wb_income_group": "income_group",
                               "imf_credit_bn": "imf_credit_outstanding_bn",
                               "gain_bn": "ut_revenue_gain_bn"})
-             [["country_name", "iso3", "income_group",
+             [["country_name", "iso3", "income_group", "region",
                "imf_credit_outstanding_bn", "ut_revenue_gain_bn", "years_to_repay"]]
              .sort_values("imf_credit_outstanding_bn", ascending=False).round(2))
     f = TABLES / "ut_gains_vs_imf_credit.csv"
     ct.to_csv(f, index=False)
     print(f"wrote {f}  ({len(ct)} countries)")
+    _mirror_table(f)
+
+    # region-aggregate companion (borrowers grouped geographically)
+    reg = (aff.groupby("region").agg(
+               n_countries=("iso3", "nunique"),
+               imf_credit_outstanding_bn=("imf_credit_bn", "sum"),
+               ut_revenue_gain_bn=("gain_bn", "sum")).reset_index())
+    reg["years_to_repay"] = np.where(
+        reg["ut_revenue_gain_bn"] > 0,
+        reg["imf_credit_outstanding_bn"] / reg["ut_revenue_gain_bn"], np.nan)
+    reg = reg.sort_values("imf_credit_outstanding_bn", ascending=False).round(2)
+    f = TABLES / "ut_gains_vs_imf_credit_by_region.csv"
+    reg.to_csv(f, index=False)
+    print(f"wrote {f}  ({len(reg)} regions)")
     _mirror_table(f)
 
     # aggregates — console + figure note only, NOT a deliverable table.
@@ -326,6 +341,7 @@ def part2_marshall(gains):
 
     by_iso = gains.set_index("iso3")["gain_bn"]
     ig_by_iso = gains.set_index("iso3")["wb_income_group"]
+    reg_by_iso = gains.set_index("iso3")["region"]
 
     def gain_for(iso3):
         if pd.isna(iso3) or iso3 == "":
@@ -337,7 +353,13 @@ def part2_marshall(gains):
             return ""
         return ig_by_iso.get(str(iso3).split("+")[0], "")
 
+    def reg_for(iso3):
+        if pd.isna(iso3) or iso3 == "":
+            return ""
+        return reg_by_iso.get(str(iso3).split("+")[0], "")
+
     aid["income_group"] = aid["iso3"].apply(ig_for)
+    aid["region"] = aid["iso3"].apply(reg_for)
     aid["gain_bn"] = aid["iso3"].apply(gain_for)          # annual avg, bn 2025 USD
     aid["cum_gain_bn"] = aid["gain_bn"] * N_YEARS
     for src, dst in [("aid_total_musd", "aid_total_2025bn"),
@@ -360,7 +382,7 @@ def part2_marshall(gains):
                            "aid_total_2025bn_gdpdef": "marshall_aid_2025bn_gdpdef",
                            "gain_bn": "ut_gain_annual_bn",
                            "cum_gain_bn": "ut_gain_6yr_bn"})
-          [["recipient", "iso3", "income_group",
+          [["recipient", "iso3", "income_group", "region",
             "marshall_aid_2025bn", "marshall_aid_grants_2025bn",
             "marshall_aid_2025bn_gdpdef",
             "ut_gain_annual_bn", "ut_gain_6yr_bn",

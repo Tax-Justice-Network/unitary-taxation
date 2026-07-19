@@ -85,9 +85,12 @@ IG_ORDER = ["low_income", "lower_middle_income", "upper_middle_income",
 IG_LAB = {"low_income": "Low income", "lower_middle_income": "Lower middle income",
           "upper_middle_income": "Upper middle income", "high_income": "High income",
           "investment_hub": "Tax havens"}   # relabelled (user 2026-07-13)
+# Parallel geographic grouping (region_tjn) for the region-breakdown matrix.
+REGION_ORDER = ["Africa", "Asia", "Latin America", "Caribbean/American isl.",
+                "Northern America", "Europe", "Oceania"]
 
 
-def build_matrices():
+def build_matrices(group_col="wb_income_group", group_order=IG_ORDER):
     rows, wmat, base = [], [], None
     for fk, w in WEIGHTS.items():
         fs = [f for f in glob.glob(os.path.join(MDIR, "country_estimates__*.csv"))
@@ -101,22 +104,22 @@ def build_matrices():
         f_defl = d.year.map(DEFL)
         # Δ tax revenue (net, ETR-CIT valuation; MUSD -> deflated).
         d["v"] = pd.to_numeric(d.revenue_gain_from_ut, errors="coerce") * f_defl
-        g = d.groupby("wb_income_group").v.sum() / 1e3 / len(YEARS)
-        rows.append(g.reindex(IG_ORDER).values)
+        g = d.groupby(group_col).v.sum() / 1e3 / len(YEARS)
+        rows.append(g.reindex(group_order).values)
         wmat.append(w)
         if base is None:
             # Denominator = corporate cash tax currently paid by the group's
             # reporting MNEs (matches the paper's revenue % panels).
             d["b"] = pd.to_numeric(d.current_tax_paid_cash_musd,
                                    errors="coerce") * f_defl
-            base = (d.groupby("wb_income_group").b.sum() / 1e3 / len(YEARS)
-                    ).reindex(IG_ORDER)
+            base = (d.groupby(group_col).b.sum() / 1e3 / len(YEARS)
+                    ).reindex(group_order)
     Y, W = np.array(rows), np.array(wmat)
     beta, _, rank, _ = np.linalg.lstsq(W, Y, rcond=None)
     fit = W @ beta
     r2 = 1 - ((Y - fit) ** 2).sum() / ((Y - Y.mean(axis=0)) ** 2).sum()
-    print(f"linearity fit R2 = {r2:.4f} (rank {rank}, {len(wmat)} formulas)")
-    B = pd.DataFrame(beta, index=FACTORS_ALL, columns=IG_ORDER)
+    print(f"[{group_col}] linearity fit R2 = {r2:.4f} (rank {rank}, {len(wmat)} formulas)")
+    B = pd.DataFrame(beta, index=FACTORS_ALL, columns=group_order)
     P = B.div(base, axis=1) * 100
     return B.loc[SHOW], P.loc[SHOW]
 
@@ -182,6 +185,13 @@ def main():
     out = pd.concat({"usd_bn_per_year": B, "pct_of_current_tax_paid": P})
     out.index.names = ["unit", "factor"]
     out.to_csv(tables_dir / "factor_incidence_matrix.csv")
+
+    # Region-breakdown counterpart (factor × geographic region).
+    Br, Pr = build_matrices("region_tjn", REGION_ORDER)
+    out_r = pd.concat({"usd_bn_per_year": Br, "pct_of_current_tax_paid": Pr})
+    out_r.index.names = ["unit", "factor"]
+    out_r.to_csv(tables_dir / "factor_incidence_matrix_by_region.csv")
+    print(f"  wrote {tables_dir / 'factor_incidence_matrix_by_region.csv'}")
 
     T_ABS = "Change in tax revenue (USD bn per year)"
     T_PCT = "% of corporate tax currently paid"

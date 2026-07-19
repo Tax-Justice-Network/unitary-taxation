@@ -286,6 +286,7 @@ def load_scenario(scenario, years_filter):
         "iso_partner",
         "partner_jurisdiction",
         "wb_income_group",
+        "region_tjn",
         "year",
         "theoretical_profit",
         "reported_profit",
@@ -484,6 +485,7 @@ def build_summary(years_filter, scenarios=SCENARIOS, variant=""):
             "iso_partner",
             "partner_jurisdiction",
             "wb_income_group",
+            "region_tjn",
         ],
         as_index=False,
         dropna=False,
@@ -514,12 +516,14 @@ def build_summary(years_filter, scenarios=SCENARIOS, variant=""):
         "iso_partner",
         "partner_jurisdiction",
         "wb_income_group",
+        "region_tjn",
         "previous_profits_musd",
         "posbase_musd",
         "delta_taxable_profits_musd",
         "tax_revenue_current_usd",
         "gvt_health_expenditure",
     ]
+    invariant_cols = [c for c in invariant_cols if c in agg.columns]
     invariant = agg.drop_duplicates(["scenario", "formula_name", "iso_partner"])[
         invariant_cols
     ].reset_index(drop=True)
@@ -756,6 +760,9 @@ def write_tables(summary, tables_dir, suffix):
     print(f"  wrote {tables_dir / f'fivescenario_summary_long_{suffix}.csv'}")
 
     sub = summary[~summary["iso_partner"].isin(DATA_QUALITY_EXCLUSIONS)]
+    # Aggregate only the monetary columns present in this run (rate modes absent
+    # from the grid, e.g. CIT-CIT, have no columns).
+    _sum_cols = [c for c in SUM_MUSD_COLS + SUM_DENOM_COLS if c in sub.columns]
     by_inc = (
         sub.groupby(
             [
@@ -769,7 +776,7 @@ def write_tables(summary, tables_dir, suffix):
             dropna=False,
         )
         .agg(
-            {c: "sum" for c in SUM_MUSD_COLS + SUM_DENOM_COLS}
+            {c: "sum" for c in _sum_cols}
             | {"iso_partner": "nunique"}
         )
         .rename(columns={"iso_partner": "n_countries"})
@@ -779,6 +786,24 @@ def write_tables(summary, tables_dir, suffix):
         tables_dir / f"fivescenario_by_income_group_{suffix}.csv", index=False
     )
     print(f"  wrote {tables_dir / f'fivescenario_by_income_group_{suffix}.csv'}")
+
+    # region-breakdown counterpart (geographic region instead of income group)
+    if "region_tjn" in sub.columns:
+        by_reg = (
+            sub.groupby(
+                ["scenario", "scenario_label", "formula_name", "formula_label",
+                 "region_tjn"],
+                as_index=False, dropna=False,
+            )
+            .agg({c: "sum" for c in _sum_cols}
+                 | {"iso_partner": "nunique"})
+            .rename(columns={"iso_partner": "n_countries"})
+        )
+        by_reg = _add_pct_columns(by_reg)
+        by_reg.to_csv(
+            tables_dir / f"fivescenario_by_region_{suffix}.csv", index=False
+        )
+        print(f"  wrote {tables_dir / f'fivescenario_by_region_{suffix}.csv'}")
 
     return by_inc
 

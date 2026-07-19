@@ -90,6 +90,14 @@ SALES_SPECS = [
 IG_ORDER = ["low_income", "lower_middle_income", "upper_middle_income",
             "high_income", "investment_hub"]
 
+# Parallel geographic grouping (region_tjn column), so every income-group table
+# also gets a "…_by_region" counterpart. Order + uppercase headings mirror the
+# income-group machinery; investment hubs are NOT pulled out here (a haven is
+# grouped with its geographic region), so regional aggregates include them.
+REGION_ORDER = ["Africa", "Asia", "Latin America", "Caribbean/American isl.",
+                "Northern America", "Europe", "Oceania"]
+REGION_HEADING = {r: r.upper() for r in REGION_ORDER}
+
 
 def _summary_path(sample, scenario):
     return os.path.join(_ROOT, "output", "unitary_taxation", sample,
@@ -225,6 +233,13 @@ def _income_group(sample):
     return g
 
 
+def _region(sample):
+    """iso -> region_tjn (geographic grouping), from the same summary file."""
+    p = _summary_path(sample, "excl_resource")
+    d = pd.read_csv(p, usecols=["iso_partner", "region_tjn"], low_memory=False)
+    return d.drop_duplicates("iso_partner").set_index("iso_partner")["region_tjn"]
+
+
 def _floor_royalty_bn():
     """Minimum-royalty add-on in constant BASE_YEAR US$bn (per-year deflated)."""
     p = os.path.join(_ROOT, "data", "final", "cbcr_main_excl_resource_floored.csv")
@@ -251,23 +266,25 @@ def _consolidation_rev_bn(sample):
     return d.groupby("iso_partner")["revenue_gain_loss_consolidated_musd"].sum() / 1e3
 
 
-def _finalise(df, order_iso, grp):
-    """Group countries by income-group / tax-haven class (the figures' grouping).
-    Each group is led by an UPPERCASE heading row carrying the aggregate (sum for
-    absolute/USD columns, mean for any % column), followed by its countries
-    alphabetically. `grp` maps iso → wb_income_group."""
+def _finalise(df, order_iso, grp, group_order=IG_ORDER, headings=IG_HEADING,
+              other_label="OTHER / UNCLASSIFIED"):
+    """Group countries by a classification (income-group / tax-haven class by
+    default, or region_tjn when `grp`/`group_order`/`headings` are the region
+    variants). Each group is led by an UPPERCASE heading row carrying the
+    aggregate (sum for absolute/USD columns, mean for any % column), followed by
+    its countries alphabetically. `grp` maps iso → the grouping value."""
     df = df.reindex(order_iso)
     rows = []
-    order = IG_ORDER + ["__other__"]
+    order = list(group_order) + ["__other__"]
     for g in order:
         if g == "__other__":
-            isos = sorted([i for i in df.index if grp.get(i) not in IG_ORDER],
+            isos = sorted([i for i in df.index if grp.get(i) not in group_order],
                           key=lambda i: cname(i).lower())
-            heading = "OTHER / UNCLASSIFIED"
+            heading = other_label
         else:
             isos = sorted([i for i in df.index if grp.get(i) == g],
                           key=lambda i: cname(i).lower())
-            heading = IG_HEADING.get(g, g.upper())
+            heading = headings.get(g, g.upper())
         if not isos:
             continue
         agg = {"country": heading}
@@ -310,11 +327,25 @@ def _write(df, sample, name, tables_dir):
     print(f"  wrote {csv}  ({len(df)} countries)")
 
 
+def _emit(df, order_iso, grp, grp_reg, sample, name, tables_dir,
+          pct_base=None, pct_cols=None):
+    """Write the income-group table (unchanged name) AND a `…_by_region`
+    counterpart from the same raw dataframe."""
+    def _fin(g, order, headings, other):
+        out = _finalise(df, order_iso, g, order, headings, other)
+        return _with_pct(out, pct_base, pct_cols) if pct_base else out
+    _write(_fin(grp, IG_ORDER, IG_HEADING, "OTHER / UNCLASSIFIED"),
+           sample, name, tables_dir)
+    _write(_fin(grp_reg, REGION_ORDER, REGION_HEADING, "OTHER"),
+           sample, name + "_by_region", tables_dir)
+
+
 def build_for_sample(sample, royalty, tables_dir):
     # common country set (regrouped by income group / tax-haven class in _finalise)
     excl_rev = _rev_bn(sample, "excl_resource", HEADLINE_FORMULA)
     order_iso = pd.Index(sorted(excl_rev.index, key=lambda i: cname(i).lower()))
     grp = _income_group(sample).to_dict()
+    grp_reg = _region(sample).to_dict()
 
     # Table 1 — scenarios × {Δ taxable profit, Δ tax revenue}. The minimum-royalty
     # revenue is split into the UT yield, the separate royalty revenue, and the
@@ -332,8 +363,7 @@ def build_for_sample(sample, royalty, tables_dir):
     t1["+ min. royalty — Δ tax revenue (total)"] = ut_floored.add(royalty, fill_value=0.0)
     t1["of which: royalty"] = royalty
     t1["loss consolidation — Δ tax revenue"] = _consolidation_rev_bn(sample)
-    t1 = _finalise(t1, order_iso, grp)
-    _write(t1, sample, "table1_scenarios", tables_dir)
+    _emit(t1, order_iso, grp, grp_reg, sample, "table1_scenarios", tables_dir)
 
     # Table 2a / 2b — by formula, resources excluded. Each carries its % base
     # column (positive profit base / current MNE tax) plus per-formula % columns
@@ -348,10 +378,10 @@ def build_for_sample(sample, royalty, tables_dir):
         tb[flab] = _taxbase_bn(sample, "excl_resource", fk)
         rev[flab] = _rev_bn(sample, "excl_resource", fk)
     _flabs = [flab for _, flab in FORMULAS]
-    _write(_with_pct(_finalise(tb, order_iso, grp), "current profit base", _flabs),
-           sample, "table2a_taxbase_by_formula", tables_dir)
-    _write(_with_pct(_finalise(rev, order_iso, grp), "current tax revenue from MNEs", _flabs),
-           sample, "table2b_revenue_by_formula", tables_dir)
+    _emit(tb, order_iso, grp, grp_reg, sample, "table2a_taxbase_by_formula",
+          tables_dir, pct_base="current profit base", pct_cols=_flabs)
+    _emit(rev, order_iso, grp, grp_reg, sample, "table2b_revenue_by_formula",
+          tables_dir, pct_base="current tax revenue from MNEs", pct_cols=_flabs)
 
     # Table 3 — sales-measure comparison (employees + sales), taxbase & revenue, excl_resource
     tb3 = pd.DataFrame(index=order_iso)
@@ -362,10 +392,10 @@ def build_for_sample(sample, royalty, tables_dir):
         tb3[flab] = _taxbase_bn(sample, "excl_resource", fk)
         rev3[flab] = _rev_bn(sample, "excl_resource", fk)
     _slabs = [flab for _, flab in SALES_SPECS]
-    _write(_with_pct(_finalise(tb3, order_iso, grp), "current profit base", _slabs),
-           sample, "table3a_taxbase_by_sales", tables_dir)
-    _write(_with_pct(_finalise(rev3, order_iso, grp), "current tax revenue from MNEs", _slabs),
-           sample, "table3b_revenue_by_sales", tables_dir)
+    _emit(tb3, order_iso, grp, grp_reg, sample, "table3a_taxbase_by_sales",
+          tables_dir, pct_base="current profit base", pct_cols=_slabs)
+    _emit(rev3, order_iso, grp, grp_reg, sample, "table3b_revenue_by_sales",
+          tables_dir, pct_base="current tax revenue from MNEs", pct_cols=_slabs)
 
     # Table 5 — break-even ETR for the INVESTMENT-HUB / haven losers: the effective rate
     # such a jurisdiction would need to keep its current MNE-tax revenue on its smaller UT

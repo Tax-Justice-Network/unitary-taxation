@@ -144,9 +144,11 @@ def _banner_suffix():
 
 
 # ─── Aggregate the per-country summary to income groups ───────────────────────
-def build_by_income(summary):
+def build_by_income(summary, gcol="wb_income_group"):
     """Replicates the income-group aggregation in 8_five_scenario_report.write_tables
-    so percentages re-derive correctly as Σnumerator / Σdenominator."""
+    so percentages re-derive correctly as Σnumerator / Σdenominator.
+    `gcol` selects the grouping dimension — "wb_income_group" (default) or
+    "region_tjn" for the geographic-region counterpart."""
     sub = summary[~summary["iso_partner"].isin(DATA_QUALITY_EXCLUSIONS)]
     # Rate modes absent from the run (e.g. CIT-CIT, dropped from the MINIMAL
     # grid) have no columns — aggregate only what exists.
@@ -158,7 +160,7 @@ def build_by_income(summary):
                 "scenario_label",
                 "formula_name",
                 "formula_label",
-                "wb_income_group",
+                gcol,
             ],
             as_index=False,
             dropna=False,
@@ -183,7 +185,7 @@ def build_by_income(summary):
     # floor/five-factor addon on the same denominator (0 for non-floored).
     # Taxable-profit % is unchanged.
     gc = getattr(_s8, "GROUP_CASHTAX_MUSD", None)
-    if gc is not None and not gc.empty:
+    if gcol == "wb_income_group" and gc is not None and not gc.empty:
         _mk = ["scenario", "formula_name", "wb_income_group"]
         by_inc = by_inc.merge(gc, on=_mk, how="left")
         _cash = pd.to_numeric(by_inc.get("grp_cashtax_musd"), errors="coerce")
@@ -222,7 +224,7 @@ def build_by_income(summary):
     pos["_is_posbase"] = (pos["_base_pos"] > 0).astype(int)
     posagg = (
         pos.groupby(
-            ["scenario", "formula_name", "wb_income_group"],
+            ["scenario", "formula_name", gcol],
             as_index=False, dropna=False,
         )
         .agg(
@@ -236,10 +238,10 @@ def build_by_income(summary):
     )
     by_inc = by_inc.merge(
         posagg[[
-            "scenario", "formula_name", "wb_income_group",
+            "scenario", "formula_name", gcol,
             "delta_taxable_profits_pct_posbase", "n_countries_posbase",
         ]],
-        on=["scenario", "formula_name", "wb_income_group"], how="left",
+        on=["scenario", "formula_name", gcol], how="left",
     )
     return by_inc
 
