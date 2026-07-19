@@ -134,8 +134,11 @@ GFS_LABEL_TO_BUCKET = {
     "Other taxes payable by natural resource companies": "royalty_like",
     "Other rent payments": "royalty_like",
     "Compulsory transfers to government (infrastructure and other)": "royalty_like",
-    "Production entitlements (in-kind or cash)": "royalty_like",
-    "Production entitlement": "royalty_like",
+    # Production entitlements = the state's share of production (its profit that is
+    # still inside the extractive company's reported profit) -> equity, per the
+    # 2026-07-19 rule (aligned with 1_5b folder parser).
+    "Production entitlements (in-kind or cash)": "equity",
+    "Production entitlement": "equity",
     "Delivered/paid directly to government": "royalty_like",
     "Rent": "royalty_like",
     "Administrative fees for government services": "royalty_like",
@@ -172,7 +175,8 @@ _KW = [
              "additional profit", "solidarity contribution", "impot sur les societes", "impuesto a las ganancias")),
     ("equity", ("dividend", "government participation", "state participation", "state-owned enterprise",
                 "produced petroleum sold", "crude oil export sales", "profit oil", "share of profit",
-                "production entitlement", "carried interest", "winstaandeel", "sdfi")),
+                "production entitlement", "carried interest", "winstaandeel", "sdfi",
+                "concessionary sale", "concession fee", "state's share")),
     ("royalty_like", ("royalt", "redevance", "regalia", "bonus", "licence", "license", "permis", "permit",
                       "surface", "superficiaire", "rent", "loyers", "infrastructure", "training fund",
                       "redevance miniere", "ad valorem", "extraction tax", "severance", "exploration",
@@ -188,6 +192,10 @@ def classify(gfs_label, fallback_text=""):
     for bucket, kws in _KW:
         if any(k in t for k in kws):
             return bucket
+    # generic top-level "Taxes (11E)" with no finer match -> for extractives the
+    # dominant tax is income/profit tax, so post rather than dropping it.
+    if "taxes (11" in t or " 11e " in t:
+        return "cit"
     return "other"
 
 
