@@ -360,6 +360,17 @@ def grd_rows(non_eiti_with_manual, eiti_countries, year_set, hq_tbl, ds_tbl=None
         post = row.get("grd_tax_income_profits_capgains_resource_usd")
         if not (isinstance(post, (int, float)) and np.isfinite(post)):
             post = row.get("grd_cit_resource_usd")
+        if not (isinstance(post, (int, float)) and np.isfinite(post)):
+            # No resource income/profit-tax line: substitute the aggregate
+            # `resource_taxes`. The GRD (tn2021-11) defines Resource Taxes as
+            # "mostly corporate taxation of resource extraction", so it is a
+            # reasonable post-profit proxy (it may carry a minor indirect-tax
+            # share — ~10% mean, ~0% median where both lines exist). This lifts
+            # aggregate-only GRD countries out of the flat 50/30/20 default.
+            # PSA/royalty-heavy oil states where this lump likely embeds rent
+            # (e.g. Angola) should instead get a manual_resource_revenue entry,
+            # which overrides the GRD tier entirely.
+            post = row.get("grd_resource_taxes_usd")
         post = float(post) if (isinstance(post, (int, float)) and np.isfinite(post)) else np.nan
         nontax = row.get("grd_nontax_rev_resource_usd")
         nontax = float(nontax) if (isinstance(nontax, (int, float)) and np.isfinite(nontax)) else np.nan
