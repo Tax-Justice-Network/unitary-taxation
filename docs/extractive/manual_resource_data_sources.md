@@ -175,3 +175,53 @@ EITI API pull** (which predates accession) — the reports live only in
   post-profit; the EITI streams show it is ~68% pre-profit rent).
 - **`domestic_share` = 0.45** (Sonangol; Angolan production is majority
   foreign-major-operated under PSAs) — medium confidence.
+
+## Bolivia (BOL) — gas  [added 2026-07-19]
+
+Not an EITI member; the split is read from **IMF Article IV fiscal tables**
+(*Operations of the Combined / Nonfinancial Public Sector*) and the 2010 Selected
+Issues chapter "Hydrocarbon Revenue Sharing Arrangements":
+- The IMF defines hydrocarbon revenue as **IDH + royalties (→ pre-profit)** plus the
+  **YPFB / public-enterprise operating balance (→ equity)**. IDH (32%) + royalty (18%)
+  = ~50% of gross gas value, a production-based rent. **Hydrocarbon corporate income
+  tax (IUE) is not separately tracked** by the IMF and is folded into general Direct
+  Taxes → **post ≈ 0**.
+- **Year-varying split** (PRE / EQUITY) straight from the tables, POST = 0:
+  2016 .80/.20, 2017 .77/.23, 2018 .74/.26, 2019 .74/.26, 2020 .76/.24, 2021 .86/.14,
+  2022 .62/.38 (YPFB's surplus swings with gas prices). Sources: `BOL_Article4_2018.pdf`
+  Table 3 (p33); `BOL_Article4_2024.pdf` Tables 4a/4b (p34-35); `BOL_SelectedIssues_2010.pdf`
+  ch.II (p9). Files in `data/raw/resources/country sources/BOL/`.
+- **Total** = GRD LCU+FX magnitude. **`domestic_share` = 0.50** (YPFB-aggregated,
+  private JV operators Petrobras/Repsol/Total) — medium-high confidence.
+
+## Egypt (EGY) — oil & gas  [added 2026-07-19]
+
+Not an EITI member; split from **IMF Budget Sector Operations tables** (identical
+oil-revenue footnote across vintages). Streams: EGPC CIT, foreign-partner CIT,
+royalties, petrol-product excises, EGPC dividends.
+- Mapping: **royalties + petrol excises → pre-profit (0.40)**; **EGPC CIT +
+  foreign-partner CIT → post-profit (0.53)**; **EGPC dividends → equity (0.07)**.
+  EGPC's payment is *collected as a corporate income tax*, so it is classified as
+  POST rather than re-labelled equity; the correction's
+  `resource_profit_base = max(post/effective_rate, equity)` prevents the state
+  production-share profit from being double-counted across the two channels.
+- Constant split (the identifiable oil-revenue block is stable ~1.2–2.0% of GDP).
+  Sources: `EGY_Article4_2021.pdf` T3a/3b (p28-29, footnote 5); `EGY_Article4_2017.pdf`
+  T4 (p35); `EGY_Article4_2025.pdf` T3a (p46-47). Files in `.../country sources/EGY/`.
+- **Total** = GRD LCU+FX magnitude. **`domestic_share` = 0.50** (EGPC + foreign majors
+  Eni/BP/Apache/Shell) — medium confidence.
+
+## Vietnam (VNM) — oil & gas  [added 2026-07-19]
+
+Not an EITI member; split from **IMF General Government fiscal tables** (the oil-revenue
+line decomposes into exactly two sub-lines, stable across 2013–2024):
+- **Natural-resource tax → pre-profit (0.26)** + **oil corporate income tax →
+  post-profit (0.74)**. **PetroVietnam's production share is NOT in the oil-revenue
+  line** (it flows through PVN as ordinary SOE dividends in non-tax "Other revenue",
+  not oil-attributed) → **equity = 0**. The Selected Issues papers contain no oil
+  fiscal chapter.
+- Constant split. Sources: `VNM_Article4_2018.pdf` Tables 4a/4b (p37-38); corroborated
+  in `VNM_Article4_2022.pdf` (p38-39) and `VNM_Article4_2024.pdf` (p37-38). Files in
+  `.../country sources/VNM/`.
+- **Total** = GRD LCU+FX magnitude. **`domestic_share` = 0.55** (PetroVietnam +
+  Vietsovpetro JV + foreign contractors) — high confidence on the split.
