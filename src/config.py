@@ -228,7 +228,15 @@ wage_data = "../data/raw/EAR_4MTH_SEX_CUR_NB_A-full-2025-08-25.csv"
 
 # GDP and population data
 ## Please give the path to the most recent GDP and population data from the World Bank here. The data be downloaded here: https://databank.worldbank.org/source/world-development-indicators/preview/on, selecting the series "GDP (current US$)" and "Population, total" (see notebook "1_clean").
+## NOTE: only POPULATION is now taken from this file; GDP is overridden by the
+## canonical WB snapshot below (this DataBank export is a stale vintage — it
+## misses WB revisions such as Nigeria's +41% rebasing and Angola).
 gdp_population_data = "../data/raw/55f1d958-0a59-4690-ab16-59602d3dab91_Data.csv"
+
+## Canonical GDP — the SINGLE GDP per (iso3, year) used across the repo
+## (CbCR pipeline + extractive WB-GDP reference): WB WDI NY.GDP.MKTP.CD,
+## current US$, dated snapshot. Refresh with src/_fetch_canonical_gdp.py.
+canonical_gdp_data = "../data/raw/wb_gdp_current_usd.csv"
 
 # Health expenditure data
 ## Please give the path to the most recent WHO health expenditure data here. The data be downloaded here: https://apps.who.int/nha/database/Select/Indicators/en selecting "Domestic General Government Health Expenditure" and "million current US$" as a unit (see notebook "1_clean").

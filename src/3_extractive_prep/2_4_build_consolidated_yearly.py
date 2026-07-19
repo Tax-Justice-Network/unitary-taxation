@@ -55,6 +55,23 @@ def main():
                 continue
             wb[iso][yr] = row
 
+    # Canonical GDP (single repo-wide WB WDI series, NY.GDP.MKTP.CD) — overrides
+    # the GDP column of wb_resource_rents so the whole repo shares ONE GDP per
+    # country-year (same file 1_clean uses). Used as the GRD guard reference and
+    # the % × GDP fallback; the WB-rents USD (used only for commodity ratios) is
+    # left as-is (scale-invariant).
+    canon_gdp = {}
+    with open(RAW / "wb_gdp_current_usd.csv", encoding="utf-8") as f:
+        for _ln in f:
+            if _ln.startswith("#") or _ln.startswith("iso3"):
+                continue
+            _p = _ln.rstrip("\n").split(",")
+            if len(_p) >= 3:
+                try:
+                    canon_gdp[(_p[0], int(_p[1]))] = float(_p[2])
+                except ValueError:
+                    pass
+
     # ── 2. GRD — per (iso, year) ──
     print("Reading GRD...")
     GRD_FIELDS = [
@@ -216,6 +233,10 @@ def main():
                 v = _f(wb_row.get(k)) if wb_row else None
                 row[f"wb_{k}"] = v if v is not None else ""
 
+            # override GDP with the canonical repo-wide series where available
+            _canon = canon_gdp.get((iso, yr))
+            if _canon is not None:
+                row["wb_gdp_current_usd"] = _canon
             gdp = _f(row["wb_gdp_current_usd"])   # WB USD GDP: WB-rents conversion + GRD fallback
 
             # GRD → USD: reconstruct from the GRD's OWN GDP (LCU) and the

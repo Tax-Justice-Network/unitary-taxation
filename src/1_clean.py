@@ -1407,6 +1407,21 @@ gdp_population["population"] = pd.to_numeric(
     errors="coerce",
 )
 
+# Canonical GDP override: replace the (stale) DataBank GDP with the single
+# repo-wide WB WDI snapshot (config.canonical_gdp_data, NY.GDP.MKTP.CD). Keeps
+# population from the DataBank file, and keeps the DataBank GDP only where the
+# canonical snapshot has no value; the manual GDP fills (§2.3a) still fill
+# jurisdictions the World Bank does not cover. This is the ONE GDP used across
+# the repo (the extractive pipeline reads the same series).
+_canon_gdp = pd.read_csv(canonical_gdp_data, comment="#").rename(
+    columns={"iso3": "iso_partner", "gdp_current_usd": "_gdp_canon"}
+)
+gdp_population = gdp_population.merge(_canon_gdp, on=["iso_partner", "year"], how="left")
+gdp_population["gdp_current_usd"] = gdp_population["_gdp_canon"].where(
+    gdp_population["_gdp_canon"].notna(), gdp_population["gdp_current_usd"]
+)
+gdp_population = gdp_population.drop(columns=["_gdp_canon"])
+
 gdp_population = gdp_population[
     ["iso_partner", "year", "gdp_current_usd", "population"]
 ].copy()
