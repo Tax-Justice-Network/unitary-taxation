@@ -470,15 +470,6 @@ def main():
     included_iso = set(params.loc[params["include"].astype(str).str.lower() == "yes", "iso3"])
     ds_tbl = pd.to_numeric(params.set_index("iso3")["domestic_share"], errors="coerce").dropna().to_dict()
 
-    # Quality threshold for EITI-vs-GRD comparison (2026-05-14, per user):
-    # when EITI bilateral total for (source, year) is below this fraction of
-    # the GRD-reported total resource revenue for the same source-year, we
-    # fall back to GRD instead. Captures the "EITI bilateral is materially
-    # smaller than what GRD says" case (typical when EITI bilateral only
-    # covers a subset of operators, e.g. payments from the largest mining
-    # MNEs, while GRD captures the full government take). Threshold of 0.8
-    # means: switch to GRD whenever EITI is less than 80% of GRD.
-    EITI_VS_GRD_MIN_RATIO = 0.8
 
     print("Building resource_payments_by_hq_source_yearly.csv ...")
     eiti_df, eiti_countries = eiti_bilateral()
@@ -498,18 +489,13 @@ def main():
     # GRD fills where neither EITI nor manual have data; rent_proxy fills
     # the residual (rent > 0 but nothing else).
     #
-    # Quality check: also drop EITI rows where the bilateral total for the
-    # (source, year) is materially smaller than what GRD reports for the
-    # same source-year (likely "EITI bilateral only captured a subset of
-    # operators" pattern). The threshold EITI_VS_GRD_MIN_RATIO controls
-    # the switch.
-    if len(eiti_df):
-        eiti_totals_by_pair = (
-            eiti_df.groupby(["source_iso3", "year"])[BUCKETS].sum().sum(axis=1)
-        )  # Series indexed by (source, year)
-    else:
-        eiti_totals_by_pair = pd.Series(dtype=float)
-
+    # EITI→GRD scale-up (2026-07-19, replacing the EITI_VS_GRD_MIN_RATIO drop):
+    # rather than DROP EITI cells that under-capture the GRD total, SCALE the
+    # EITI (source, year) rows up so their total matches the GRD total — keeping
+    # EITI's HQ allocation and pre/post/equity split while adopting GRD's (more
+    # complete) magnitude. Scale UP only (factor ≥ 1); cells where EITI already
+    # meets/exceeds GRD keep their EITI total. Scaled rows are tagged
+    # data_source="eiti_grdscaled" for auditability.
     grd_raw = pd.read_csv(ROYALTY_DS)
     grd_raw = grd_raw[grd_raw["year"].isin(year_set)].copy()
     grd_totals = (
@@ -518,21 +504,44 @@ def main():
     )
     grd_totals = grd_totals[grd_totals > 0]
 
-    pairs_eiti_too_small = set()
-    for key, eiti_total in eiti_totals_by_pair.items():
-        grd_total = grd_totals.get(key)
-        if grd_total and grd_total > 0 and eiti_total < EITI_VS_GRD_MIN_RATIO * grd_total:
-            pairs_eiti_too_small.add(key)
-
-    if pairs_eiti_too_small:
-        before = len(eiti_df)
-        eiti_df = eiti_df[
-            ~eiti_df[["source_iso3", "year"]].apply(tuple, axis=1).isin(pairs_eiti_too_small)
-        ].copy()
-        print(f"  EITI-vs-GRD quality check: dropped {before - len(eiti_df):,} EITI rows in "
-              f"{len(pairs_eiti_too_small)} (source, year) pairs where EITI bilateral "
-              f"< {EITI_VS_GRD_MIN_RATIO:.0%} of GRD total. Affected pairs (sample): "
-              f"{sorted(pairs_eiti_too_small)[:10]}")
+    if len(eiti_df):
+        eiti_totals_by_pair = (
+            eiti_df.groupby(["source_iso3", "year"])[BUCKETS].sum().sum(axis=1)
+        )  # Series indexed by (source, year)
+        # Scale up only where EITI is representative enough (captures ≥ 1/MAX_SCALE
+        # of the GRD total). Where EITI is too thin (factor > MAX_SCALE — it barely
+        # captured any operators, so its HQ structure is noise), DROP the cell and
+        # let GRD fill it. The factor distribution has an empty gap between ~10×
+        # and ~50×, so 10× cleanly separates representative cells (median ~1.3×)
+        # from noise (Nigeria 2019 ~100×, Colombia 2019 ~850×).
+        MAX_SCALE = 10.0
+        scale, drop_pairs = {}, set()
+        for key, et in eiti_totals_by_pair.items():
+            gt = grd_totals.get(key)
+            if gt and et and et > 0 and gt > et:
+                f = gt / et
+                if f <= MAX_SCALE:
+                    scale[key] = f
+                else:
+                    drop_pairs.add(key)
+        if scale:
+            fac = np.array([scale.get((s, y), 1.0)
+                            for s, y in zip(eiti_df["source_iso3"], eiti_df["year"])])
+            for b in BUCKETS:
+                eiti_df[b] = eiti_df[b].to_numpy() * fac
+            eiti_df["data_source"] = np.where(
+                fac > 1.0, "eiti_grdscaled", eiti_df["data_source"].to_numpy())
+            print(f"  EITI→GRD scale-up: scaled {len(scale)} (source, year) cells up to the "
+                  f"GRD total (median {np.median(list(scale.values())):.1f}×, "
+                  f"max {max(scale.values()):.1f}×).")
+        if drop_pairs:
+            _before = len(eiti_df)
+            _keep = ~np.array([(s, y) in drop_pairs
+                               for s, y in zip(eiti_df["source_iso3"], eiti_df["year"])])
+            eiti_df = eiti_df[_keep].copy()
+            print(f"  EITI too thin to scale (< {1 / MAX_SCALE:.0%} of GRD): dropped "
+                  f"{_before - len(eiti_df):,} rows in {len(drop_pairs)} cells → GRD fills them "
+                  f"({sorted(drop_pairs)[:8]}).")
 
     eiti_pairs = set(map(tuple, eiti_df[["source_iso3", "year"]].drop_duplicates().itertuples(index=False, name=None)))
 
