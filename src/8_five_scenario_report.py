@@ -214,7 +214,8 @@ RATE_MODES = [
         "Recovered base × home CIT, forgone base × haven ETR (default)",
     ),
     ("loss_etr_gain_etr", "Recovered & forgone bases × ETR (conservative)"),
-    ("loss_cit_gain_cit", "Recovered & forgone bases × statutory CIT"),
+    # CIT-CIT rate mode dropped 2026-06-29 (not produced by 5_estimate's MINIMAL
+    # grid) — removed here so the figure loops don't build its absent columns.
 ]
 
 # Single ETR family for headline numbers (loss/gain rate logic happens in the
@@ -370,7 +371,7 @@ def load_resource_profit_base_by_partner(years_filter, variant=""):
 RATE_SUFFIX = {
     "loss_cit_gain_etr": "recCIT_forgETR",
     "loss_etr_gain_etr": "recETR_forgETR",
-    "loss_cit_gain_cit": "recCIT_forgCIT",
+    # "loss_cit_gain_cit": "recCIT_forgCIT",  # dropped 2026-06-29 (see RATE_MODES)
 }
 
 
@@ -667,6 +668,7 @@ def build_summary(years_filter, scenarios=SCENARIOS, variant=""):
         "iso_partner",
         "partner_jurisdiction",
         "wb_income_group",
+        "region_tjn",
         "previous_profits_musd",
         "posbase_musd",
         "scenario_baseline_musd",
@@ -816,6 +818,9 @@ def _income_pivot(df, value_col, scenario_key, scenarios=SCENARIOS):
     formula_keys = [f for f, _ in scen["formulas"]]
     formula_labels = [lab for _, lab in scen["formulas"]]
     sub = df[df["scenario"] == scenario_key]
+    # Value column absent from the run (e.g. a dropped rate mode) → empty pivot.
+    if value_col not in sub.columns:
+        return pd.DataFrame(), formula_keys, formula_labels
     pivot = sub.pivot_table(
         index="wb_income_group",
         columns="formula_name",
@@ -967,6 +972,10 @@ def fig_per_scenario_gvt_revenue(by_inc, figures_dir, suffix, scenarios=SCENARIO
         for rsuf, rlabel in zip(RATE_SUFFIX.values(), [r[1] for r in RATE_MODES]):
             col_abs = f"delta_total_gvt_revenue_{rsuf}_musd"
             col_pct = f"delta_total_gvt_revenue_{rsuf}_pct_revenue"
+            # Rate modes absent from the run (e.g. CIT-CIT, dropped 2026-06-29)
+            # have no columns — skip their figure.
+            if col_abs not in by_inc.columns:
+                continue
             pivot_abs, _, formula_labels = _income_pivot(
                 by_inc, col_abs, scen["key"], scenarios
             )

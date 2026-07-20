@@ -548,6 +548,16 @@ if RUN_DATASET != "incl_resource":
 
 _SALES_FAMILIES = ["ccctb", "double_weighted_sales", "sales_employees", "three_factors"]
 
+# Optional: restrict destination measures to a comma-separated subset (env
+# DEST_SUBSET) to shrink the spec grid for a fast partial run. Empty = all
+# measures (default, unchanged). The deliverables consume only destmnedds,
+# destcombined, destcfb, destmne (+ their _nexus), so the rest are optional.
+_dest_subset = os.environ.get("DEST_SUBSET", "").strip()
+if _dest_subset:
+    _keep = {s.strip() for s in _dest_subset.split(",") if s.strip()}
+    DEST_MEASURES = {k: v for k, v in DEST_MEASURES.items() if k in _keep}
+    print(f"[dest] DEST_SUBSET active -> {sorted(DEST_MEASURES)}")
+
 _dest_formulas = []
 for _base in FORMULAS:
     if _base["name"] not in _SALES_FAMILIES:
