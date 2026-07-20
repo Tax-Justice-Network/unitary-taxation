@@ -337,10 +337,12 @@ hq_shares_yearly_data = (
     data_intermediate_extractive + "hq_shares_by_commodity_yearly.csv"
 )
 
-## Country overrides for whether captured equity / SOE dividends should be
-## added back to CbCR profit. Default TRUE for unlisted countries. FALSE for
-## countries whose dominant SOE reports to CbCR (avoids double-counting).
-equity_add_back_overrides_data = "../data/raw/equity_add_back_country_overrides.csv"
+# NOTE: the former `equity_add_back_overrides_data` per-country switch (which
+# turned equity off for SOEs that report to CbCR) was RETIRED 2026-07-20. The
+# active correction uses `resource_profit_base = max(post/rate, equity)` capped
+# at the cell's reported profit, which prevents double-counting (max, not sum)
+# and over-stripping (cap) without a country list. Only the archived
+# carve-out scripts used the old switch.
 
 
 # ── Tax-haven lists ──────────────────────────────────────────────────────────
