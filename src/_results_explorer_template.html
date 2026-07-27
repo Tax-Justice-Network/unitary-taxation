@@ -346,8 +346,10 @@ const GROUP_SHORT = {low_income:"Low", lower_middle_income:"Lower-mid",
 const SCEN_LABEL = {
   ignore:"Resource rights ignored — extractive profits are reapportioned like any other profit",
   excl:"Resource rights come before taxing rights — source countries' existing resource-rent capture (resource taxes and state equity) is removed from the profit pool before profits are reapportioned",
-  floor:"Resource rights first, plus a guaranteed minimum royalty on production for resource-dependent developing countries (shown in gold)"};
-const SCEN_SHORT = {ignore:"Ignored", excl:"Accounted for", floor:"+ minimum royalty"};
+  floor:"Resource rights first, plus a guaranteed minimum royalty on production for low- and lower-middle-income producing countries (shown in gold)",
+  floor_all:"Sensitivity — the guaranteed minimum royalty enforced for EVERY producing country, including high-income producers (shown in gold)"};
+const SCEN_SHORT = {ignore:"Ignored", excl:"Accounted for",
+  floor:"+ minimum royalty (developing)", floor_all:"+ minimum royalty (all countries)"};
 const RATE_LABEL = {
   cit:"Headline — profit that arrives will be taxed at the statutory rate; profit that leaves is valued at its country's average effective rate (probably higher than the shifted profit actually faced)",
   etr:"Conservative — profit that arrives will be taxed at the country's average effective rate; profit that leaves is valued at that same average effective rate",
@@ -407,11 +409,14 @@ function seriesFor(scen) {
                       : presetSeries(scen, state.formula, state.measure, state.rate);
 }
 function series() { return seriesFor(state.scen); }
-function royaltyOn() { return state.scen === "floor"; }
+function royaltyOn() { return state.scen === "floor" || state.scen === "floor_all"; }
+function royArr() {   // the floor add-on vector matching the active scenario
+  return state.scen === "floor_all" ? (DATA.royalty_all || DATA.royalty) : DATA.royalty;
+}
 function rowValue(i, s) {
   const base = s[i];
   if (base === null || base === undefined) return null;
-  return base + (royaltyOn() ? (DATA.royalty[i] || 0) : 0);
+  return base + (royaltyOn() ? (royArr()[i] || 0) : 0);
 }
 function grossGains() {
   const s = series(); if (!s) return null;
@@ -474,7 +479,10 @@ function buildSelects() {
   sm.onchange = () => { state.measure = sm.value; render(); };
 
   const ss = document.getElementById("selScenario"); ss.innerHTML = "";
-  hlFirst(["ignore","excl","floor"], HL.scen).forEach(k =>
+  const scenAvail = ["ignore","excl","floor","floor_all"].filter(k =>
+    Object.keys(DATA.series).some(key => key.startsWith(k + "|")));
+  if (!scenAvail.includes(state.scen)) state.scen = HL.scen;
+  hlFirst(scenAvail, HL.scen).forEach(k =>
     opt(ss, k, SCEN_SHORT[k] + (k === HL.scen ? "  (headline)" : ""), k === state.scen));
   ss.onchange = () => { state.scen = ss.value; render(); };
 
@@ -569,7 +577,7 @@ function drawChart() {
   DATA.countries.forEach((c, i) => {
     const g = groupOf(c); if (!ut.has(g)) return;
     if (s[i]) ut.set(g, ut.get(g) + s[i]);
-    if (royaltyOn() && DATA.royalty[i]) roy.set(g, roy.get(g) + DATA.royalty[i]);
+    if (royaltyOn() && royArr()[i]) roy.set(g, roy.get(g) + royArr()[i]);
     if (DATA.cashtax[i] > 0) cashg.set(g, cashg.get(g) + DATA.cashtax[i]);
   });
   const val = g => { if (!isPct) return (ut.get(g) + roy.get(g)) / 1000 * mul;
@@ -758,7 +766,7 @@ function tableRows() {
     const v = rowValue(i, s); if (v === null || v === undefined) return;
     if (state.filterGroup && groupOf(c) !== state.filterGroup) return;
     if (q && !c[1].toLowerCase().includes(q) && !c[0].toLowerCase().includes(q)) return;
-    const roy = royaltyOn() ? (DATA.royalty[i] || 0) : 0, cash = DATA.cashtax[i];
+    const roy = royaltyOn() ? (royArr()[i] || 0) : 0, cash = DATA.cashtax[i];
     rows.push({ i, iso: c[0], name: c[1], grp: c[2], reg: c[3], thin: c[4], rev: v, roy,
                 pct: cash > 0 ? v / cash * 100 : null });
   });
@@ -816,14 +824,15 @@ function drawCountryCard() {
   const card = document.getElementById("countryCard");
   if (state.country === null) { card.classList.remove("show"); card.innerHTML = ""; return; }
   const i = state.country, c = DATA.countries[i];
-  const scens = ["ignore","excl","floor"];
+  const scens = ["ignore","excl","floor","floor_all"];
   const vals = scens.map(sc => {
     const s = seriesFor(sc);
     if (!s || s[i] === null || s[i] === undefined) return null;
-    return s[i] + (sc === "floor" ? (DATA.royalty[i] || 0) : 0);
+    return s[i] + (sc === "floor" ? (DATA.royalty[i] || 0)
+                 : sc === "floor_all" ? ((DATA.royalty_all || DATA.royalty)[i] || 0) : 0);
   });
   const mul = scaleMul();
-  const cur = vals[{"ignore":0,"excl":1,"floor":2}[state.scen]];
+  const cur = vals[{"ignore":0,"excl":1,"floor":2,"floor_all":3}[state.scen]];
   const perSec = cur === null ? null : cur * mul * 1e6 / SPY;
   card.innerHTML =
     '<button class="cc-close" aria-label="Close">✕ close</button>' +

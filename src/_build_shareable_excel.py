@@ -43,11 +43,11 @@ BAND = "F3F0E6"
 WHITE = "FFFFFF"
 
 SHEETS = [
-    ("Taxable profits", "table1_taxable_profits_by_formula__reported_only.csv",
+    ("Taxable profits", "table2_taxable_profits_by_formula__reported_only.csv",
      "Change in taxable profits by apportionment formula",
      "How much taxable profit each country would gain (+) or lose (−) if "
      "multinationals' profits were reallocated to where their real activity is."),
-    ("Tax revenue", "table2_tax_revenue_by_formula__reported_only.csv",
+    ("Tax revenue", "table3_tax_revenue_by_formula__reported_only.csv",
      "Change in tax revenue by apportionment formula",
      "The resulting change in each country's corporate tax revenue, valuing "
      "reallocated profit at statutory rates for gains and effective rates for losses."),

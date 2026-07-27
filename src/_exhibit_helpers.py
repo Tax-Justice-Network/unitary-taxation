@@ -392,12 +392,14 @@ def region(sample):
     return d.drop_duplicates("iso_partner").set_index("iso_partner")["region_tjn"]
 
 
-def floor_royalty_musd(sample="reported_only"):
+def floor_royalty_musd(sample="reported_only",
+                       fname="cbcr_main_excl_resource_floored.csv"):
     """Minimum-royalty add-on in constant BASE_YEAR US$ millions per year. For
     the reported sample only is_distributed==0 rows count (script 4's
     _reallocate_floor_to_reported places each source's full add-on there, so
-    the country totals are preserved)."""
-    p = os.path.join(_ROOT, "data", "final", "cbcr_main_excl_resource_floored.csv")
+    the country totals are preserved). `fname` selects the floored dataset —
+    the default (LIC+LMIC gate) or the all-countries sensitivity."""
+    p = os.path.join(_ROOT, "data", "final", fname)
     d = pd.read_csv(p, usecols=["iso_partner", "year", "is_distributed",
                                 "floor_add_on_cat1_usd"], low_memory=False)
     if sample == "reported_only":

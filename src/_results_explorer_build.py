@@ -38,7 +38,12 @@ _SRC = Path(__file__).resolve().parent
 _ROOT = _SRC.parent
 OUT = _ROOT / "output" / "app" / "unitary_taxation_explorer.html"
 
-SCENARIOS = {"ignore": "baseline", "excl": "excl_resource", "floor": "excl_resource_floored"}
+SCENARIOS = {"ignore": "baseline", "excl": "excl_resource",
+             "floor": "excl_resource_floored",
+             # sensitivity: the IGF-ATAF minimum royalty enforced for EVERY
+             # producing country (the headline floor binds only for low- and
+             # lower-middle-income producers)
+             "floor_all": "excl_resource_floored_allcountries"}
 # rate modes: gains valued at statutory CIT, losses at the effective rate
 # (headline); both legs at the effective rate (conservative); and the
 # optimistic bound where profit reallocated AWAY is valued only at the
@@ -85,9 +90,10 @@ def _summary(scenario):
                     low_memory=False)
     # 2020 stays IN the frame (the year view shows it); the per-country
     # averages filter it out downstream (YEARS excludes it).
+    # The four DATA_QUALITY_EXCLUSIONS micro-states are KEPT here (with the thin-coverage
+    # flag), to match the report tables and the overview Excel, which also keep them.
     d = d[(d["etr_name"].isin([ETR, "average"])) & (d["year"].isin(YEARS + [2020]))
-          & (d["etr_threshold"].astype(str) == THRESHOLD)
-          & (~d["iso_partner"].isin(EXCL))]
+          & (d["etr_threshold"].astype(str) == THRESHOLD)]
     d["_w"] = d["year"].map(DEFL)
     return d
 
@@ -218,6 +224,14 @@ def main():
     # minimum-royalty floor add-on per country (post-gate; reported rows, cat1)
     roy = _eh.floor_royalty_musd("reported_only")
     royalty = [round(float(roy.get(i, 0.0)), 2) for i in isos]
+    # all-countries floor sensitivity (no income-group gate)
+    try:
+        roy_all = _eh.floor_royalty_musd(
+            "reported_only", fname="cbcr_main_excl_resource_floored_allcountries.csv")
+        royalty_all = [round(float(roy_all.get(i, 0.0)), 2) for i in isos]
+    except FileNotFoundError:
+        royalty_all = None
+        print("  [floor_all] all-countries floored dataset missing — royalty_all skipped")
 
     data = {
         "meta": {
@@ -241,6 +255,7 @@ def main():
         "cashtax": cashtax,
         "cashyear": cashyear,
         "royalty": royalty,
+        "royalty_all": royalty_all,   # None until the all-countries dataset exists
         "series": series,
         "yearly": yearly,
         "factors": factors,
@@ -290,6 +305,8 @@ def main():
             tot = sum(v for v in series[key] if v) / 1000
             if sk == "floor":
                 tot += sum(royalty) / 1000
+            elif sk == "floor_all" and royalty_all:
+                tot += sum(royalty_all) / 1000
             sc = (" | scaled ≈ %.0f" % (tot * scale)) if scale else ""
             print(f"  world Δrevenue [{sk}] headline: {tot:+.1f} bn/yr{sc}")
 

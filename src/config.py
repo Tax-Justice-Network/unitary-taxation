@@ -104,6 +104,7 @@ _TOPIC_REMAP_EXACT = {
     "unitary_taxation_excl_resource_reported": "estimates/reported_only/2_resources_excluded",
     "unitary_taxation_excl_resource_floored_reported": "estimates/reported_only/3_minimum_royalty_added",
     "unitary_taxation_excl_resource_floored_allrowsalloc_reported": "estimates/reported_only/3_minimum_royalty_added_allrows_alloc",
+    "unitary_taxation_excl_resource_floored_allcountries_reported": "estimates/reported_only/3_minimum_royalty_added_all_countries",
     "unitary_taxation_incl_resource_reported": "estimates/reported_only/resources_included_reference",
     "unitary_taxation_positive_panel_reported": "estimates/reported_only/positive_profits_only",
     # Classic single-spec State of Tax Justice reference run.
@@ -196,6 +197,7 @@ ESTIMATES_SCENARIO_DIRS = {
     "excl_resource": "2_resources_excluded",
     "excl_resource_floored": "3_minimum_royalty_added",
     "excl_resource_floored_allrowsalloc": "3_minimum_royalty_added_allrows_alloc",
+    "excl_resource_floored_allcountries": "3_minimum_royalty_added_all_countries",
     "incl_resource": "resources_included_reference",
     "positive_panel": "positive_profits_only",
 }

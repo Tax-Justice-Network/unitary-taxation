@@ -136,11 +136,16 @@ def header_spec_for(columns):
     return None
 
 
-def csv_to_latex(csv_path, tex_path=None, caption=None, label=None):
-    """Write a brand-coloured LaTeX table mirroring the Word layout.
+def csv_to_latex(csv_path, tex_path=None, caption=None, label=None, title_super=None):
+    """Write a brand-coloured, portrait, page-breaking **longtable** (no landscape).
 
-    tex_path defaults to `<csv_dir>/latex/<name>.tex`. caption/label default to
-    the file slug. Returns the written path (or None if the CSV is unreadable)."""
+    The table carries NO caption/label — the consuming document supplies them via
+    `\\captionof{table}{…}\\label{…}` so notes can sit between the caption and the
+    table. `title_super`, when given, adds a top-level heading spanning the grouped
+    (e.g. per-formula) value columns, with the leading (Country) and trailing
+    (reference) single columns getting their own full-height super-headers.
+    tex_path defaults to `<csv_dir>/latex/<name>.tex`. Returns the written path
+    (or None if the CSV is unreadable)."""
     try:
         df = pd.read_csv(csv_path)
     except Exception as e:
@@ -156,7 +161,7 @@ def csv_to_latex(csv_path, tex_path=None, caption=None, label=None):
 
     headers = [str(c) for c in df.columns]
     ncol = len(headers)
-    colspec = "l" + "r" * (ncol - 1)   # first column left, rest right-aligned
+    colspec = "@{}p{2.4cm}" + "r" * (ncol - 1) + "@{}"   # portrait, page-breaking
 
     lines = []
     lines.append("% Auto-generated brand-coloured table — mirrors the Word layout.")
@@ -165,57 +170,110 @@ def csv_to_latex(csv_path, tex_path=None, caption=None, label=None):
     lines.append(f"\\definecolor{{tjnHeaderText}}{{HTML}}{{{_C_HEADER_TXT}}}")
     lines.append(f"\\definecolor{{tjnGroup}}{{HTML}}{{{_C_GROUP}}}")
     lines.append(f"\\definecolor{{tjnRule}}{{HTML}}{{{_C_RULE}}}")
-    lines.append("\\begin{table}[htbp]")
-    lines.append("  \\centering")
-    lines.append(f"  \\caption{{{_esc(caption)}}}")
-    lines.append(f"  \\label{{{label}}}")
-    lines.append("  \\resizebox{\\textwidth}{!}{%")
-    lines.append(f"  \\begin{{tabular}}{{{colspec}}}")
-    lines.append("  \\arrayrulecolor{tjnRule}\\toprule")
+    def _fr(first):
+        return "\\firstrowcolor{}\\firstrowfont{}" if first else "\\firstrowfont{}"
+    def _wrap(t):
+        # break a long spanning header onto two centred lines at the middle space
+        if len(t) <= 18 or " " not in t:
+            return _esc(t)
+        spaces = [i for i, ch in enumerate(t) if ch == " "]
+        b = min(spaces, key=lambda i: abs(i - len(t) // 2))
+        return "\\makecell{%s\\\\%s}" % (_esc(t[:b]), _esc(t[b + 1:]))
+
+    # ---- header rows in the SOTJ xltabular layout (\firstrowcolor/\firstrowfont, \hline) ----
+    hdr = ["\\hline"]
     spec = header_spec_for(headers)
-    if spec:
+    if spec and title_super:
+        # 3 bands: [title_super over the formula block, Country + reference alongside],
+        # [formula names, each spanning its two value columns], [US$ m / %].
         super_row, sub_row = spec
-        def _hcell(span, body):
-            return ("\\multicolumn{%d}{>{\\columncolor{tjnHeader}}c}{%s}" % (span, body))
-        cells, pos, cmids = [], 1, []
+        lead, groups, trail, seen = [], [], [], False
         for text, span in super_row:
-            body = ("\\textbf{\\textcolor{tjnHeaderText}{%s}}" % _esc(text)) if text else ""
-            if span == 1 and text:                      # single column → span both rows
-                body = "\\multirow{2}{*}{%s}" % body
-            cells.append(_hcell(span, body))
+            if span >= 2:
+                groups.append((text, span)); seen = True
+            elif not seen:
+                lead.append(text)
+            else:
+                trail.append(text)
+        gspan = sum(s for _, s in groups)
+        row = [_fr(True) + "\\multirow{3}{*}{\\firstrowfont{}%s}" % (_esc(lead[0]) if lead else "")]
+        row.append("\\multicolumn{%d}{c|}{\\firstrowfont{}%s}" % (gspan, _esc(title_super)))
+        row += ["\\multirow{2}{*}{\\firstrowfont{}\\makecell{%s}}" % _esc(t).replace(" ", "\\\\", 1)
+                for t in trail]   # label spans 2 rows, breaking after the first word
+        hdr.append(" & ".join(row) + " \\\\")
+        hdr.append("\\cline{2-%d}" % (1 + gspan))
+        row = [_fr(True)]
+        for t, s in groups:
+            row.append("\\multicolumn{%d}{c|}{\\firstrowfont{}%s}" % (s, _wrap(t)))
+        row += ["\\firstrowfont{}" for _ in trail]
+        hdr.append(" & ".join(row) + " \\\\")
+        hdr.append("\\cline{2-%d}" % ncol)
+        row = [_fr(True)]
+        for text, span in sub_row[len(lead):len(lead) + gspan]:
+            row.append("\\firstrowfont{}" + ("" if text is None else _esc(text)))
+        row += ["\\firstrowfont{}US\\$ m" for _ in trail]                          # unit under the label
+        hdr.append(" & ".join(row) + " \\\\")
+        hdr.append("\\hline")
+    elif spec:
+        super_row, sub_row = spec
+        top, first = [], True
+        for text, span in super_row:
+            body = _esc(text) if text else ""
             if span > 1:
-                cmids.append((pos, pos + span - 1))
-            pos += span
-        lines.append("  " + " & ".join(cells) + " \\\\")
-        if cmids:
-            lines.append("  " + " ".join("\\cmidrule(lr){%d-%d}" % (a, b) for a, b in cmids))
-        cells = []
+                top.append("\\multicolumn{%d}{c|}{\\firstrowfont{}%s}" % (span, _wrap(text)))
+            else:
+                top.append(_fr(first) + body)
+            first = False
+        hdr.append(" & ".join(top) + " \\\\")
+        hdr.append("\\hline")
+        subs, first = [], True
         for text, span in sub_row:
-            body = "" if text is None else ("\\textbf{\\textcolor{tjnHeaderText}{%s}}" % _esc(text))
-            cells.append(_hcell(1, body))
-        lines.append("  " + " & ".join(cells) + " \\\\")
+            subs.append(_fr(first) + ("" if text is None else _esc(text)))
+            first = False
+        hdr.append(" & ".join(subs) + " \\\\")
+        hdr.append("\\hline")
     else:
-        hdr = " & ".join(
-            (f"\\textbf{{\\textcolor{{tjnHeaderText}}{{{_esc(h)}}}}}")
-            for h in headers)
-        lines.append(f"  \\rowcolor{{tjnHeader}} {hdr} \\\\")
-    lines.append("  \\midrule")
+        cells, first = [], True
+        for h in headers:
+            cells.append(_fr(first) + _esc(h))
+            first = False
+        hdr.append(" & ".join(cells) + " \\\\")
+        hdr.append("\\hline")
+
+    # ---- SOTJ xltabular: |L|Y…|, page-breaking; caption + notes supplied by caller.
+    # Bleed 3.2cm into the left margin (matching the figures) so wide tables get room. ----
+    if title_super and spec:                       # last column holds the long reference label
+        colspec = "|L{2.4cm}|" + "Y|" * (ncol - 2) + "R{2.5cm}|"
+    else:
+        colspec = "|L{2.4cm}|" + "Y|" * (ncol - 1)
+    lines.append("\\setlength{\\LTleft}{-3.2cm}\\setlength{\\LTright}{0pt}")
+    lines.append("\\begin{xltabular}{\\dimexpr\\textwidth+3.2cm\\relax}{%s}" % colspec)
+    lines.extend(hdr)
+    lines.append("\\endfirsthead")
+    lines.append("\\multicolumn{%d}{@{}l}{\\emph{\\footnotesize (continued)}}\\\\" % ncol)
+    lines.extend(hdr)
+    lines.append("\\endhead")
+    lines.append("\\multicolumn{%d}{r@{}}{\\emph{\\footnotesize Continued on next page}}\\\\" % ncol)
+    lines.append("\\endfoot")
+    lines.append("\\endlastfoot")
     for _, row in df.iterrows():
         is_grp = _is_group_row(row.iloc[0])
         cells = []
-        for j, v in enumerate(row):
+        for v in row:
             txt = _esc(_fmt(v))
+            # [1]/[2]/[3] flags → hyperlinks to the shared notes block
+            # (regular weight/shape — not italic)
+            txt = re.sub(r"\[([123])\]",
+                         r"\\hyperref[tab:tablenotes]{[\1]}", txt)
             if is_grp and txt:
                 txt = f"\\textbf{{{txt}}}"
             cells.append(txt)
         line = " & ".join(cells) + " \\\\"
         if is_grp:
             line = "\\rowcolor{tjnGroup} " + line
-        lines.append("  " + line)
-    lines.append("  \\bottomrule")
-    lines.append("  \\end{tabular}%")
-    lines.append("  }")
-    lines.append("\\end{table}")
+        lines.append(line)
+    lines.append("\\hline")
+    lines.append("\\end{xltabular}")
     lines.append("")
     with open(tex_path, "w", encoding="utf-8") as fh:
         fh.write("\n".join(lines))
