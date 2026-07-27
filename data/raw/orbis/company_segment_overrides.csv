@@ -1,0 +1,80 @@
+bvd_id,name_contains,oil_gas_share,minerals_share,coal_share,source_note
+# Diversified miners — split by segment revenue (approx., annual reports FY2023-24)
+,GLENCORE PLC,0.00,0.55,0.20,"~20% coal production, ~55% metals (Cu/Zn/Ni/Co); ~25% trading-margin-only dropped"
+,BHP GROUP,0.00,0.80,0.15,"iron ore + copper ~80%; steelmaking coal ~15%; 5% other dropped"
+,RIO TINTO PLC,0.00,1.00,0.00,"iron ore + copper + aluminium; no coal since 2018"
+,RIO TINTO LIMITED,0.00,0.00,0.00,"duplicate of RIO TINTO PLC (dual listing) — zero-weight"
+,ANGLO AMERICAN PLC,0.00,0.75,0.15,"iron ore + PGMs + copper ~75%; steelmaking coal ~15%; 10% other"
+,VALE S.A.,0.00,0.95,0.00,"iron ore + base metals"
+,ANTOFAGASTA PLC,0.00,1.00,0.00,"copper"
+,FREEPORT-MCMORAN,0.00,1.00,0.00,"copper + gold + molybdenum"
+,FRESNILLO PLC,0.00,1.00,0.00,"silver + gold"
+,NEWMONT,0.00,1.00,0.00,"gold + copper"
+,BARRICK GOLD,0.00,1.00,0.00,"gold + copper"
+,ZIJIN MINING,0.00,1.00,0.00,"gold + copper"
+,JIANGXI COPPER,0.00,1.00,0.00,"copper"
+,CMOC GROUP,0.00,1.00,0.00,"cobalt + niobium + copper"
+,TECK RESOURCES,0.00,0.70,0.25,"copper + zinc + steelmaking coal (divested 2024 but in historical data)"
+# Japanese trading houses (sogo shosha) — extractive production is a small share
+,MITSUBISHI CORPORATION,0.08,0.05,0.03,"~15-18% of revenue from own natural-resource production (oil/gas/metals/coal); rest is trading & non-extractive"
+,MITSUI & CO,0.10,0.05,0.02,"similar profile; slightly oil-heavier"
+,SUMITOMO CORPORATION,0.03,0.06,0.02,"copper + coal + small oil"
+,MARUBENI,0.05,0.03,0.02,"oil + metals + coal minority"
+,ITOCHU,0.04,0.03,0.02,"resources ~10% of revenue"
+# Steel producers with captive mining
+,ARCELORMITTAL,0.00,0.05,0.08,"primarily steel (manufacturing, non-extractive); owns iron ore + met coal upstream ~13%"
+,NIPPON STEEL,0.00,0.03,0.05,"steel + minor captive iron ore/coal"
+# Utilities with own mining
+,RWE AKTIENGESELLSCHAFT,0.00,0.00,0.20,"lignite mining ~20% of group revenue; rest is power gen"
+,ENN NATURAL GAS,0.80,0.00,0.00,"primarily natural gas distribution/production"
+# Conglomerates with small extractive exposure
+,WESFARMERS,0.00,0.02,0.03,"retail-dominated; small coal legacy exposure"
+# Integrated oil majors — split between upstream (extraction, relevant for royalty carve-out)
+# and downstream (refining/marketing, excluded). Values approximate upstream revenue share
+# from FY2023 segment reports; remaining share is non-extractive and dropped.
+,SAUDI ARABIAN OIL COMPANY,0.90,0.00,0.00,"Aramco ~90% upstream"
+,EXXON MOBIL,0.40,0.00,0.00,"integrated; ~40% upstream revenue share"
+,SHELL PLC,0.35,0.00,0.00,"~30-35% upstream incl. Integrated Gas"
+,BP P.L.C.,0.35,0.00,0.00,"~30-35% upstream + gas & low-carbon"
+,CHEVRON CORPORATION,0.40,0.00,0.00,"~40% upstream"
+,TOTALENERGIES,0.35,0.00,0.00,"~30-35% E&P + integrated LNG"
+,ENI S.P.A.,0.50,0.00,0.00,"more upstream-tilted than US/UK majors"
+,EQUINOR,0.75,0.00,0.00,"predominantly upstream NCS"
+,CONOCOPHILLIPS,1.00,0.00,0.00,"pure upstream (divested downstream 2012)"
+,REPSOL,0.40,0.00,0.00,"integrated"
+,PETROLEO BRASILEIRO,0.70,0.00,0.00,"Petrobras mostly upstream"
+,PETROLEOS MEXICANOS,0.60,0.00,0.00,"Pemex ~60% upstream"
+,PETROLIAM NASIONAL BERHAD,0.65,0.00,0.00,"Petronas integrated, upstream-heavy"
+,LUKOIL,0.50,0.00,0.00,"integrated"
+,NEFTYANAYA KOMPANIYA,0.50,0.00,0.00,"Rosneft (PAO NK Rosneft) integrated"
+,CHINA NATIONAL PETROLEUM CORPORATION,0.55,0.00,0.00,"CNPC integrated; upstream majority"
+,CHINA PETROLEUM & CHEMICAL CORPORATION,0.30,0.00,0.00,"Sinopec refining-heavy, ~30% upstream"
+,CNOOC LIMITED,1.00,0.00,0.00,"CNOOC pure upstream"
+,PT PERTAMINA,0.55,0.00,0.00,"integrated Indonesian NOC"
+,INDIAN OIL CORPORATION,0.00,0.00,0.00,"IOC refining/marketing only"
+,BHARAT PETROLEUM,0.00,0.00,0.00,"BPCL refining/marketing"
+,HINDUSTAN PETROLEUM,0.00,0.00,0.00,"HPCL refining/marketing"
+,RELIANCE INDUSTRIES,0.15,0.00,0.00,"mostly downstream + diversified"
+,ENEOS HOLDINGS,0.00,0.00,0.00,"ENEOS refining/marketing"
+,IDEMITSU KOSAN,0.00,0.00,0.00,"refining"
+,PHILLIPS 66,0.00,0.00,0.00,"pure refining/midstream (no upstream)"
+,VALERO ENERGY,0.00,0.00,0.00,"pure refining"
+,MARATHON PETROLEUM,0.00,0.00,0.00,"pure refining"
+,MARATHON OIL,1.00,0.00,0.00,"pure upstream (separate from MPC)"
+,MARATHON OIL CORPORATION,1.00,0.00,0.00,"pure upstream"
+,PTT PCL,0.50,0.00,0.00,"Thailand integrated NOC"
+,ORLEN,0.10,0.00,0.00,"Polish refining + fuel retail, minor E&P"
+,ENEL SPA,0.00,0.00,0.00,"utility, not extractive"
+,UNIPER GLOBAL,0.00,0.00,0.00,"gas trading/utility, not extraction"
+,VITOL,0.00,0.00,0.00,"trader only, no extraction"
+,ESFAHAN OIL REFINING,0.00,0.00,0.00,"Iranian refiner"
+,BANDAR ABBAS OIL REFINING,0.00,0.00,0.00,"Iranian refiner"
+,TEHRAN OIL REFINING,0.00,0.00,0.00,"Iranian refiner"
+,TABRIZ OIL REFINING,0.00,0.00,0.00,"Iranian refiner"
+# Notes:
+# - Shares should sum to <=1.0; any remainder is treated as non-extractive (dropped from HQ shares).
+# - Match is by case-insensitive substring on company name ('name_contains'); first match wins.
+# - bvd_id overrides name match if provided (not currently used).
+# - Chinese SOE branches (CNPC/Sinopec/PetroChina/CNOOC provincial entities) are
+#   handled automatically in the script via a name-prefix dedup — no overrides needed here.
+# - Edit this file to refine methodology; re-run scripts/process_orbis_broad.py to apply.

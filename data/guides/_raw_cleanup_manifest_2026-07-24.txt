@@ -1,0 +1,47 @@
+Raw & intermediate cleanup 2026-07-24 (walkthrough decision: archive everything
+not consumed by a live script and not a source document behind hand-curated numbers).
+
+Moved to data/archive/raw_superseded/:
+  eiti_reports_noncountry/2023 GC EITI data use cases/   (EITI use-case material, not data)
+  eiti_reports_noncountry/Z - Community of Practice webinar recording/
+  eiti_reports_noncountry/ZZ-FERDI and EITI 2024/
+  Data-Landscape-of-Climate-Finance-in-Africa-2024.xlsx  (superseded by _v2)
+  wb_resource_rents_overrides.csv                        (was data/raw/extractive/archive/ - folder removed)
+
+Moved to data/archive/intermediate_superseded/ (one-off staging / retired-script outputs,
+no live consumers - verified by full-code grep):
+  orbis_entire_universe_batches/ , orbis_pull_batches/   (Orbis pull-request staging)
+  orbis_ENTIRE_universe_bvdids.tsv , orbis_missing_revenue_bvdids.csv
+  orbis_financials_to_pull_ALL.{tsv,txt} , _BVDIDS_ONLY.txt , _PRIORITY.txt
+  cbcr_inscope_groups_yearly.csv , inscope_bvds.txt      (earlier 1e universe-pass variants)
+  rerun_stage*.log                                       (run logs)
+  ut_predicted_vs_actual_loss_by_year.csv , ut_losers_tax_check_by_year.csv ,
+  ut_losers_exclresource_by_year.csv , ut_figures_lic_lmic_by_year.csv ,
+  etr_period_average_by_partner.csv                      (one-off drafting checks)
+
+Moved to data/guides/:
+  oecd_aamne_readme_2026-07.xlsx                         (codebook, not a pipeline input)
+
+Kept deliberately although no script reads them (source documents behind hand-curated
+numbers, per project rule):
+  data/raw/extractive/{BRA,CHN,LSO,TUR}_*_extracted.* , resource_revenue_extracted.csv
+  data/raw/context/sau_mof_budget_dashboard_2026.csv
+  data/raw/extractive/resource_profits_manual_sources/** , eiti_reports/<Country>/**
+  data/raw/cbcr/oecd_cbcr_reporters_over_time_2026-06.xlsx  (source of EXCLUSION_CONDITIONS,
+    now cited in 2_disaggregate_aggregated_values.py)
+  data/raw/cbcr/pcbcr/**  (consumed by src/us_only/, the non-UT side project)
+
+Same-day follow-up (terminology + final-folder cleanup):
+  RENAMED data/raw/resources/ -> data/raw/extractive/  (matches src/3_extractive_prep,
+    data/intermediate/extractive, output/extractive; 29 files' path references updated)
+  data/final/ trimmed to the pipeline datasets. Moved to data/final/archive/:
+    cbcr_main_with_extractives.csv , cbcr_main_with_carveout.csv ,
+    cbcr_main_carveout_per_mineral.csv          (retired carve-out route)
+    cit_etr_sotjsample.csv                      (one-off check)
+    extractive_royalty_dataset_yearly.csv       (superseded copy; live one is in
+                                                 data/intermediate/extractive/)
+  effective_resource_cit_rates.csv MOVED data/final/ -> data/raw/extractive/
+    (hand-curated rates table = an input, not a result; consumers updated)
+  data/intermediate/gravity/gravity_imputed_activity__boot*.csv gzipped in place
+    (script 2 reader falls back to .csv.gz; run_bootstrap regenerates draws anyway)
+  Dead COLUMNS_STAGE_3/4 blocks (retired carve-out datasets) removed from _column_order.py

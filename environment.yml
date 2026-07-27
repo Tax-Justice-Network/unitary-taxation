@@ -1,0 +1,27 @@
+name: unitary_taxation
+
+dependencies:
+  - python>=3.11
+  - pip
+  - ipykernel
+  - pandas
+  - pandas-profiling
+  - numpy
+  - pip:
+      - jupyter_black
+      - requests
+      - openpyxl
+      - xlrd
+      - seaborn
+      - pylab-sdk
+      - selenium
+      - pandas_profiling
+      - adjusttext
+      - statsmodels
+      - scikit-learn
+      - plotly
+      - nbformat
+      - kaleido
+      - xlsxwriter
+      - squarify
+      - pycountry

@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+data/final/
+data/intermediate/gravity/
+output/
+*.log

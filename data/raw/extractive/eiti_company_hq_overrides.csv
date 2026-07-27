@@ -1,0 +1,651 @@
+# Hand-curated company -> headquarter overrides for the EITI-to-Orbis match (consumed by
+# 3_33_match_eiti_companies_to_orbis.py, applied before any automatic matching).
+# - match_substring: normalised substring, matched as a contiguous word-run inside the
+#   normalised EITI company name. Longest substring wins (the script sorts by length),
+#   so row order does not affect matching.
+# - canonical_name: the operator/group the payment belongs to (display + Orbis lookup).
+# - hq_iso2: headquarter country of that group (ISO2).
+# - is_cbcr_filer: False = state-owned vehicle / national oil company that does NOT file
+#   CbCR (its domestic payments must not land on a CbCR diagonal cell). Blank = consult
+#   the Orbis universe's in_cbcr_universe flag for the canonical name.
+# - group: the audit batch / country context the entry came from (documentation only).
+# Provenance: the unmatched-value audit of eiti_company_hq_map.csv (~$300B recovered) +
+# the A-Z country audit 2026-07-22 (docs/extractive/resource_correction_country_audit.md).
+match_substring,canonical_name,hq_iso2,is_cbcr_filer,group
+nigerian national petroleum,NNPC,NG,False,
+nnpc,NNPC,NG,False,
+petronas,Petronas,MY,,
+petroliam nasional,Petronas,MY,,
+sonatrach,Sonatrach,DZ,False,
+pertamina,Pertamina,ID,,
+petroleos mexicanos,Pemex,MX,,
+pemex,Pemex,MX,,
+petrobras,Petrobras,BR,,
+petroleo brasileiro,Petrobras,BR,,
+kuwait petroleum,Kuwait Petroleum Corp,KW,False,
+kuwait oil company,Kuwait Oil Co,KW,False,
+abu dhabi national oil,ADNOC,AE,,
+adnoc,ADNOC,AE,,
+qatar petroleum,QatarEnergy,QA,False,
+qatarenergy,QatarEnergy,QA,False,
+national iranian oil,NIOC,IR,False,
+gazprom,Gazprom,RU,,
+rosneft,Rosneft,RU,,
+lukoil,Lukoil,RU,,
+equinor,Equinor,NO,,
+statoil,Equinor,NO,,
+petoro,Petoro,NO,False,
+energie beheer nederland,Energie Beheer Nederland,NL,False,
+nederlandse aardolie,NAM (Shell/ExxonMobil),NL,,
+ecopetrol,Ecopetrol,CO,,
+ypf,YPF,AR,,
+pdvsa,PDVSA,VE,False,
+petronor,Petronor,AO,False,
+sonangol,Sonangol,AO,False,
+ghana national petroleum,GNPC,GH,False,
+gnpc,GNPC,GH,False,
+societe nationale des petroles du congo,SNPC,CG,False,
+societe nationale des hydrocarbures,SNH,CM,False,
+gabon oil company,Gabon Oil Co,GA,False,
+petrosen,Petrosen,SN,False,
+petroci,Petroci,CI,False,
+glencore,Glencore,CH,,
+trafigura,Trafigura,CH,,
+vitol,Vitol,CH,,
+barrick,Barrick Gold,CA,,
+kinross,Kinross Gold,CA,,
+iamgold,IAMGOLD,CA,,
+b2gold,B2Gold,CA,,
+endeavour mining,Endeavour Mining,GB,,
+perseus mining,Perseus Mining,AU,,
+anglogold ashanti,AngloGold Ashanti,ZA,,
+gold fields,Gold Fields,ZA,,
+harmony gold,Harmony Gold,ZA,,
+newmont,Newmont,US,,
+freeport,Freeport-McMoRan,US,,
+rio tinto,Rio Tinto,GB,,
+bhp,BHP,AU,,
+vedanta,Vedanta,GB,,
+anglo american,Anglo American,GB,,
+china molybdenum,CMOC / China Molybdenum,CN,,
+cmoc,CMOC / China Molybdenum,CN,,
+zijin mining,Zijin Mining,CN,,
+sinohydro,Sinohydro / PowerChina,CN,,
+china national petroleum,CNPC,CN,,
+cnooc,CNOOC,CN,,
+sinopec,Sinopec,CN,,
+shell,Shell,GB,,
+totalenergies,TotalEnergies,FR,,
+total e&p,TotalEnergies,FR,,
+elf,TotalEnergies,FR,,
+total land care,Total Land Care (NGO),MW,False,
+total exploration,TotalEnergies,FR,,
+total energies,TotalEnergies,FR,,
+total upstream,TotalEnergies,FR,,
+total holdings,TotalEnergies,FR,,
+total norge,TotalEnergies,FR,,
+total tengah,TotalEnergies,FR,,
+total operators,TotalEnergies,FR,,
+total tanzania,TotalEnergies,FR,,
+total,TotalEnergies,FR,,
+exxonmobil,ExxonMobil,US,,
+exxon mobil,ExxonMobil,US,,
+esso,ExxonMobil,US,,
+chevron,Chevron,US,,
+conocophillips,ConocoPhillips,US,,
+eni ,Eni,IT,,
+agip,Eni,IT,,
+repsol,Repsol,ES,,
+bp ,BP,GB,,
+kosmos energy,Kosmos Energy,US,,
+tullow oil,Tullow Oil,GB,,
+woodside,Woodside Energy,AU,,
+wintershall,Wintershall Dea,DE,,
+wintershall dea,Wintershall Dea,DE,,
+spirit energy,Spirit Energy,GB,,
+neptune energy,Neptune Energy,GB,,
+var energi,Vår Energi,NO,,
+vaar energi,Vår Energi,NO,,
+aker bp,Aker BP,NO,,
+omv,OMV,AT,,
+pgnig,PGNiG,PL,,
+taqa,TAQA,AE,,
+lundin,Lundin Energy,SE,,
+dno asa,DNO,NO,,
+vaalco,Vaalco Energy,US,,
+genel energy,Genel Energy,GB,,
+gulf keystone,Gulf Keystone Petroleum,GB,,
+siccar point,Siccar Point Energy,GB,,
+harbour energy,Harbour Energy,GB,,
+ithaca energy,Ithaca Energy,GB,,
+serica energy,Serica Energy,GB,,
+cnr international,Canadian Natural Resources,CA,,
+canadian natural,Canadian Natural Resources,CA,,
+petrofac,Petrofac,GB,,
+schlumberger,Schlumberger,US,,
+halliburton,Halliburton,US,,
+baker hughes,Baker Hughes,US,,
+technip,TechnipFMC,GB,,
+saipem,Saipem,IT,,
+subsea 7,Subsea 7,GB,,
+aker solutions,Aker Solutions,NO,,
+seadrill,Seadrill,GB,,
+ukrnafta,Ukrnafta,UA,False,
+ukrgazvydobuvannya,Ukrgazvydobuvannya,UA,False,
+ukrtransgaz,Ukrtransgaz,UA,False,
+ukrtransnafta,Ukrtransnafta,UA,False,
+naftogaz,Naftogaz,UA,False,
+snim,SNIM,MR,False,
+societe nationale industrielle et miniere,SNIM,MR,False,
+yinka folawiyo,Yinka Folawiyo Petroleum,NG,False,
+seplat,Seplat Energy,NG,False,
+oando,Oando,NG,False,
+shell petroleum development company,SPDC (Shell),GB,,
+spdc,SPDC (Shell),GB,,
+addax,Addax Petroleum (Sinopec),CN,,
+first e&p,First E&P,NG,False,
+basra oil,Basra Oil Company,IQ,False,
+missan oil,Missan Oil Company,IQ,False,
+midland oil,Midland Oil Company,IQ,False,
+south oil company,South Oil Company,IQ,False,
+north oil company,North Oil Company,IQ,False,
+somo,SOMO (Iraq),IQ,False,
+lake asphalt,Lake Asphalt of T&T,TT,False,
+trinidad petroleum holdings,Trinidad Petroleum Holdings,TT,False,
+heritage petroleum,Heritage Petroleum,TT,False,
+national gas company of trinidad,NGC Trinidad,TT,False,
+petroleum company of trinidad,Petrotrin,TT,False,
+petrotrin,Petrotrin,TT,False,
+touchstone,Touchstone Exploration,CA,,
+perupetro,Perupetro,PE,False,
+petroperu,Petroperu,PE,False,
+petroamazonas,Petroamazonas,EC,False,
+petroecuador,Petroecuador,EC,False,
+oil and natural gas corporation,ONGC,IN,,
+ongc videsh,ONGC Videsh,IN,,
+ongc,ONGC,IN,,
+oil india,Oil India,IN,,
+indian oil,Indian Oil Corp,IN,,
+reliance industries,Reliance Industries,IN,,
+hindustan petroleum,Hindustan Petroleum,IN,,
+hpcl,Hindustan Petroleum,IN,,
+bharat petroleum,Bharat Petroleum,IN,,
+essar oil,Essar Oil,IN,,
+cairn,Vedanta / Cairn,GB,,
+tupras,Tupras,TR,,
+turkish petroleum,TPAO (Turkish Petroleum),TR,False,
+tpao,TPAO (Turkish Petroleum),TR,False,
+sinochem,Sinochem,CN,,
+zhenhua oil,China Zhenhua Oil,CN,,
+petrochina,PetroChina,CN,,
+china offshore oil,CNOOC,CN,,
+unipec,Unipec (Sinopec),CN,,
+geo-jade,Geo-Jade Petroleum,CN,,
+united energy group,United Energy Group,CN,,
+litasco,Litasco (Lukoil),RU,,
+nfc africa,CNMC,CN,,
+non-ferrous company africa,CNMC,CN,,
+cnmc,CNMC,CN,,
+china nonferrous,CNMC,CN,,
+luanshya copper,Luanshya Copper (CNMC),CN,,
+chambishi,Chambishi (CNMC),CN,,
+first quantum,First Quantum Minerals,CA,,
+kansanshi,First Quantum Minerals,CA,,
+kalumbila,First Quantum Minerals,CA,,
+konkola copper,Konkola Copper Mines,GB,,
+mopani,Mopani Copper Mines,ZM,False,
+zccm,ZCCM-IH,ZM,False,
+kcm,Konkola Copper Mines,GB,,
+lumwana,Lumwana (Barrick),CA,,
+pluspetrol,Pluspetrol,AR,,
+hochschild,Hochschild Mining,PE,,
+buenaventura,Buenaventura,PE,,
+southern copper,Southern Copper (Grupo México),MX,,
+antamina,Antamina (BHP/Glencore/etc.),AU,,
+yanacocha,Yanacocha (Newmont),US,,
+las bambas,Las Bambas (MMG),AU,,
+mmg ,MMG,AU,,
+volcan compania minera,Volcan / Glencore,CH,,
+nido petroleum,Nido Petroleum,AU,,
+philex,Philex Mining,PH,,
+semirara,Semirara Mining (Consunji),PH,,
+benguet corporation,Benguet Corp,PH,,
+kibali,Kibali (Barrick/AngloGold),CA,,
+banro,Banro Corp,CA,,
+ivanhoe,Ivanhoe Mines,CA,,
+kamoa,Ivanhoe Mines,CA,,
+tenke fungurume,CMOC (Tenke Fungurume),CN,,
+metalkol,ERG (Metalkol),LU,,
+eurasian resources,ERG,LU,,
+erg ,ERG,LU,,
+boss mining,ERG,LU,,
+comide,ERG,LU,,
+societe miniere de bakwanga,MIBA,CD,False,
+miba,MIBA,CD,False,
+gecamines,Gécamines,CD,False,
+sodimico,Sodimico,CD,False,
+randgold,Barrick (ex-Randgold),CA,,
+loulo,Barrick (Loulo-Gounkoto),CA,,
+gounkoto,Barrick (Loulo-Gounkoto),CA,,
+fekola,B2Gold (Fekola),CA,,
+syama,Resolute Mining (Syama),GB,,
+resolute mining,Resolute Mining,GB,,
+morila,Morila (Firefinch),AU,,
+sadiola,Sadiola (Allied Gold),AU,,
+essakane,IAMGOLD (Essakane),CA,,
+bissa gold,Nordgold (Bissa),RU,,
+nordgold,Nordgold,RU,,
+semafo,Endeavour Mining (ex-Semafo),GB,,
+teranga gold,Endeavour Mining (ex-Teranga),GB,,
+roxgold,Fortuna Silver (Roxgold),CA,,
+hounde,Endeavour Mining (Houndé),GB,,
+netiana,Netiana Mining,BF,False,
+sissingue,Perseus Mining (Sissingué),AU,,
+yaoure,Perseus Mining (Yaouré),AU,,
+centamin,Centamin,GB,,
+allied gold,Allied Gold,AU,,
+avocet mining,Avocet Mining,GB,,
+hummingbird resources,Hummingbird Resources,GB,,
+yanfolila,Hummingbird Resources (Yanfolila),GB,,
+chirano,Kinross Gold (Chirano),CA,,
+tasiast,Kinross Gold (Tasiast),CA,,
+goldfields ghana,Gold Fields,ZA,,
+damang,Gold Fields (Damang),ZA,,
+tarkwa,Gold Fields (Tarkwa),ZA,,
+obuasi,AngloGold Ashanti (Obuasi),ZA,,
+iduapriem,AngloGold Ashanti (Iduapriem),ZA,,
+newmont ghana,Newmont,US,,
+ahafo,Newmont (Ahafo),US,,
+akyem,Newmont (Akyem),US,,
+asanko,Galiano Gold (Asanko),CA,,
+galiano,Galiano Gold,CA,,
+golden star,Golden Star Resources,US,,
+edikan,Perseus Mining (Edikan),AU,,
+ghana manganese,Ghana Manganese (Consmin),GB,,
+consolidated minerals,Consmin,GB,,
+ghana bauxite,Ghana Bauxite,GH,False,
+giadec,GIADEC,GH,False,
+kabang,Kabanga Nickel,GB,,
+petra diamonds,Petra Diamonds,GB,,
+williamson diamonds,Petra Diamonds (Williamson),GB,,
+acacia mining,Barrick (ex-Acacia),CA,,
+north mara,Barrick (North Mara),CA,,
+bulyanhulu,Barrick (Bulyanhulu),CA,,
+buzwagi,Barrick (Buzwagi),CA,,
+geita gold,AngloGold Ashanti (Geita),ZA,,
+shanta gold,Shanta Gold,GB,,
+songas,Songas (Globeleq),GB,,
+pan african energy tanzania,Maurel & Prom (M&P),FR,,
+maurel,Maurel & Prom,FR,,
+orca exploration,Orca Energy,CA,,
+wentworth resources,Wentworth Resources,GB,,
+solaris resources,Solaris Resources,CA,,
+enami,ENAMI,CL,False,
+codelco,Codelco,CL,,
+lundin gold,Lundin Gold,CA,,
+fruta del norte,Lundin Gold (Fruta del Norte),CA,,
+mirador,Tongling/CRCC (Mirador),CN,,
+andes petroleum,CNPC/Sinopec (Andes Petroleum),CN,,
+petrooriental,CNPC/Sinopec (PetroOriental),CN,,
+simandou,Rio Tinto / Winning Consortium (Simandou),GB,,
+compagnie des bauxites de guinee,CBG (Alcoa/Rio Tinto/Dadco),US,,
+cbg ,CBG,US,,
+guinea alumina,Emirates Global Aluminium (GAC),AE,,
+ega ,Emirates Global Aluminium,AE,,
+rusal,Rusal,RU,,
+friguia,Rusal (Friguia),RU,,
+societe miniere de boke,SMB-Winning (bauxite),SG,,
+smb ,SMB-Winning,SG,,
+winning consortium,SMB-Winning,SG,,
+nimba,ArcelorMittal / SMFG (Nimba),LU,,
+arcelormittal,ArcelorMittal,LU,,
+societe aurifere de guinee,SAG (AngloGold),ZA,,
+siguiri,AngloGold Ashanti (Siguiri),ZA,,
+petromar,Sonangol Pesquisa & Produção,AO,False,
+mutanda,Mutanda Mining (Glencore),CH,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+kamoto copper,KCC (Glencore),CH,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+muanda international oil,MIOC (Perenco),FR,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+perenco,Perenco,FR,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+perencorep,Perenco-Rep,FR,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+teikoku,INPEX (Teikoku),JP,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+ruashi,Ruashi Mining (Jinchuan),CN,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+congo dongfang,Huayou Cobalt (CDM),CN,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+dongfang international mining,Huayou Cobalt (CDM),CN,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+amck mining,AMCK / Kinsevere (MMG),AU,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+kinsevere,MMG Kinsevere,AU,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+musonoie,Musonoie Global (Chengtun),CN,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+kalumbwe,Kalumbwe Myunga (Chengtun),CN,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+kipoi,Société d'Exploitation de Kipoi (Tiger Resources),AU,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+frontier sa,Frontier (ERG),LU,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+frontier sprl,Frontier (ERG),LU,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+tfm,CMOC Tenke Fungurume,CN,,DRC (COD) — Glencore + Perenco + Chinese miners + state
+lirex,Lirex SARL (DRC fuel distributor),CD,False,DRC (COD) — Glencore + Perenco + Chinese miners + state
+societe des hydrocarbures du tchad,SHT,TD,False,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+sht ,SHT,TD,False,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+societe de raffinage de n,SRN (CNPC+TD),TD,False,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+griffiths energy,Caracal Energy (Glencore),CH,,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+caracal energy,Caracal Energy (Glencore),CH,,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+cnpci,CNPC International,CN,,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+tchad oil transportation,TOTCO (Chad pipeline),TD,False,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+totco,TOTCO,TD,False,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+eepci,ExxonMobil Chad (EEPCI),US,,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+esso exploration and production chad,ExxonMobil Chad,US,,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+united hydrocarbon chad,Delonex / United Hydrocarbon,GB,,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+sogea satom,Vinci Construction (Sogea-Satom),FR,,"Chad (TCD) — SHT (state), CNPC, Glencore (ex-Caracal), TOTCO/ExxonMobil JV"
+cnpc niger,CNPC Niger,CN,,Niger (NER) — Orano uranium + CNPC oil + state
+somair,Orano (SOMAÏR),FR,,Niger (NER) — Orano uranium + CNPC oil + state
+societe des mines de l air,Orano (SOMAÏR),FR,,Niger (NER) — Orano uranium + CNPC oil + state
+cominak,Orano (COMINAK),FR,,Niger (NER) — Orano uranium + CNPC oil + state
+compagnie miniere d akouta,Orano (COMINAK),FR,,Niger (NER) — Orano uranium + CNPC oil + state
+somina,SOMINA (CNNC),CN,,Niger (NER) — Orano uranium + CNPC oil + state
+soraz,SORAZ Refinery (CNPC),CN,,Niger (NER) — Orano uranium + CNPC oil + state
+societe des mines d azelik,SOMINA (CNNC),CN,,Niger (NER) — Orano uranium + CNPC oil + state
+anadarko mocambique,"TotalEnergies (Mozambique LNG, ex-Anadarko)",FR,,Mozambique (MOZ) — Anadarko/Total + Vale + Sasol + Cove/PTT + Gemfields
+anadarko,Occidental Petroleum (Anadarko),US,,Mozambique (MOZ) — Anadarko/Total + Vale + Sasol + Cove/PTT + Gemfields
+vale mocambique,Vale (Moatize),BR,,Mozambique (MOZ) — Anadarko/Total + Vale + Sasol + Cove/PTT + Gemfields
+vale moçambique,Vale (Moatize),BR,,Mozambique (MOZ) — Anadarko/Total + Vale + Sasol + Cove/PTT + Gemfields
+cove energy,PTTEP (Cove Energy),TH,,Mozambique (MOZ) — Anadarko/Total + Vale + Sasol + Cove/PTT + Gemfields
+rompco,Sasol Gas (ROMPCO),ZA,,Mozambique (MOZ) — Anadarko/Total + Vale + Sasol + Cove/PTT + Gemfields
+montepuez,Gemfields (Montepuez Rubies),GB,,Mozambique (MOZ) — Anadarko/Total + Vale + Sasol + Cove/PTT + Gemfields
+montepuz rubi,Gemfields (Montepuez Rubies),GB,,Mozambique (MOZ) — Anadarko/Total + Vale + Sasol + Cove/PTT + Gemfields
+videocom hidrocarbon,Videocom Hydrocarbon Holding,MZ,False,Mozambique (MOZ) — Anadarko/Total + Vale + Sasol + Cove/PTT + Gemfields
+ambatovy,Sumitomo / Korea Resources / Sherritt (Ambatovy),JP,,"Madagascar (MDG) — Ambatovy (Sumitomo+Korea+Sherritt), QMM (Rio Tinto), WISCO (CN)"
+dynatec madagascar,Sumitomo (Dynatec / Ambatovy),JP,,"Madagascar (MDG) — Ambatovy (Sumitomo+Korea+Sherritt), QMM (Rio Tinto), WISCO (CN)"
+qit madagascar,Rio Tinto (QMM),GB,,"Madagascar (MDG) — Ambatovy (Sumitomo+Korea+Sherritt), QMM (Rio Tinto), WISCO (CN)"
+madagascar mineral,Rio Tinto (QMM affiliates),GB,,"Madagascar (MDG) — Ambatovy (Sumitomo+Korea+Sherritt), QMM (Rio Tinto), WISCO (CN)"
+wisco,Wuhan Iron & Steel (WISCO),CN,,"Madagascar (MDG) — Ambatovy (Sumitomo+Korea+Sherritt), QMM (Rio Tinto), WISCO (CN)"
+guangxin kam wah,WISCO Guangxin Kam Wah,CN,,"Madagascar (MDG) — Ambatovy (Sumitomo+Korea+Sherritt), QMM (Rio Tinto), WISCO (CN)"
+mainland mining,Mainland Mining,CN,,"Madagascar (MDG) — Ambatovy (Sumitomo+Korea+Sherritt), QMM (Rio Tinto), WISCO (CN)"
+madagascar oil,Madagascar Oil Plc,GB,,"Madagascar (MDG) — Ambatovy (Sumitomo+Korea+Sherritt), QMM (Rio Tinto), WISCO (CN)"
+kraoma,KRAOMA (MDG state),MG,False,"Madagascar (MDG) — Ambatovy (Sumitomo+Korea+Sherritt), QMM (Rio Tinto), WISCO (CN)"
+pam madagascar,PAM Madagascar (Sherritt/Sumitomo),JP,,"Madagascar (MDG) — Ambatovy (Sumitomo+Korea+Sherritt), QMM (Rio Tinto), WISCO (CN)"
+prochimad,Prochimad (DSM),NL,,"Madagascar (MDG) — Ambatovy (Sumitomo+Korea+Sherritt), QMM (Rio Tinto), WISCO (CN)"
+somilo,Barrick (Loulo SOMILO),CA,,"Mali (MLI) — Barrick gold, AngloGold, Resolute"
+yatela,AngloGold Ashanti / IAMGOLD (Yatela),ZA,,"Mali (MLI) — Barrick gold, AngloGold, Resolute"
+semos,AngloGold Ashanti (Sadiola SEMOS),ZA,,"Mali (MLI) — Barrick gold, AngloGold, Resolute"
+segala mining,AngloGold Ashanti (Ségala),ZA,,"Mali (MLI) — Barrick gold, AngloGold, Resolute"
+somisy,Resolute Mining (Syama SOMISY),GB,,"Mali (MLI) — Barrick gold, AngloGold, Resolute"
+semico,Wassoul'Or (SEMICO),ML,False,"Mali (MLI) — Barrick gold, AngloGold, Resolute"
+somifi,African Petroleum (SOMIFI),GB,,"Mali (MLI) — Barrick gold, AngloGold, Resolute"
+taparko,Nordgold (Taparko SOMITA),RU,,"Burkina Faso (BFA) — Nordgold, Endeavour, Roxgold, Iamgold"
+somita,Nordgold (Taparko SOMITA),RU,,"Burkina Faso (BFA) — Nordgold, Endeavour, Roxgold, Iamgold"
+belahouro,Nordgold (Bissa SMB),RU,,"Burkina Faso (BFA) — Nordgold, Endeavour, Roxgold, Iamgold"
+societe des mines de belahouro,Nordgold (Bissa SMB),RU,,"Burkina Faso (BFA) — Nordgold, Endeavour, Roxgold, Iamgold"
+kalsaka mining,Amara Mining (Kalsaka),GB,,"Burkina Faso (BFA) — Nordgold, Endeavour, Roxgold, Iamgold"
+burkina mining company,Nordgold (Bissa),RU,,"Burkina Faso (BFA) — Nordgold, Endeavour, Roxgold, Iamgold"
+riverstone karma,Riverstone Karma (Volta Resources),CA,,"Burkina Faso (BFA) — Nordgold, Endeavour, Roxgold, Iamgold"
+wahgnion,Endeavour Mining (Wahgnion),GB,,"Burkina Faso (BFA) — Nordgold, Endeavour, Roxgold, Iamgold"
+bouere dohoun gold,Roxgold (Bouéré-Dohoun),CA,,"Burkina Faso (BFA) — Nordgold, Endeavour, Roxgold, Iamgold"
+african minerals,African Minerals (Tonkolili),GB,,"Sierra Leone (SLE) — Tonkolili, Marampa, Koidu, London Mining"
+marampa mines,London Mining (Marampa),GB,,"Sierra Leone (SLE) — Tonkolili, Marampa, Koidu, London Mining"
+koidu,Octéa Diamonds (Koidu),GB,,"Sierra Leone (SLE) — Tonkolili, Marampa, Koidu, London Mining"
+london mining,London Mining,GB,,"Sierra Leone (SLE) — Tonkolili, Marampa, Koidu, London Mining"
+sabodala,Endeavour Mining (Sabodala),GB,,"Senegal (SEN) — Endeavour, Eramet, IAMGOLD, Indorama"
+petowal mining,"B2Gold (Mako, ex-Toro Gold)",CA,,"Senegal (SEN) — Endeavour, Eramet, IAMGOLD, Indorama"
+grande cote,Eramet (TiZir Grande Côte),FR,,"Senegal (SEN) — Endeavour, Eramet, IAMGOLD, Indorama"
+grande côte,Eramet (TiZir Grande Côte),FR,,"Senegal (SEN) — Endeavour, Eramet, IAMGOLD, Indorama"
+industries chimiques du senegal,ICS (Indorama),IN,,"Senegal (SEN) — Endeavour, Eramet, IAMGOLD, Indorama"
+ics ,ICS (Indorama),IN,,"Senegal (SEN) — Endeavour, Eramet, IAMGOLD, Indorama"
+simfer,Rio Tinto (Simfer Simandou),GB,,"Guinea (GIN) — Rio Tinto Simandou, AngloGold Siguiri, Chinese bauxite"
+compagnie des bauxites de kindia,CBK (state),GN,False,"Guinea (GIN) — Rio Tinto Simandou, AngloGold Siguiri, Chinese bauxite"
+dinguiraye,Nordgold (Lefa SMD),RU,,"Guinea (GIN) — Rio Tinto Simandou, AngloGold Siguiri, Chinese bauxite"
+chalco guinea,Chinalco / Chalco,CN,,"Guinea (GIN) — Rio Tinto Simandou, AngloGold Siguiri, Chinese bauxite"
+compagnie du developpement des mines,Henan Chine Mining,CN,,"Guinea (GIN) — Rio Tinto Simandou, AngloGold Siguiri, Chinese bauxite"
+ophir tanzania,Ophir Energy (Tanzania),GB,,"Tanzania (TZA) — Ophir, Resolute, Acacia, Shanta, M&P, state TPDC"
+resolute tanzania,Resolute Mining (Golden Pride),GB,,"Tanzania (TZA) — Ophir, Resolute, Acacia, Shanta, M&P, state TPDC"
+pangea minerals,Barrick / Acacia (Pangea),CA,,"Tanzania (TZA) — Ophir, Resolute, Acacia, Shanta, M&P, state TPDC"
+shanta mining,Shanta Gold,GB,,"Tanzania (TZA) — Ophir, Resolute, Acacia, Shanta, M&P, state TPDC"
+panafrican energy tanzania,Maurel & Prom (Songo Songo),FR,,"Tanzania (TZA) — Ophir, Resolute, Acacia, Shanta, M&P, state TPDC"
+m p exploration production tanzania,Maurel & Prom (M&P),FR,,"Tanzania (TZA) — Ophir, Resolute, Acacia, Shanta, M&P, state TPDC"
+tanzania petroleum development,TPDC (state),TZ,False,"Tanzania (TZA) — Ophir, Resolute, Acacia, Shanta, M&P, state TPDC"
+midroc,MIDROC (Al Amoudi),SA,,"Ethiopia (ETH) — MIDROC, Poly-GCL, Dangote, Delonex"
+midrock,MIDROC (Al Amoudi),SA,,"Ethiopia (ETH) — MIDROC, Poly-GCL, Dangote, Delonex"
+poly gcl,Poly-GCL Petroleum,CN,,"Ethiopia (ETH) — MIDROC, Poly-GCL, Dangote, Delonex"
+dangote,Dangote Industries,NG,,"Ethiopia (ETH) — MIDROC, Poly-GCL, Dangote, Delonex"
+delonex,Delonex Energy,GB,,"Ethiopia (ETH) — MIDROC, Poly-GCL, Dangote, Delonex"
+newage ethiopia,New Age Energy,GB,,"Ethiopia (ETH) — MIDROC, Poly-GCL, Dangote, Delonex"
+societe nouvelle des phosphates du togo,SNPT (state),TG,False,"Togo (TGO) — SNPT (state), HeidelbergCement, WACEM"
+snpt,SNPT (state),TG,False,"Togo (TGO) — SNPT (state), HeidelbergCement, WACEM"
+scantogo,HeidelbergMaterials (Scantogo),DE,,"Togo (TGO) — SNPT (state), HeidelbergCement, WACEM"
+wacem,WACEM (Heidelberg / Diamond Cement),IN,,"Togo (TGO) — SNPT (state), HeidelbergCement, WACEM"
+bb eau vitale,Eau Vitale (BB),TG,False,"Togo (TGO) — SNPT (state), HeidelbergCement, WACEM"
+mauritanian copper mines,First Quantum (MCM Guelb Moghrein),CA,,Mauritania (MRT) — First Quantum + state
+mauritarian copper mines,First Quantum (MCM Guelb Moghrein),CA,,Mauritania (MRT) — First Quantum + state
+mcm ,First Quantum (MCM),CA,,Mauritania (MRT) — First Quantum + state
+societe mauritanienne des hydrocarbures,SMHPM (state),MR,False,Mauritania (MRT) — First Quantum + state
+smhpm,SMHPM (state),MR,False,Mauritania (MRT) — First Quantum + state
+dolphin geophysical,Dolphin Geophysical (defunct),NO,,Mauritania (MRT) — First Quantum + state
+capricorn,Capricorn Energy (ex-Cairn),GB,,Mauritania (MRT) — First Quantum + state
+unipec,Sinopec UNIPEC,CN,,Iraq (IRQ) — oil traders (huge magnitudes from SOMO sales)
+totsa,TotalEnergies Trading (TOTSA),FR,,Iraq (IRQ) — oil traders (huge magnitudes from SOMO sales)
+total oil trading,TotalEnergies Trading (TOTSA),FR,,Iraq (IRQ) — oil traders (huge magnitudes from SOMO sales)
+indian oil,Indian Oil Corporation,IN,,Iraq (IRQ) — oil traders (huge magnitudes from SOMO sales)
+jx nippon,ENEOS / JX Nippon,JP,,Iraq (IRQ) — oil traders (huge magnitudes from SOMO sales)
+toyota tsusho,Toyota Tsusho,JP,,Iraq (IRQ) — oil traders (huge magnitudes from SOMO sales)
+petro diamond,Mitsubishi (Petro-Diamond),JP,,Iraq (IRQ) — oil traders (huge magnitudes from SOMO sales)
+nigeria petroleum development,NPDC (NNPC subsidiary),NG,False,"Nigeria (NGA) — state vehicles, NLNG, Chevron"
+nigerian petroleum development,NPDC (NNPC subsidiary),NG,False,"Nigeria (NGA) — state vehicles, NLNG, Chevron"
+nnpc crude oil marketing,NNPC COMD,NG,False,"Nigeria (NGA) — state vehicles, NLNG, Chevron"
+nigeria liquefied natural gas,NLNG (NNPC + Shell + Total + Eni),NG,False,"Nigeria (NGA) — state vehicles, NLNG, Chevron"
+nlng,NLNG,NG,False,"Nigeria (NGA) — state vehicles, NLNG, Chevron"
+star deep water,Chevron Nigeria (Star Deep),US,,"Nigeria (NGA) — state vehicles, NLNG, Chevron"
+indonesia petroleum,INPEX,JP,,"Indonesia (IDN) — INPEX, Adaro, Medco, Kideco, Premier"
+virginia indonesia,ConocoPhillips Indonesia (Vico),US,,"Indonesia (IDN) — INPEX, Adaro, Medco, Kideco, Premier"
+premier oil natuna,Harbour Energy (Premier Oil),GB,,"Indonesia (IDN) — INPEX, Adaro, Medco, Kideco, Premier"
+adaro,Adaro Energy Indonesia,ID,,"Indonesia (IDN) — INPEX, Adaro, Medco, Kideco, Premier"
+medco e p,Medco Energi,ID,,"Indonesia (IDN) — INPEX, Adaro, Medco, Kideco, Premier"
+medco e&p,Medco Energi,ID,,"Indonesia (IDN) — INPEX, Adaro, Medco, Kideco, Premier"
+kideco,Kideco Jaya Agung (Indika Energy),ID,,"Indonesia (IDN) — INPEX, Adaro, Medco, Kideco, Premier"
+statoilhydro,Equinor,NO,,Norway (NOR) — variants of major operators
+dong e p,Ørsted (DONG E&P),DK,,Norway (NOR) — variants of major operators
+idemitsu,Idemitsu Kosan,JP,,Norway (NOR) — variants of major operators
+gdf suez,ENGIE (GDF Suez),FR,,Norway (NOR) — variants of major operators
+centrica,Centrica,GB,,Norway (NOR) — variants of major operators
+sval energi,Sval Energi (HitecVision),NO,,Norway (NOR) — variants of major operators
+solveig gas,Solveig Gas Norway,NO,,Norway (NOR) — variants of major operators
+exxonmobile,ExxonMobil,US,,Norway (NOR) — variants of major operators
+tengizchevroil,TengizChevroil (Chevron 50%),US,,"Kazakhstan (KAZ) — TengizChevroil, Karachaganak JV, KMG subsidiaries"
+tengizshevroil,TengizChevroil (Chevron 50%),US,,"Kazakhstan (KAZ) — TengizChevroil, Karachaganak JV, KMG subsidiaries"
+тенгизшевройл,TengizChevroil (Chevron 50%),US,,"Kazakhstan (KAZ) — TengizChevroil, Karachaganak JV, KMG subsidiaries"
+karachaganak,Karachaganak (Eni operator),IT,,"Kazakhstan (KAZ) — TengizChevroil, Karachaganak JV, KMG subsidiaries"
+карачаганак петролиум,Karachaganak Petroleum Operating (Eni operator),IT,,"Kazakhstan (KAZ) — TengizChevroil, Karachaganak JV, KMG subsidiaries"
+mangistau,MangistauMunaiGas (KMG),KZ,False,"Kazakhstan (KAZ) — TengizChevroil, Karachaganak JV, KMG subsidiaries"
+cnpc aktobe,CNPC AktobeMunaiGas,CN,,"Kazakhstan (KAZ) — TengizChevroil, Karachaganak JV, KMG subsidiaries"
+kazgermunai,KazGerMunai (CNPC/KMG),CN,,"Kazakhstan (KAZ) — TengizChevroil, Karachaganak JV, KMG subsidiaries"
+kazchrome,Eurasian Resources (Kazchrome),LU,,"Kazakhstan (KAZ) — TengizChevroil, Karachaganak JV, KMG subsidiaries"
+kazzinc,Glencore (Kazzinc),CH,,"Kazakhstan (KAZ) — TengizChevroil, Karachaganak JV, KMG subsidiaries"
+erdenet mining,Erdenet Mining (state),MN,False,Mongolia (MNG) — state + Rio Tinto Oyu Tolgoi
+erdenes tavan tolgoi,Erdenes Tavan Tolgoi (state),MN,False,Mongolia (MNG) — state + Rio Tinto Oyu Tolgoi
+oyu tolgoi,Rio Tinto (Oyu Tolgoi),GB,,Mongolia (MNG) — state + Rio Tinto Oyu Tolgoi
+tavantolgoi,Erdenes Tavan Tolgoi (state),MN,False,Mongolia (MNG) — state + Rio Tinto Oyu Tolgoi
+ukrgazvydobuvannia,Ukrgazvydobuvannya (Naftogaz),UA,False,Ukraine (UKR) — Naftogaz subsidiaries (state) and iron ore enrichment
+naftogazvydobuvannia,Naftogazvydobuvannya,UA,False,Ukraine (UKR) — Naftogaz subsidiaries (state) and iron ore enrichment
+ukrnaftoburinnia,Ukrnaftoburinnia,UA,False,Ukraine (UKR) — Naftogaz subsidiaries (state) and iron ore enrichment
+iron ore enrichment,Iron Ore Enrichment Works (Metinvest),UA,,Ukraine (UKR) — Naftogaz subsidiaries (state) and iron ore enrichment
+southern mining factory,Southern Mining (Metinvest),UA,,Ukraine (UKR) — Naftogaz subsidiaries (state) and iron ore enrichment
+snh fonctionnement,SNH (state),CM,False,Ukraine (UKR) — Naftogaz subsidiaries (state) and iron ore enrichment
+snh mandate,SNH (state),CM,False,Ukraine (UKR) — Naftogaz subsidiaries (state) and iron ore enrichment
+pecten cameroun,"Shell Cameroon (Pecten, sold)",GB,,Ukraine (UKR) — Naftogaz subsidiaries (state) and iron ore enrichment
+cameroon oil transportation,COTCO (ExxonMobil/Petronas/Chad),US,False,Ukraine (UKR) — Naftogaz subsidiaries (state) and iron ore enrichment
+apcc,Addax Petroleum Cameroon,CN,,Ukraine (UKR) — Naftogaz subsidiaries (state) and iron ore enrichment
+cerrejon,"Glencore (Cerrejón, sole owner from 2022)",CH,,"Colombia (COL) — Cerrejón, Drummond, Pacific, Occidental, Glencore Prodeco"
+drummond,Drummond Coal,US,,"Colombia (COL) — Cerrejón, Drummond, Pacific, Occidental, Glencore Prodeco"
+pacific exploration,Frontera Energy (Pacific Exploration),CA,,"Colombia (COL) — Cerrejón, Drummond, Pacific, Occidental, Glencore Prodeco"
+occidental,Occidental Petroleum (Oxy),US,,"Colombia (COL) — Cerrejón, Drummond, Pacific, Occidental, Glencore Prodeco"
+grupo prodeco,Glencore (Prodeco),CH,,"Colombia (COL) — Cerrejón, Drummond, Pacific, Occidental, Glencore Prodeco"
+gran tierra,Gran Tierra Energy,CA,,"Colombia (COL) — Cerrejón, Drummond, Pacific, Occidental, Glencore Prodeco"
+southern peru copper,Grupo México (Southern Copper),MX,,Peru (PER) — Southern Peru Copper (Grupo México)
+hunt oil company of peru,Hunt Oil,US,,Peru (PER) — Southern Peru Copper (Grupo México)
+ecuacorriente,Tongling/CRCC (Mirador),CN,,"Ecuador (ECU) — Tongling/CRCC Chinese miners, Lundin Gold"
+explorcobres,Tongling/CRCC (San Carlos Panantza),CN,,"Ecuador (ECU) — Tongling/CRCC Chinese miners, Lundin Gold"
+dpmecuador,Lumina Gold,CA,,"Ecuador (ECU) — Tongling/CRCC Chinese miners, Lundin Gold"
+aurelian ecuador,Lundin Gold (Aurelian),CA,,"Ecuador (ECU) — Tongling/CRCC Chinese miners, Lundin Gold"
+novomining,Codelco / Novomining JV,CL,,"Ecuador (ECU) — Tongling/CRCC Chinese miners, Lundin Gold"
+odin mining,Odin Mining,CA,,"Ecuador (ECU) — Tongling/CRCC Chinese miners, Lundin Gold"
+congorep,TotalEnergies (CONGOREP),FR,,Republic of Congo (COG) — TotalEnergies Congorep + Perenco + CMS Nomeco
+cms nomeco,CMS Energy / Nuevo Energy,US,,Republic of Congo (COG) — TotalEnergies Congorep + Perenco + CMS Nomeco
+nuevo congo,Nuevo Energy Congo,US,,Republic of Congo (COG) — TotalEnergies Congorep + Perenco + CMS Nomeco
+murphy west africa,Murphy Oil (West Africa),US,,Republic of Congo (COG) — TotalEnergies Congorep + Perenco + CMS Nomeco
+philia ,Philia (commodities trader),CH,,Republic of Congo (COG) — TotalEnergies Congorep + Perenco + CMS Nomeco
+daewoo international,Posco International (Daewoo),KR,,"Myanmar (MMR) — Daewoo, Posco, Petronas Carigali, gas transportation"
+posco daewoo,Posco International,KR,,"Myanmar (MMR) — Daewoo, Posco, Petronas Carigali, gas transportation"
+pc myanmar,Petronas Carigali (Myanmar),MY,,"Myanmar (MMR) — Daewoo, Posco, Petronas Carigali, gas transportation"
+moattama gas,Moattama Gas Transportation (consortium),MM,False,"Myanmar (MMR) — Daewoo, Posco, Petronas Carigali, gas transportation"
+taninthayi pipeline,Taninthayi Pipeline (consortium),MM,False,"Myanmar (MMR) — Daewoo, Posco, Petronas Carigali, gas transportation"
+kumul petroleum,Kumul Petroleum (PNG state),PG,False,"PNG (Papua New Guinea) — Kumul, Ok Tedi, state"
+ok tedi,Ok Tedi Mining (PNG state),PG,False,"PNG (Papua New Guinea) — Kumul, Ok Tedi, state"
+mineral resources cmca,CMCA / OK Tedi (state),PG,False,"PNG (Papua New Guinea) — Kumul, Ok Tedi, state"
+npcp,National Petroleum Co PNG (state),PG,False,"PNG (Papua New Guinea) — Kumul, Ok Tedi, state"
+zangezur,Zangezur Copper-Molybdenum (Vallex/CRONIMET/GeoProMining),RU,,"ARM (Armenia) — copper-molybdenum, Russian-controlled"
+zangezour,Zangezur Copper-Molybdenum,RU,,"ARM (Armenia) — copper-molybdenum, Russian-controlled"
+geopromining,GeoProMining Gold,RU,,"ARM (Armenia) — copper-molybdenum, Russian-controlled"
+teghout,Teghout (Vallex),RU,,"ARM (Armenia) — copper-molybdenum, Russian-controlled"
+chaarat kapan,Chaarat Gold Holdings,GB,,"ARM (Armenia) — copper-molybdenum, Russian-controlled"
+agarak copper molybdenum,Agarak Copper-Molybdenum (state),AM,False,"ARM (Armenia) — copper-molybdenum, Russian-controlled"
+lydian armenia,Lydian International (suspended),CA,,"ARM (Armenia) — copper-molybdenum, Russian-controlled"
+cementos del norte,Cementos del Norte (local),HN,False,HND (Honduras) — cement + Canadian miners
+minerales de occidente,Aura Minerals (San Andrés),CA,,HND (Honduras) — cement + Canadian miners
+american pacific honduras,American Pacific Resources,US,,HND (Honduras) — cement + Canadian miners
+zarafshan,Zarafshon (China Nonferrous JV),CN,,TJK (Tajikistan) — Chinese-state JVs
+zarafshon,Zarafshon (China Nonferrous JV),CN,,TJK (Tajikistan) — Chinese-state JVs
+pakrut,Pakrut Gold (Zijin),CN,,TJK (Tajikistan) — Chinese-state JVs
+tajik chinese mining,Tajik-Chinese Mining JV,CN,,TJK (Tajikistan) — Chinese-state JVs
+huaksin gayur cement,Huaxin Gayur Cement,CN,,TJK (Tajikistan) — Chinese-state JVs
+bankers petroleum,Geo-Jade Petroleum (Bankers),CN,,"ALB (Albania) — Geo-Jade, Kurum, state vehicles"
+kurum international,Kurum Holding,TR,,"ALB (Albania) — Geo-Jade, Kurum, state vehicles"
+kesh ,KESH (state power),AL,False,"ALB (Albania) — Geo-Jade, Kurum, state vehicles"
+albpetrol,Albpetrol (state),AL,False,"ALB (Albania) — Geo-Jade, Kurum, state vehicles"
+stream oil,Stream Oil & Gas (defunct US),US,,"ALB (Albania) — Geo-Jade, Kurum, state vehicles"
+kumtor,"Centerra Gold (Kumtor, nationalised 2022)",CA,,"KGZ (Kyrgyzstan) — Centerra Gold (Kumtor), Zijin, KAZ Minerals"
+altynken,Zijin Mining (Altynken),CN,,"KGZ (Kyrgyzstan) — Centerra Gold (Kumtor), Zijin, KAZ Minerals"
+kaz minerals bozymchak,KAZ Minerals (Bozymchak),GB,,"KGZ (Kyrgyzstan) — Centerra Gold (Kumtor), Zijin, KAZ Minerals"
+societe nationale operations petrolieres,PETROCI (state),CI,False,"CIV (Côte d'Ivoire) — PETROCI (descriptive), Foxtrot, Endeavour"
+operations petrolieres cote ivoire,PETROCI (state),CI,False,"CIV (Côte d'Ivoire) — PETROCI (descriptive), Foxtrot, Endeavour"
+foxtrot international,Foxtrot Petroleum / SECI,MU,,"CIV (Côte d'Ivoire) — PETROCI (descriptive), Foxtrot, Endeavour"
+agbaou gold,"Endeavour Mining (Agbaou, sold Allied)",AU,,"CIV (Côte d'Ivoire) — PETROCI (descriptive), Foxtrot, Endeavour"
+autres acheteurs,Other buyers (aggregate),CI,False,"CIV (Côte d'Ivoire) — PETROCI (descriptive), Foxtrot, Endeavour"
+rosebel gold,IAMGOLD/Zijin (Rosebel),CN,,"SUR (Suriname) — Rosebel (IAMGOLD→Zijin), state"
+staatsolie,Staatsolie Suriname (state),SR,False,"SUR (Suriname) — Rosebel (IAMGOLD→Zijin), state"
+grassalco,NV Grassalco (state),SR,False,"SUR (Suriname) — Rosebel (IAMGOLD→Zijin), state"
+aynak,MCC China (Aynak Copper),CN,,"AFG (Afghanistan) — Aynak (MCC China), state"
+jcl aynak,MCC China (Aynak Copper),CN,,"AFG (Afghanistan) — Aynak (MCC China), state"
+northern coal enterprise,Northern Coal (state),AF,False,"AFG (Afghanistan) — Aynak (MCC China), state"
+afghan gas enterprise,Afghan Gas (state),AF,False,"AFG (Afghanistan) — Aynak (MCC China), state"
+paladin africa,Paladin Energy (Kayelekera),AU,,"MWI (Malawi) — Paladin uranium, Indian timber"
+raiply malawi,Raiply (Indian timber),IN,,"MWI (Malawi) — Paladin uranium, Indian timber"
+vizara plantation,Vizara (local),MW,False,"MWI (Malawi) — Paladin uranium, Indian timber"
+arcelor mittal,ArcelorMittal,LU,,"LBR (Liberia) — ArcelorMittal, NOCAL, China Union, Firestone"
+nocal,NOCAL (state),LR,False,"LBR (Liberia) — ArcelorMittal, NOCAL, China Union, Firestone"
+national oil company of liberia,NOCAL (state),LR,False,"LBR (Liberia) — ArcelorMittal, NOCAL, China Union, Firestone"
+firestone liberia,Bridgestone (Firestone),JP,,"LBR (Liberia) — ArcelorMittal, NOCAL, China Union, Firestone"
+china union,China Union (Bong Mines),CN,,"LBR (Liberia) — ArcelorMittal, NOCAL, China Union, Firestone"
+oranlo petroleum,Oranto / Atlas Oranto,NG,False,"LBR (Liberia) — ArcelorMittal, NOCAL, China Union, Firestone"
+oranto petroleum,Atlas Oranto,NG,False,"LBR (Liberia) — ArcelorMittal, NOCAL, China Union, Firestone"
+minera san rafael,Pan American Silver (Escobal),CA,,"GTM (Guatemala) — Pan American Silver (Tahoe), Solway"
+montana exploradora,Pan American Silver / Tahoe (Marlin),CA,,"GTM (Guatemala) — Pan American Silver (Tahoe), Solway"
+compania guatemalteca de niquel,Solway (CGN Fenix),CH,,"GTM (Guatemala) — Pan American Silver (Tahoe), Solway"
+kingho mining,Kingho Mining (Tonkolili),CN,,SLE (Sierra Leone) — additional
+kingho investment,Kingho Investment,CN,,SLE (Sierra Leone) — additional
+sierra minerals,Vimetco (Sierra Minerals),NL,,SLE (Sierra Leone) — additional
+talisman sierra leone,Talisman Energy (defunct),CA,,SLE (Sierra Leone) — additional
+minexco,Minexco (local),SL,False,SLE (Sierra Leone) — additional
+equator exploration,Equator Exploration (Vaalco),US,,STP (São Tomé) — small operators
+sinoangol,Sinopec-Sonangol JV,CN,,STP (São Tomé) — small operators
+galp energy stp,Galp Energia (STP),PT,,STP (São Tomé) — small operators
+galp energia stp,Galp Energia (STP),PT,,STP (São Tomé) — small operators
+minera andina del sol,Barrick / Shandong Gold (Veladero),CN,,"ARG (Argentina) — Barrick/Shandong, AngloGold, Vista, Glencore"
+cerro vanguardia,AngloGold Ashanti (Cerro Vanguardia),ZA,,"ARG (Argentina) — Barrick/Shandong, AngloGold, Vista, Glencore"
+vista oil,Vista Energy (Argentina),AR,,"ARG (Argentina) — Barrick/Shandong, AngloGold, Vista, Glencore"
+vista energy,Vista Energy,AR,,"ARG (Argentina) — Barrick/Shandong, AngloGold, Vista, Glencore"
+minera alumbrera,Glencore/Yamana (Alumbrera),CH,,"ARG (Argentina) — Barrick/Shandong, AngloGold, Vista, Glencore"
+beb erdgas,BEB (Shell + ExxonMobil JV),GB,,"DEU (Germany) — Wintershall DEA, RWE, BEB Shell+Exxon"
+dea deutsche erdoel,Wintershall DEA Deutschland,DE,,"DEU (Germany) — Wintershall DEA, RWE, BEB Shell+Exxon"
+dea deutsche erdol,Wintershall DEA Deutschland,DE,,"DEU (Germany) — Wintershall DEA, RWE, BEB Shell+Exxon"
+rwe power,RWE,DE,,"DEU (Germany) — Wintershall DEA, RWE, BEB Shell+Exxon"
+rwe gruppe,RWE,DE,,"DEU (Germany) — Wintershall DEA, RWE, BEB Shell+Exxon"
+sudwestdeutsche salzwerke,Südwestdeutsche Salzwerke,DE,,"DEU (Germany) — Wintershall DEA, RWE, BEB Shell+Exxon"
+erdenet ,Erdenet Mining (state + Rostec),MN,False,MNG (Mongolia) — additional Mongolian + Chinese
+mongolyn alt mak,Mongolyn Alt MAK,MN,False,MNG (Mongolia) — additional Mongolian + Chinese
+mongol ju yuan,Mongol Ju Yuan Li (Chinese),CN,,MNG (Mongolia) — additional Mongolian + Chinese
+energy resources llc,Energy Resources (MCS Mongolia),MN,False,MNG (Mongolia) — additional Mongolian + Chinese
+energyresources,Energy Resources (MCS),MN,False,MNG (Mongolia) — additional Mongolian + Chinese
+boroo gold,Centerra Gold (Boroo),CA,,MNG (Mongolia) — additional Mongolian + Chinese
+tavan tolgoi jsc,Tavan Tolgoi JSC (state),MN,False,MNG (Mongolia) — additional Mongolian + Chinese
+assala,Carlyle Group (Assala Energy),US,,"GAB (Gabon) — Assala (Carlyle), Eramet COMILOG"
+comilog,Eramet (COMILOG manganese),FR,,"GAB (Gabon) — Assala (Carlyle), Eramet COMILOG"
+compagnie miniere de l ogooue,Eramet (COMILOG),FR,,"GAB (Gabon) — Assala (Carlyle), Eramet COMILOG"
+oranje nassau,Oranje Nassau Energie,NL,,"GAB (Gabon) — Assala (Carlyle), Eramet COMILOG"
+societe equatoriale des mines,SEM (state),GA,False,"GAB (Gabon) — Assala (Carlyle), Eramet COMILOG"
+antapaccay,Glencore (Antapaccay),CH,,"PER (Peru) — Glencore Antapaccay/Tintaya, EITI aggregate buckets"
+xstrata tintaya,Glencore (ex-Xstrata Tintaya),CH,,"PER (Peru) — Glencore Antapaccay/Tintaya, EITI aggregate buckets"
+companias agregadas,Aggregate companies (Peru EITI),PE,False,"PER (Peru) — Glencore Antapaccay/Tintaya, EITI aggregate buckets"
+companies with aggregate information,Aggregate companies (Peru EITI),PE,False,"PER (Peru) — Glencore Antapaccay/Tintaya, EITI aggregate buckets"
+aggregate companies,Aggregate companies (Peru EITI),PE,False,"PER (Peru) — Glencore Antapaccay/Tintaya, EITI aggregate buckets"
+petro kazakhstan kumkol,PetroKazakhstan (CNPC),CN,,KAZ (Kazakhstan) — additional spellings
+buzachi operating,Buzachi Operating (CNPC+Lukoil),CN,,KAZ (Kazakhstan) — additional spellings
+state owned enterprises,State-owned (PNG),PG,False,PNG (Papua New Guinea) — additional
+morobe consolidated goldfields,Newcrest (Morobe Goldfields),AU,,PNG (Papua New Guinea) — additional
+mcc ramu nico,MCC Ramu Nickel (CMC China),CN,,PNG (Papua New Guinea) — additional
+gas resources gigira,ExxonMobil PNG / Oil Search,US,,PNG (Papua New Guinea) — additional
+lavana,Lavana / PNG MRDC (state),PG,False,PNG (Papua New Guinea) — additional
+philippine national oil,PNOC (state),PH,False,"PHL (Philippines) — PNOC (state), Prime Energy, Galoc"
+pnoc exploration,PNOC Exploration (state),PH,False,"PHL (Philippines) — PNOC (state), Prime Energy, Galoc"
+prime energy resources,Prime Energy / Total operator,GB,,"PHL (Philippines) — PNOC (state), Prime Energy, Galoc"
+galoc production,Galoc Production / Otto Energy,AU,,"PHL (Philippines) — PNOC (state), Prime Energy, Galoc"
+philsaga mining,Philsaga / TVI Pacific,CA,,"PHL (Philippines) — PNOC (state), Prime Energy, Galoc"
+china international,Sinopec UNIPEC / China International (oil trader),CN,,"IRQ (Iraq) — oil traders (descriptive names; ""(UNIPEC...)"" is paren-stripped)"
+reliance ,Reliance Industries (oil trader),IN,,"IRQ (Iraq) — oil traders (descriptive names; ""(UNIPEC...)"" is paren-stripped)"
+conoco phillips,ConocoPhillips,US,,"IRQ (Iraq) — oil traders (descriptive names; ""(UNIPEC...)"" is paren-stripped)"
+phillips ,ConocoPhillips / Phillips 66,US,,"IRQ (Iraq) — oil traders (descriptive names; ""(UNIPEC...)"" is paren-stripped)"
+cepsa,CEPSA (Mubadala),AE,,"IRQ (Iraq) — oil traders (descriptive names; ""(UNIPEC...)"" is paren-stripped)"
+zarafshon,Zarafshon (China Nonferrous JV),CN,,Tajikistan (TJK) Cyrillic
+hukasin gayur,Huaxin Gayur Cement,CN,,Tajikistan (TJK) Cyrillic
+khuaksin gayur,Huaxin Gayur Cement,CN,,Tajikistan (TJK) Cyrillic
+pakrut,Pakrut Gold (Zijin),CN,,Tajikistan (TJK) Cyrillic
+anzob,Anzob Mining (Tajik-American JV),US,,Tajikistan (TJK) Cyrillic
+aprelevka,Aprelevka (Tajik-Canadian JV),CA,,Tajikistan (TJK) Cyrillic
+fon yagnob,Fon-Yagnob (state coal),TJ,False,Tajikistan (TJK) Cyrillic
+angishti tochik,Angishti Tochik (state),TJ,False,Tajikistan (TJK) Cyrillic
+mangistaumunaigaz,MangistauMunaiGas (KMG),KZ,False,Kazakhstan (KAZ) Cyrillic
+kazakhstanskii filial,Karachaganak Petroleum Operating (Eni),IT,,Kazakhstan (KAZ) Cyrillic
+petroleium opereiting,Karachaganak Petroleum Operating (Eni),IT,,Kazakhstan (KAZ) Cyrillic
+kazakhgaz,KazTransGas (KMG),KZ,False,Kazakhstan (KAZ) Cyrillic
+kazmunaigaz,KazMunaiGas (state),KZ,False,Kazakhstan (KAZ) Cyrillic
+ukrgazvidobuvannia,Ukrgazvydobuvannya (Naftogaz),UA,False,Ukraine (UKR) Cyrillic
+naftogazvidobuvannia,Naftogazvydobuvannya,UA,False,Ukraine (UKR) Cyrillic
+kumtor gold,Centerra Gold (Kumtor),CA,,Kyrgyzstan (KGZ) Cyrillic
+altynken,Zijin Mining (Altynken),CN,,Kyrgyzstan (KGZ) Cyrillic
+kaz minerals bozymchak,KAZ Minerals (Bozymchak),GB,,Kyrgyzstan (KGZ) Cyrillic
+societe nationale d operations petrolieres,PETROCI (state),CI,False,CIV PETROCI variants
+operations petrolieres cote d ivoire,PETROCI (state),CI,False,CIV PETROCI variants
+nationale d operations petrolieres,PETROCI (state),CI,False,CIV PETROCI variants
+ste mines tongon,Barrick Gold (Tongon),CA,,CIV PETROCI variants
+lgl mines ci,LGL Mines CI,CI,False,CIV PETROCI variants
+newcrest hire,Newcrest Mining,AU,,CIV PETROCI variants
+tadzhiksko kitaiskaia,Tajik-Chinese Mining (China Nonferrous),CN,,TJK Russian-transliterated additions
+tadzhikskii metalurgicheskii,Tajik Metallurgical Plant (state),TJ,False,TJK Russian-transliterated additions
+sementi tochik,Cementi Tochik (state cement),TJ,False,TJK Russian-transliterated additions
+semanti tojik,Cementi Tochik (state cement),TJ,False,TJK Russian-transliterated additions
+bohtar operating,Bohtar Operating (Total/CNPC),FR,,TJK Russian-transliterated additions
+aggregated companies not submitting,Aggregated companies (Malawi EITI),MW,False,MWI placeholders + small operators
+terrastone,Terrastone (local),MW,False,MWI placeholders + small operators
+optichem,Optichem (Malawi),MW,False,MWI placeholders + small operators
+rakgas,RAKGAS (UAE),AE,,MWI placeholders + small operators
+mota engil,Mota-Engil,PT,,MWI placeholders + small operators
+other mining companies,Other mining companies (SLE EITI aggregate),SL,False,SLE additional
+s d steel tonkolili,Shandong Iron & Steel (Tonkolili),CN,,SLE additional
+african petroleum,African Petroleum Corp,AU,,SLE additional
+a z petroleum,A-Z Petroleum,SL,False,SLE additional
+elenilto,Elenilto Minerals,IL,,LBR additional
+mng gold liberia,MNG Gold (Turkish),TR,,LBR additional
+mng gold exploration,MNG Gold (Turkish),TR,,LBR additional
+liberia agricultural,Liberian Agricultural Company (rubber),LR,False,LBR additional
+liberian agricultural,Liberian Agricultural Company (rubber),LR,False,LBR additional
+putu iron ore,Severstal / Putu Iron Ore,RU,,LBR additional
+cgn ,Solway (CGN Fenix Nickel),CH,,GTM additional
+ cgn,Solway (CGN Fenix Nickel),CH,,GTM additional
+guaxilan,Guaxilán (local),GT,False,GTM additional
+city peten,City Petén Oil,US,,GTM additional
+pena rubia,Peña Rubia (local),GT,False,GTM additional
+silice centroamerica,Silice de Centroamerica (local),GT,False,GTM additional
+maya niquel,Maya Niquel (local),GT,False,GTM additional

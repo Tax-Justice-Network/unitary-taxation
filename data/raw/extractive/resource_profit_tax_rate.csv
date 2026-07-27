@@ -1,0 +1,116 @@
+# Combined extractive PROFIT-tax rate PROXY, by source country x commodity x year.
+#
+# WHAT THESE ARE (and are NOT). Each value is a combined HEADLINE / STATUTORY
+# regime rate — CIT PLUS any profit-based extractive surtax (special petroleum
+# tax, additional profits tax, windfall/energy-profits levy, margin-based mining
+# tax). They are NOT "effective" rates measured from actual tax paid over actual
+# profit, despite the legacy column name `effective_resource_profit_tax_rate`
+# (kept only so downstream code need not change — read it as "profit-tax-rate
+# PROXY"). The combined figure is an APPROXIMATE stacking of the CIT slice and the
+# surtax slice; where the surtax base differs from the CIT base the true combined
+# marginal take can differ by a few points, so treat every value as a starter
+# proxy, not an exact statutory computation. The `confidence` column flags how
+# rough each is. Sources: docs/extractive/manual_resource_data_sources.md.
+#
+# YEAR DIMENSION (added 2026-07-26). The sample is 2016–2022 and several regimes
+# changed mid-sample, so the table now carries `year_start`,`year_end`
+# (inclusive). A row with BLANK year bounds is the sample-agnostic default for the
+# pair; a row WITH bounds applies only within [year_start, year_end] and WINS over
+# the agnostic row for those years. Present year-specific splits: USA oil_gas/
+# minerals/coal 2016–2017 (pre-TCJA 35% federal) vs 2018+ (21%); GBR oil_gas 2022
+# (Energy Profits Levy stacked on the ring-fence regime). `4_...` resolves the
+# right row per cell year via `_resolve_rate_by_year` BEFORE the merge, so the
+# duplicate (source,commodity) pairs never fan the panel out.
+#
+# HOW IT IS USED, AND WHY A WRONG RATE CANNOT DISTORT THE RESULT
+# (4_correcting_cbcr_for_resource_payments.py). The rate converts the observed
+# "post-profit" resource take (CIT + profit-based special taxes) into the profit
+# base it was levied on:  base = max(post_profit / rate, equity_capture). That
+# implied base is then CAPPED at the cell's booked CbCR profit (and, on the primary
+# route that backs the base out of the CbCR income-tax line, floored at 0) — so a
+# rate that is too low (which would inflate post_profit/rate) can NEVER push the
+# resource base above the profit actually reported for the cell. On top of that
+# cap, the resource-
+# dominated ETR floor (script 4) and the manual rent floors (GNQ/PNG/MYS) catch
+# the big petro-states INDEPENDENTLY of this rate. Net effect: correcting the ~30
+# flagged rates below moved the floored headline by −$0.28bn/yr (−0.12%). The
+# rates are here for defensibility, not because they drive the estimates.
+#
+# ROLE IN THE RATE CASCADE. This per-commodity proxy is the MIDDLE fallback for
+# the partner-level ETR-gap rate `resource_rate_partner`: the curated per-country
+# rate (`r_curated`) wins first; then this per-commodity rate; then the source
+# country-year statutory CIT (`cit` in cbcr_main_disaggregated.csv); then 0.30.
+#
+# SCOPE: profit-based taxes ONLY. Royalties, licence fees and signature/production
+# bonuses are pre-profit (they reduce reported profit ~1:1) and are handled by the
+# pre-profit leg, NOT by this rate. State PRODUCTION ENTITLEMENTS are deliberately
+# NOT collapsed into one pre-profit item: the cost-recovery (cost-oil) share is
+# pre-profit, while the profit-oil share is a claim on project surplus treated
+# like state-equity / post-profit capture. That pre / post / equity split is done
+# upstream in the EITI ingest and is what feeds the two legs above — it is NOT
+# represented by, and must not be re-applied through, this rate.
+#
+# THE THREE `<commodity>,<commodity>` ROWS (oil_gas/minerals/coal) are GLOBAL-
+# DEFAULT SCENARIO ASSUMPTIONS, not measured tax rates. They are currently INERT:
+# `4_...` filters them out (their "source_iso3" is a commodity string, len 3 != a
+# real ISO3), so no live consumer merges on them — kept only as documented
+# parameters. Per-row citations live in `source_note`: PwC Worldwide Tax Summaries,
+# EY/Deloitte oil-gas & mining guides, IMF Article IV / fiscal-regime reports,
+# national tax law. `[corrected 2026-07-26 …]` = value revised in the 2026-07-26
+# rate review; `[FLAG]`/`[approx]` = the stored rate is rough or contested.
+source_iso3,commodity,effective_resource_profit_tax_rate,confidence,year_start,year_end,source_note
+NOR,oil_gas,0.78,high,,,"CIT 22% + special petroleum tax 56% = 78% marginal. PwC Worldwide Tax Summaries (WWTS), Norway (2026), https://taxsummaries.pwc.com/norway/corporate/taxes-on-corporate-income. [consistent]"
+GBR,oil_gas,0.40,medium,,,Permanent ring-fence CT 30% + supplementary charge 10% = 40% for 2016-2021 and most of 2022; Energy Profits Levy (25%) only from 26 May 2022 (year-specific 2022 row = 0.65). PwC WWTS UK; UK Gov EPL factsheet (2022). [corrected 2026-07-26; was 0.65]
+SAU,oil_gas,0.5,high,,,"Oil/gas PRODUCTION taxed 50% (2017 Royal Order; PwC WWTS 50-85%). PwC WWTS Saudi Arabia (2026), https://taxsummaries.pwc.com/saudi-arabia/corporate/taxes-on-corporate-income. [documented rate adopted 2026-07-25; was 0.20]"
+RUS,oil_gas,0.2,medium,,,Statutory profit tax 20% over 2016-2022 (25% from 2025). Tax Foundation Corporate Tax Rates 2025 (PwC withdrew Russia). [consistent for sample; historical]
+KWT,oil_gas,0.15,low,,,Flat 15% CIT on foreign corporates (KPC exempt). PwC WWTS Kuwait (2026). [consistent]
+ARE,oil_gas,0.65,low,,,"Upstream taxed at Emirate concession rates: 55% base with contractual bands up to 85% (IMF CR24 Annex VII); extractive exempt from the 9% federal CT. 0.65 = mid-band of the 55-85% range, not publicly pinned; used deliberately in script 4 (ARE un-trusted so the ETR-gap strips at r=0.65). PwC WWTS UAE (2026). [approx; mid-band of 55-85%]"
+QAT,oil_gas,0.35,low,,,Petroleum operations (Law 3/2007) 'may not be less than 35%'. PwC WWTS Qatar (2026). [consistent]
+IRN,oil_gas,0.25,low,,,Direct Taxes Act Art.105 flat CIT 25% (petroleum-specific opaque via NIOC). Iran MFA Taxation Guide. [consistent w/ general CIT]
+DZA,oil_gas,0.45,low,,,Hydrocarbons Law 19-13 (2019): income tax 30% + profit-based resource tax (TRP) -> combined upstream profit take ~0.45. IMF Fiscal Regimes for Extractive Industries; CMS/Lexology Algeria. [corrected 2026-07-26 to include TRP; was 0.30 CIT-slice only]
+AGO,oil_gas,0.5,low,,,PSA Petroleum Income Tax 50%; general CIT 25%. Lexology 'Oil Regulation in Angola'; PwC WWTS Angola. [consistent]
+OMN,oil_gas,0.55,high,,,"Special petroleum tax 55% on petroleum sales (Oman). PwC WWTS Oman (2026), https://taxsummaries.pwc.com/oman/corporate/taxes-on-corporate-income. [documented rate adopted 2026-07-25; was 0.30 — note state often bears it via its production share]"
+LBY,oil_gas,0.2,high,,,"Flat 20% CIT; no special petroleum profit tax on the PwC page (main take is a pre-profit EPSA production share, excluded here). PwC WWTS Libya (2026), https://taxsummaries.pwc.com/libya/corporate/taxes-on-corporate-income. [documented rate adopted 2026-07-25; was 0.50]"
+BRA,oil_gas,0.45,low,,,"CIT 34% (15+10+CSLL 9) + special participation 0-40% on high-output fields. PwC WWTS Brazil (2026); ICLG Oil & Gas Brazil 2026. [consistent, blended]"
+CAN,oil_gas,0.27,low,,,Federal CIT 15% + provincial ~12% ~0.27. PwC WWTS Canada (2026). [consistent]
+USA,oil_gas,0.23,low,,,"Federal CIT 35% (2016-2017) -> 21% (2018+), + state ~2-3pt; severance is pre-profit. 0.23 = 2018+; year-specific 2016-2017 row = 0.37. PwC WWTS US; NCSL severance taxes. [year split added 2026-07-26]"
+AUS,oil_gas,0.3,medium,,,Company tax 30% + PRRT 40% on offshore rents (0.30 = CIT only). PwC WWTS Australia-Other taxes (2026). [approx; PRRT excluded]
+CHN,oil_gas,0.25,low,,,CIT 25%; special oil levy revenue-based. PwC WWTS China (2026). [consistent]
+MEX,oil_gas,0.3,medium,,,Federal CIT 30%; Pemex duties (DUC/DPB) additional. PwC WWTS Mexico (2026). [consistent for CIT]
+IDN,oil_gas,0.4,medium,,,PSC contractor income tax 44% / ~22-25% gross-split; 0.40 blended. PwC WWTS Indonesia (2026). [approx; formal PSC 44%]
+IRQ,oil_gas,0.35,medium,,,Foreign oil companies 35% (Income Tax Law 19/2010). PwC WWTS Iraq (2026). [consistent]
+KAZ,oil_gas,0.4,low,,,"CIT 20% + excess profit tax 10-60% + crude-export rent tax; 0.40 blended. PwC WWTS Kazakhstan-Other taxes (2026). [consistent, blended]"
+NGA,oil_gas,0.65,medium,,,Legacy PPT 50% (deepwater) to 85% (onshore JV); PIA-2021 -> CIT 30%+HCT 15-30%. 0.65 legacy blend. PwC WWTS Nigeria (2026); PwC PIA 2021. [approx]
+TKM,oil_gas,0.2,low,,,Petroleum-Law entities 20% profits tax. PwC WWTS Turkmenistan; Orbitax. [consistent]
+BHR,oil_gas,0.46,high,,,"Oil/gas/petroleum companies' net profit taxed at 46% (the only Bahraini CIT). PwC WWTS Bahrain (2026), https://taxsummaries.pwc.com/bahrain/corporate/taxes-on-corporate-income. [documented rate adopted 2026-07-25; was 0.25]"
+VEN,oil_gas,0.5,high,,,"Oil-exploitation income taxed at a flat 50% (34% new greenfield). PwC WWTS Venezuela (2026), https://taxsummaries.pwc.com/venezuela/corporate/taxes-on-corporate-income. [documented rate adopted 2026-07-25; was 0.20]"
+oil_gas,oil_gas,0.45,low,,,GLOBAL DEFAULT for oil/gas where the country is not listed (used by 1_8's rent-proxy fallback)
+CHL,minerals,0.33,medium,,,"Pre-2024 regime for the sample: CIT 27% + margin-based specific mining tax (IEAM ~0-14%, ~6% typical) ~= 0.33. The 2024 royalty (Ley 21.591) is out of sample. PwC WWTS Chile; EY Tax Alert 2023. [corrected 2026-07-26 to pre-2024 regime; was 0.35]"
+AUS,minerals,0.3,medium,,,Company tax 30%; royalties pre-profit. PwC WWTS Australia (2026). [consistent]
+CAN,minerals,0.3,low,,,Fed+provincial CIT ~26% + provincial mining tax ~0.30. PwC WWTS Canada (2026). [approx]
+USA,minerals,0.25,low,,,"Federal CIT 35% (2016-2017) -> 21% (2018+), + state ~4pt. 0.25 = 2018+; year-specific 2016-2017 row = 0.39. PwC WWTS US. [year split added 2026-07-26]"
+PER,minerals,0.32,medium,,,CIT 29.5% + mining royalty/SMT/SMC on operating margin. PwC WWTS Peru-Other taxes (2026). [consistent]
+ZAF,minerals,0.28,medium,,,Company rate 28% for years of assessment ending before 31 Mar 2023 (all of 2016-2022); 27% only thereafter. Royalty is revenue-based (separate). PwC WWTS South Africa; SARS archived rates. [corrected 2026-07-26; was 0.27]
+COD,minerals,0.3,low,,,Mining CIT 30% (2018 code super-profits levy additional). PwC WWTS DR Congo (2026). [consistent floor]
+GHA,minerals,0.35,high,,,"Mining CIT 35%. PwC WWTS Ghana (2026), https://taxsummaries.pwc.com/ghana/corporate/taxes-on-corporate-income. [documented rate adopted 2026-07-25; was 0.32]"
+ZMB,minerals,0.3,low,,,Mining CIT 30%; royalty revenue-based. PwC WWTS Zambia (2026). [consistent]
+TZA,minerals,0.3,low,,,CIT 30%; Mining Act 2010 royalty 6% + 16% carried interest are revenue/equity. PwC WWTS Tanzania (2026). [consistent]
+GIN,minerals,0.3,low,,,Mining CIT 30% (2013 Mining Code). IMF Country Report 21/147 'Guinea: Selected Issues' (2021). [consistent]
+BFA,minerals,0.275,medium,,,IS 27.5% on mining (CGI / Mining Code 2015). Mayer Brown 'Africa Mining - Burkina Faso'. [consistent]
+MLI,minerals,0.25,medium,,,Mining-code ~25% under the conventions governing most 2016-2022 production (30% only from the 2023 code). IMF Country Report 16/84 (2016). [corrected 2026-07-26 to sample-period rate; was 0.30]
+BWA,minerals,0.22,medium,,,"Non-diamond mining formula 70-(1500/x), floor = flat 22% CIT; 0.22 = floor. PwC WWTS Botswana (2026). [approx; floor]"
+NAM,minerals,0.375,medium,,,Non-diamond mining 37.5% (diamonds 55%). PwC WWTS Namibia (2026). [consistent]
+MAR,minerals,0.31,low,,,Top CIT 31% over 2016-2022 (OCP at top rate); reform to 35% by 2026. EY Worldwide Corporate Tax Guide Morocco; PwC WWTS Morocco. [consistent for sample]
+CHN,minerals,0.25,low,,,CIT 25%; resource tax revenue-based. PwC WWTS China (2026). [consistent]
+BRA,minerals,0.34,low,,,CIT 34% (15+10+CSLL 9); CFEM royalty 1-3.5% revenue. PwC WWTS Brazil (2026). [consistent]
+minerals,minerals,0.32,low,,,GLOBAL DEFAULT for minerals where the country is not listed
+AUS,coal,0.3,medium,,,Company tax 30%; coal royalties pre-profit. PwC WWTS Australia (2026). [consistent]
+USA,coal,0.25,low,,,"Federal CIT 35% (2016-2017) -> 21% (2018+), + state. 0.25 = 2018+; year-specific 2016-2017 row = 0.39. PwC WWTS US. [year split added 2026-07-26]"
+CHN,coal,0.25,low,,,CIT 25%; resource tax revenue-based. PwC WWTS China (2026). [consistent]
+COL,coal,0.33,medium,,,"General CIT ranged ~31-40% over 2016-2022 (temporary surcharges); ~0.33 sample-representative. The coal-extraction surtax (5-10%) applies from 2023 and is OUT of sample. PwC WWTS Colombia; DIAN Ley 1819/2016. [corrected 2026-07-26; was 0.35, dropped post-sample surtax]"
+IDN,coal,0.4,low,,,"1st-gen PKP2B ~45%, newer IUP/IUPK 22-30%; 0.40 legacy-weighted blend. PwC 'Mining in Indonesia' (2022) + IISD (2022). [approx]"
+coal,coal,0.3,low,,,GLOBAL DEFAULT for coal where the country is not listed
+USA,oil_gas,0.37,low,2016,2017,Federal CIT 35% (pre-TCJA) + state ~2-3pt. PwC WWTS US. [year-specific 2016-2017]
+USA,minerals,0.39,low,2016,2017,Federal CIT 35% (pre-TCJA) + state ~4pt. PwC WWTS US. [year-specific 2016-2017]
+USA,coal,0.39,low,2016,2017,Federal CIT 35% (pre-TCJA) + state. PwC WWTS US. [year-specific 2016-2017]
+GBR,oil_gas,0.65,medium,2022,2022,Ring-fence CT 30% + supplementary charge 10% + Energy Profits Levy 25% (from 26 May 2022) = 65%. UK Gov EPL factsheet (2022). [year-specific 2022]

@@ -1,0 +1,31 @@
+iso3,year,bucket_from,bucket_to,value_usd,eiti_report_year,page_ref,notes
+# Manual corrections to EITI bucket classification of state-carried participation flows.
+#
+# The bucket choice between "production_ent" (cost-side, expensed before MNE profit_before_tax)
+# and "govt_participation" (equity, after-tax distributions outside MNE accounts) matters for
+# the resource correction in script 4 (pre-profit vs equity treatment). EITI reports label them inconsistently.
+#
+# bucket_from/bucket_to use the same key names as in 3_25_build_consolidated_yearly.py
+# (applied to its output panel by 3_26_apply_classification_fixes.py):
+#   royalties, bonuses, production_ent, licence_fees, other_rent, delivered_directly,
+#   cit, extraordinary_cit,
+#   soe_profits, from_soe, dividends, govt_participation, delivered_to_soe
+#
+# value_usd: amount to MOVE from bucket_from to bucket_to (positive integer).
+# Total captured_total_usd stays unchanged — only the deductible / equity split changes.
+#
+# Priority countries to spot-check (per Task 8):
+#   SAU  Saudi Arabia    — Aramco profit transfer classification
+#   NOR  Norway          — SDFI (State's Direct Financial Interest)
+#   ARE  UAE             — ADNOC concession dividend
+#   DZA  Algeria         — Sonatrach + EPSC carry
+#   AGO  Angola          — Sonangol + PSC carry
+#   IDN  Indonesia       — PSC "first tranche petroleum"
+#   MYS  Malaysia        — Petronas dividend + petroleum income tax
+#
+# Format: one row per (iso3, year, source-bucket, target-bucket).
+# Use multiple rows for the same country if multiple flows need reclassifying in the same year.
+# Example (commented out):
+# NOR,2018,production_ent,govt_participation,12500000000,2018,p47,"SDFI revenue listed under production entitlements but is the carried equity stake; should be in equity bucket"
+#
+# === FILL IN BELOW ===

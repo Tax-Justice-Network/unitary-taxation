@@ -1,0 +1,22 @@
+# US price indices, ANNUAL AVERAGES, used ONLY to express Marshall Plan aid (1948-52
+# nominal USD) in 2025 USD - the pipeline's own 2016-2022 estimates use
+# config.US_GDP_DEFLATOR_2017100, which starts in 2016 and cannot reach 1948.
+# cpi_u: CPI-U, all items, US city average, index 1982-84 = 100. Source: BLS series
+#   CUUR0000SA0 (https://data.bls.gov/timeseries/CUUR0000SA0); convenient tabulation:
+#   https://www.usinflationcalculator.com/inflation/consumer-price-index-and-annual-percent-changes-from-1913-to-2008/
+#   HEADLINE index for the Marshall aid adjustment (conservative: gives the plan its
+#   LARGEST 2025-USD value).
+# gdpdef_2017100: US GDP implicit price deflator, index 2017 = 100. Source: BEA via
+#   FRED series A191RD3A086NBEA (https://fred.stlouisfed.org/series/A191RD3A086NBEA),
+#   retrieved 2026-07-17. SENSITIVITY index - consistent with the pipeline's own
+#   deflator concept (config.US_GDP_DEFLATOR_2017100 is the same series).
+# NOTE: the 2025 CPI annual average (321.943) excludes October 2025 (BLS data gap from
+# the 2025 lapse in appropriations) - an 11-month average.
+year,cpi_u,gdpdef_2017100,confidence,note
+1948,24.1,12.067,high,
+1949,23.8,12.046,high,
+1950,24.1,12.195,high,Mid-period anchor year used for the Marshall aid adjustment
+1951,26.0,13.060,high,
+1952,26.5,13.286,high,
+2024,313.689,125.428,high,
+2025,321.943,128.979,medium,CPI is an 11-month average; October 2025 missing (lapse in appropriations)

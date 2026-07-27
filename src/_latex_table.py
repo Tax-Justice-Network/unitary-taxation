@@ -1,0 +1,222 @@
+r"""
+Brand-coloured LaTeX (Overleaf) export for the paper tables.
+
+Mirrors the Word table layout built by
+`_build_paper_docx.add_table_from_csv_after` — a coloured bold header row, bold
+shaded group-heading rows (uppercase first cell), right-aligned numeric cells,
+one-decimal number formatting — but in TJN brand colours instead of Word greys:
+
+  * header row  → earth-green fill, white bold text
+  * group rows  → light-gold tint, bold
+  * body        → white, right-aligned numbers (first column left)
+
+Each `.tex` is a self-contained `table` float: it defines its own brand colours
+with `\definecolor`, wraps the tabular in `\resizebox{\textwidth}` so wide
+formula tables never overflow, and carries a `\caption`/`\label`. The only
+Overleaf preamble requirement is:
+
+    \usepackage[table]{xcolor}   % loads colortbl
+    \usepackage{booktabs}
+    \usepackage{graphicx}        % \resizebox
+
+Drop into the document with `\input{tables/<name>.tex}`.
+
+`csv_to_latex(csv_path, …)` writes `<csv_dir>/latex/<name>.tex` and returns the
+path. Called from `_exhibit_helpers.write_table` (every income-group/region
+table) and from `_build_paper_docx.add_table_from_csv_after` (every table that
+goes into the Word documents), so all tables get an Overleaf twin.
+"""
+import os
+import re
+
+import pandas as pd
+
+# TJN brand (hex without '#', for \definecolor). Header = earth green; group
+# rows = a light gold tint over white (≈ _brand.tint(GOLD, 0.30)).
+_C_HEADER = "50805E"      # earth green
+_C_HEADER_TXT = "FFFFFF"  # white
+_C_GROUP = "FBEFCB"       # light gold tint
+_C_RULE = "50805E"        # rules in the brand green
+
+
+def _esc(s):
+    """Escape LaTeX specials in cell text."""
+    s = str(s)
+    out = []
+    for ch in s:
+        out.append({
+            "\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$",
+            "#": r"\#", "_": r"\_", "{": r"\{", "}": r"\}",
+            "~": r"\textasciitilde{}", "^": r"\textasciicircum{}",
+        }.get(ch, ch))
+    return "".join(out)
+
+
+def _fmt(v):
+    """One-decimal number formatting matching the Word builder (0 → '0.0', never
+    '-0.0'); pass through non-numbers as text."""
+    if isinstance(v, float):
+        if pd.isna(v):
+            return ""
+        if round(v, 1) == 0:
+            return "0.0"
+        return f"{v:,.1f}"
+    return "" if v is None else str(v)
+
+
+def _is_group_row(first_cell):
+    s = str(first_cell).strip()
+    return s != "" and s == s.upper() and any(c.isalpha() for c in s)
+
+
+def _slug(name):
+    return re.sub(r"[^A-Za-z0-9]+", "_", os.path.splitext(os.path.basename(name))[0]).strip("_")
+
+
+def header_spec_for(columns):
+    """Auto-derive a 2-row grouped (super/sub) header from the flat column names,
+    shared by the Word and LaTeX builders. Returns [super_row, sub_row] where each
+    row is a list of (text, span); text=None in the sub row merges vertically with
+    the super cell above. Returns None when no grouping applies (flat header).
+
+    Two patterns:
+      • 'PREFIX — SUFFIX' columns  → super = PREFIX, subs = the SUFFIXes
+        (scenarios: 'Resources ignored — Δ taxable profit'; break-even:
+        'Break-even ETR — sales & employees (%)').
+      • '<name>' immediately followed by '<name> (%…)'  → super = <name>,
+        subs = ['US$ m', the %-descriptor]  (the by-formula tables).
+    """
+    cols = [str(c) for c in columns]
+    n = len(cols)
+
+    # ---- pattern B: 'PREFIX — SUFFIX' groups ----
+    if sum(1 for c in cols if " — " in c) >= 2:
+        super_row, sub_row, i = [], [], 0
+        while i < n:
+            c = cols[i]
+            if " — " in c:
+                prefix = c.split(" — ", 1)[0]
+                subs = []
+                j = i
+                while j < n and " — " in cols[j] and cols[j].split(" — ", 1)[0] == prefix:
+                    subs.append(cols[j].split(" — ", 1)[1])
+                    j += 1
+                # tidy: if every sub is a '… (%)' rate, lift the % into the super
+                # heading and title-case the sub labels (break-even table).
+                if subs and all(s.rstrip().endswith("(%)") for s in subs):
+                    subs = [s.rsplit("(%)", 1)[0].strip() for s in subs]
+                    subs = [(s[:1].upper() + s[1:]) if s and s[0].islower() else s
+                            for s in subs]
+                    prefix = prefix + " (%)"
+                super_row.append((prefix, len(subs)))
+                sub_row.extend((s, 1) for s in subs)
+                i = j
+            else:
+                super_row.append((c, 1)); sub_row.append((None, 1)); i += 1
+        return [super_row, sub_row]
+
+    # ---- pattern A: '<name>' + '<name> (%…)' pairs ----
+    def _is_pct_partner(a, b):
+        return b == a + " (%)" or b.startswith(a + " (% ")
+    if any(i + 1 < n and _is_pct_partner(cols[i], cols[i + 1]) for i in range(n)):
+        super_row, sub_row, i = [], [], 0
+        while i < n:
+            c = cols[i]
+            if i + 1 < n and _is_pct_partner(c, cols[i + 1]):
+                pctlab = cols[i + 1][len(c):].strip().strip("()").strip()
+                pctlab = pctlab.replace("of positive reported profits", "of positive profits")
+                pctlab = pctlab if pctlab.startswith("%") else "%"
+                super_row.append((c, 2))
+                sub_row.append(("US$ m", 1)); sub_row.append((pctlab, 1))
+                i += 2
+            else:
+                super_row.append((c, 1)); sub_row.append((None, 1)); i += 1
+        return [super_row, sub_row]
+
+    return None
+
+
+def csv_to_latex(csv_path, tex_path=None, caption=None, label=None):
+    """Write a brand-coloured LaTeX table mirroring the Word layout.
+
+    tex_path defaults to `<csv_dir>/latex/<name>.tex`. caption/label default to
+    the file slug. Returns the written path (or None if the CSV is unreadable)."""
+    try:
+        df = pd.read_csv(csv_path)
+    except Exception as e:
+        print(f"  [latex skip] {csv_path}: {e}")
+        return None
+    name = _slug(csv_path)
+    if tex_path is None:
+        tex_dir = os.path.join(os.path.dirname(csv_path), "latex")
+        os.makedirs(tex_dir, exist_ok=True)
+        tex_path = os.path.join(tex_dir, name + ".tex")
+    caption = caption or name.replace("_", " ")
+    label = label or ("tab:" + name)
+
+    headers = [str(c) for c in df.columns]
+    ncol = len(headers)
+    colspec = "l" + "r" * (ncol - 1)   # first column left, rest right-aligned
+
+    lines = []
+    lines.append("% Auto-generated brand-coloured table — mirrors the Word layout.")
+    lines.append("% Requires: \\usepackage[table]{xcolor}  \\usepackage{booktabs}  \\usepackage{graphicx}  \\usepackage{multirow}")
+    lines.append(f"\\definecolor{{tjnHeader}}{{HTML}}{{{_C_HEADER}}}")
+    lines.append(f"\\definecolor{{tjnHeaderText}}{{HTML}}{{{_C_HEADER_TXT}}}")
+    lines.append(f"\\definecolor{{tjnGroup}}{{HTML}}{{{_C_GROUP}}}")
+    lines.append(f"\\definecolor{{tjnRule}}{{HTML}}{{{_C_RULE}}}")
+    lines.append("\\begin{table}[htbp]")
+    lines.append("  \\centering")
+    lines.append(f"  \\caption{{{_esc(caption)}}}")
+    lines.append(f"  \\label{{{label}}}")
+    lines.append("  \\resizebox{\\textwidth}{!}{%")
+    lines.append(f"  \\begin{{tabular}}{{{colspec}}}")
+    lines.append("  \\arrayrulecolor{tjnRule}\\toprule")
+    spec = header_spec_for(headers)
+    if spec:
+        super_row, sub_row = spec
+        def _hcell(span, body):
+            return ("\\multicolumn{%d}{>{\\columncolor{tjnHeader}}c}{%s}" % (span, body))
+        cells, pos, cmids = [], 1, []
+        for text, span in super_row:
+            body = ("\\textbf{\\textcolor{tjnHeaderText}{%s}}" % _esc(text)) if text else ""
+            if span == 1 and text:                      # single column → span both rows
+                body = "\\multirow{2}{*}{%s}" % body
+            cells.append(_hcell(span, body))
+            if span > 1:
+                cmids.append((pos, pos + span - 1))
+            pos += span
+        lines.append("  " + " & ".join(cells) + " \\\\")
+        if cmids:
+            lines.append("  " + " ".join("\\cmidrule(lr){%d-%d}" % (a, b) for a, b in cmids))
+        cells = []
+        for text, span in sub_row:
+            body = "" if text is None else ("\\textbf{\\textcolor{tjnHeaderText}{%s}}" % _esc(text))
+            cells.append(_hcell(1, body))
+        lines.append("  " + " & ".join(cells) + " \\\\")
+    else:
+        hdr = " & ".join(
+            (f"\\textbf{{\\textcolor{{tjnHeaderText}}{{{_esc(h)}}}}}")
+            for h in headers)
+        lines.append(f"  \\rowcolor{{tjnHeader}} {hdr} \\\\")
+    lines.append("  \\midrule")
+    for _, row in df.iterrows():
+        is_grp = _is_group_row(row.iloc[0])
+        cells = []
+        for j, v in enumerate(row):
+            txt = _esc(_fmt(v))
+            if is_grp and txt:
+                txt = f"\\textbf{{{txt}}}"
+            cells.append(txt)
+        line = " & ".join(cells) + " \\\\"
+        if is_grp:
+            line = "\\rowcolor{tjnGroup} " + line
+        lines.append("  " + line)
+    lines.append("  \\bottomrule")
+    lines.append("  \\end{tabular}%")
+    lines.append("  }")
+    lines.append("\\end{table}")
+    lines.append("")
+    with open(tex_path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(lines))
+    return tex_path

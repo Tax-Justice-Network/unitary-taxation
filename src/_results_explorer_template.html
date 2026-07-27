@@ -1,0 +1,888 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tax Justice Network — Unitary Taxation Explorer</title>
+<style>
+  /*__FONTS__*/
+
+  :root {
+    --gold: #FFD371; --gold-deep: #E0AE3A;
+    --green: #50805E; --red: #AD756C; --teal: #45636C; --blue: #586AAD;
+    --bg: #FCFBF8; --bg-raise: #FFFFFF;
+    --bg-band: #22333A; --band-ink: #F7F4EA; --band-soft: #AEBDB9;
+    --ink: #26312F; --ink-soft: #5B6B67; --ink-faint: #5B6B67;
+    --line: #E4E0D4; --line-soft: #EFECE2; --chip: #F3F0E6;
+    --pos: #50805E; --neg: #AD756C; --focus: #586AAD;
+    --shadow: 0 1px 2px rgba(38,49,47,.05), 0 6px 18px -10px rgba(38,49,47,.14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161F22; --bg-raise: #1D282C;
+      --bg-band: #10181B; --band-ink: #F7F4EA; --band-soft: #8FA09B;
+      --ink: #E8E4D8; --ink-soft: #A7B2AC; --ink-faint: #A7B2AC;
+      --line: #2C393D; --line-soft: #243034; --chip: #223034;
+      --pos: #6FA37E; --neg: #C08A80;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 22px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161F22; --bg-raise: #1D282C;
+    --bg-band: #10181B; --band-ink: #F7F4EA; --band-soft: #8FA09B;
+    --ink: #E8E4D8; --ink-soft: #A7B2AC; --ink-faint: #A7B2AC;
+    --line: #2C393D; --line-soft: #243034; --chip: #223034;
+    --pos: #6FA37E; --neg: #C08A80;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 22px -12px rgba(0,0,0,.5);
+  }
+  :root[data-theme="light"] {
+    --bg: #FCFBF8; --bg-raise: #FFFFFF;
+    --bg-band: #22333A; --band-ink: #F7F4EA; --band-soft: #AEBDB9;
+    --ink: #26312F; --ink-soft: #5B6B67; --ink-faint: #5B6B67;
+    --line: #E4E0D4; --line-soft: #EFECE2; --chip: #F3F0E6;
+    --pos: #50805E; --neg: #AD756C;
+    --shadow: 0 1px 2px rgba(38,49,47,.05), 0 6px 18px -10px rgba(38,49,47,.14);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "Work Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 15.5px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 22px; }
+
+  /* ── slim counter banner ─────────────────────────────────────────── */
+  .band { background: var(--bg-band); color: var(--band-ink); }
+  .band-inner { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 13px 0; }
+  .band .num {
+    font-size: clamp(24px, 3.4vw, 34px); font-weight: 700; color: var(--gold);
+    font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap;
+  }
+  .band .cap { color: var(--band-ink); font-size: 13.5px; line-height: 1.4; max-width: 60em; }
+  .band .cap b { color: var(--band-ink); font-weight: 600; }
+  .band .cap-sub { color: var(--band-soft); }
+
+  /* ── header ──────────────────────────────────────────────────────── */
+  header { padding: 26px 0 4px; }
+  .eyebrow { font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase;
+             color: var(--gold-deep); font-weight: 600; margin-bottom: 6px; }
+  h1 { font-size: clamp(22px, 3.4vw, 31px); line-height: 1.16; font-weight: 600;
+       margin: 0 0 6px; text-wrap: balance; }
+  .sub { color: var(--ink-soft); max-width: 52em; margin: 0; font-size: 14.5px; }
+  .links a { color: var(--blue); text-decoration: none; font-weight: 600; margin-right: 16px; }
+  .links a:hover { text-decoration: underline; }
+  .links a::after { content: " ›"; color: var(--ink-faint); }
+  .links .plain { color: var(--ink-faint); }
+
+  /* ── specification builder (dropdowns) ───────────────────────────── */
+  .spec {
+    background: var(--bg-raise); border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: var(--shadow); margin-top: 18px; padding: 18px 20px;
+  }
+  .spec-grid { display: grid; grid-template-columns: 1fr; gap: 16px 20px; }
+  @media (min-width: 720px) { .spec-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 940px) { .spec-grid { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+  .field-label { display: block; font-size: 11.5px; font-weight: 600; color: var(--ink-soft);
+                 letter-spacing: .09em; text-transform: uppercase; margin-bottom: 7px; }
+  .sel-row { display: flex; align-items: center; gap: 8px; }
+  .sel-row select { flex: 1 1 auto; min-width: 0; }
+  .field { position: relative; }        /* anchors the ⓘ tip under the whole cell */
+  .field-label .info { margin-left: 6px; vertical-align: -2px; }
+  .info { display: inline-flex; align-items: center; justify-content: center;
+          width: 15px; height: 15px; flex: none; border-radius: 50%; border: 1px solid var(--line);
+          background: var(--bg); color: var(--ink-soft); font-size: 10px; font-weight: 700;
+          font-style: italic; font-family: Georgia, serif; cursor: help; user-select: none;
+          text-transform: none; letter-spacing: 0; }
+  .info:hover, .info:focus-visible { border-color: var(--teal); color: var(--teal); outline: none; }
+  .info .tip { position: absolute; left: 0; right: 0; top: calc(100% + 8px);
+               max-width: 270px; background: var(--bg-band); color: var(--band-ink);
+               padding: 9px 11px; border-radius: 8px; font-size: 12px; font-weight: 400; font-style: normal;
+               font-family: "Work Sans", system-ui, sans-serif; line-height: 1.45; letter-spacing: 0;
+               text-transform: none; box-shadow: var(--shadow); z-index: 6;
+               opacity: 0; visibility: hidden; transition: opacity .12s ease; pointer-events: none; }
+  /* tip opens when hovering anywhere in the cell (select included), after a short
+     pause so it doesn't flash while mousing across; instantly on the ⓘ itself */
+  .field:hover .info .tip { opacity: 1; visibility: visible; transition-delay: .3s; }
+  .info:hover .tip, .info:focus .tip, .info:focus-visible .tip {
+    opacity: 1; visibility: visible; transition-delay: 0s; }
+  .info .tip::before { content: ""; position: absolute; left: 16px; right: auto; bottom: 100%;
+               border: 5px solid transparent; border-bottom-color: var(--bg-band); }
+  select {
+    font: inherit; font-size: 14px; width: 100%; padding: 9px 32px 9px 12px;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink);
+    cursor: pointer; -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%235B6B67' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat; background-position: right 11px center;
+  }
+  select:hover { border-color: var(--teal); }
+  select:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  select:disabled { opacity: .5; cursor: default; }
+
+  .custom-panel { display: none; margin-top: 12px; padding: 12px 14px;
+                  background: var(--chip); border-radius: 8px; grid-column: 1 / -1; }
+  .custom-panel.show { display: block; }
+  .cw { display: grid; grid-template-columns: 84px 1fr 42px; gap: 8px 12px; align-items: center; max-width: 560px; }
+  .cw label { font-size: 13px; color: var(--ink-soft); }
+  .cw input[type="range"] { width: 100%; accent-color: var(--teal); }
+  .cw .pct { font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; }
+  .custom-note { font-size: 11.5px; color: var(--ink-faint); margin-top: 8px; }
+
+  /* ── sections ────────────────────────────────────────────────────── */
+  section { margin: 34px 0; }
+  h2 { font-size: 19px; font-weight: 600; margin: 0 0 3px; }
+  h2 .total { color: var(--ink-soft); font-weight: 600; }
+  h2 .total.pos { color: var(--pos); } h2 .total.neg { color: var(--neg); }
+  .h2-note { color: var(--ink-soft); font-size: 13.5px; margin: 0 0 14px; }
+  .toggles { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 14px; }
+  .toggle button {
+    font: inherit; font-size: 12.5px; padding: 5px 11px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--bg-raise); color: var(--ink);
+  }
+  .toggle button:first-child { border-radius: 7px 0 0 7px; }
+  .toggle button:last-child { border-radius: 0 7px 7px 0; border-left: none; }
+  .toggle button.on { background: var(--chip); font-weight: 600; }
+  .toggle button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+  .chart-card {
+    background: var(--bg-raise); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px 18px 8px; box-shadow: var(--shadow); overflow-x: auto; clear: both;
+  }
+  .chart-hint { font-size: 12px; color: var(--ink-faint); margin: 4px 4px 8px; }
+  .timeline-wrap { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+  .timeline-head { font-size: 13px; font-weight: 600; color: var(--ink); margin: 0 4px 8px; }
+  .timeline-head .tl-sub { font-weight: 400; color: var(--ink-soft); }
+  .bar-rect { cursor: pointer; } .bar-rect:hover { opacity: .85; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--ink-soft); margin: 2px 4px 10px; }
+  .legend .sw { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+  .country-card {
+    background: var(--bg-raise); border: 1px solid var(--line); border-left: 4px solid var(--gold);
+    border-radius: 10px; padding: 16px 20px; box-shadow: var(--shadow); margin: 16px 0; display: none;
+  }
+  .country-card.show { display: block; }
+  .scale-warning { display: none; background: #FFF4DC; border-left: 4px solid #FFD371;
+    color: var(--ink); padding: 10px 14px; border-radius: 6px; font-size: 13px;
+    line-height: 1.45; margin: 4px 0 14px; }
+  .country-card h3 { margin: 0 0 1px; font-size: 17px; }
+  .country-card .meta { color: var(--ink-soft); font-size: 12.5px; margin-bottom: 10px; }
+  .cc-counter { font-size: 14px; margin: 8px 0 12px; }
+  .cc-counter b { font-variant-numeric: tabular-nums; color: var(--gold-deep); font-weight: 700; }
+  .cc-bars { display: grid; grid-template-columns: repeat(3, minmax(110px, 1fr)); gap: 10px; }
+  .cc-bar { background: var(--chip); border-radius: 8px; padding: 10px 12px; }
+  .cc-bar .lab { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 3px; }
+  .cc-bar .val { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cc-bar .val.pos { color: var(--pos); } .cc-bar .val.neg { color: var(--neg); }
+  .cc-close { float: right; font: inherit; font-size: 12.5px; border: none; background: none;
+              color: var(--ink-faint); cursor: pointer; padding: 2px 6px; }
+  .cc-close:hover { color: var(--ink); }
+
+  .table-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .table-tools input {
+    font: inherit; font-size: 13.5px; padding: 7px 11px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg-raise); color: var(--ink); width: 220px;
+  }
+  .table-tools input:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .filter-chip { font-size: 12.5px; background: var(--chip); border: 1px solid var(--line);
+                 border-radius: 999px; padding: 4px 11px; display: none; align-items: center; gap: 7px; }
+  .filter-chip.show { display: inline-flex; }
+  .filter-chip button { border: none; background: none; cursor: pointer; font-size: 13px; color: var(--ink-soft); padding: 0; }
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px;
+              background: var(--bg-raise); box-shadow: var(--shadow); max-height: 520px; overflow-y: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  thead th {
+    text-align: right; font-weight: 600; font-size: 11.5px; letter-spacing: .04em;
+    color: var(--ink-soft); text-transform: uppercase; padding: 11px 13px 9px;
+    border-bottom: 1px solid var(--line); cursor: pointer; white-space: normal;
+    vertical-align: bottom; user-select: none; background: var(--bg-raise); position: sticky; top: 0; z-index: 1;
+  }
+  thead th:first-child { text-align: left; }
+  thead th:not(:first-child) { width: 25%; }
+  thead th .arrow { color: var(--gold-deep); }
+  tbody td { padding: 7px 13px; text-align: right; font-variant-numeric: tabular-nums;
+             border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+  tbody td:first-child { text-align: left; font-weight: 500; white-space: normal; min-width: 130px; }
+  tbody tr { cursor: pointer; } tbody tr:hover { background: var(--chip); }
+  tbody tr:last-child td { border-bottom: none; }
+  td.pos { color: var(--pos); } td.neg { color: var(--neg); }
+  td .grp { display: inline-block; font-size: 10.5px; color: var(--ink-faint); margin-left: 7px; }
+  td .thin { color: var(--gold-deep); font-weight: 700; cursor: help; }
+  .tbl-note { font-size: 12px; color: var(--ink-faint); margin: 8px 4px; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 44px; padding: 20px 0 36px;
+           color: var(--ink-soft); font-size: 12.5px; }
+  footer p { max-width: 66em; margin: 4px 0; }
+  footer .brand { font-weight: 600; color: var(--ink); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="band"><div class="wrap band-inner">
+  <div class="num" id="bigCounter">$0</div>
+  <div class="cap"><b>in additional tax revenue worldwide</b>, since you
+    opened this page — on profit that companies currently book away from where they really operate.</div>
+</div></div>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Tax Justice Network · Unitary Taxation Explorer</div>
+    <h1>What would taxing multinationals as single firms change?</h1>
+    <p class="sub">Under unitary taxation, a multinational group's global profit is taxed
+      where its real activity happens rather than where its accountants book it.
+      Build a specification; every number updates.</p>
+  </header>
+
+  <div class="spec" role="group" aria-label="Specification builder">
+    <div class="spec-grid">
+      <div class="field">
+        <label class="field-label" for="selFormula">How activity is measured
+          <span class="info" tabindex="0" aria-label="What this option means">i<span class="tip" id="tip_formula"></span></span></label>
+        <div class="sel-row"><select id="selFormula"></select></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="selScenario">Natural-resource rights
+          <span class="info" tabindex="0" aria-label="What this option means">i<span class="tip" id="tip_scenario"></span></span></label>
+        <div class="sel-row"><select id="selScenario"></select></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="selMeasure">Sales measured at
+          <span class="info" tabindex="0" aria-label="What this option means">i<span class="tip" id="tip_measure"></span></span></label>
+        <div class="sel-row"><select id="selMeasure"></select></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="selRate">Tax rate assumptions
+          <span class="info" tabindex="0" aria-label="What this option means">i<span class="tip" id="tip_rate"></span></span></label>
+        <div class="sel-row"><select id="selRate"></select></div>
+      </div>
+      <div class="custom-panel" id="customPanel">
+        <div class="cw" id="customSliders"></div>
+        <div class="custom-note">Custom formulas are reconstructed from the estimated
+          formula grid — a close approximation for revenue.</div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <h2>Change in yearly tax revenue <span class="total" id="chartTotal"></span></h2>
+    <div class="toggles">
+      <span class="toggle" id="scaleToggle">
+        <button data-s="sample">Multinationals in OECD data</button><button data-s="global" class="on">All multinationals</button>
+      </span>
+      <span class="toggle" id="unitToggle">
+        <button data-u="usd" class="on">US$ bn</button><button data-u="pct">% of multinationals' current tax</button>
+      </span>
+      <span class="toggle" id="groupToggle">
+        <button data-g="group" class="on">Income groups</button><button data-g="region">Continents</button><button data-g="year">Years</button>
+      </span>
+    </div>
+    <div class="chart-card">
+      <div class="legend" id="legend"></div>
+      <div id="chart"></div>
+      <div class="chart-hint" id="chartHint">Yearly averages over 2016–2022 (2020 excluded), in constant 2025 US dollars.
+        Percentages compare the change with the tax these same multinationals already pay in the data —
+        not a country's total tax take. Click a bar to see the countries in it, in the table below.</div>
+    </div>
+  </section>
+
+  <div class="country-card" id="countryCard"></div>
+
+  <section>
+    <h2>Every country</h2>
+    <p class="h2-note">Click a column to sort, a row for the country's story.</p>
+    <div class="scale-warning" id="scaleWarning">⚠️ <b>At country level, the scaled-up dollar amounts rest on strong assumptions.</b> Scaling these estimates to the full population of multinational groups requires strong assumptions about how the uncovered profits are distributed across individual countries. The <b>percentages</b> (change relative to the tax these multinationals already pay) are far more robust to scaling — for country-level results, it is better to interpret those than the scaled dollar figures.</div>
+    <div class="table-tools">
+      <input id="search" type="search" placeholder="Find a country…" aria-label="Find a country">
+      <span class="filter-chip" id="filterChip"></span>
+    </div>
+    <div class="tbl-wrap"><table id="tbl">
+      <thead><tr>
+        <th data-k="name">Country</th>
+        <th data-k="rev">Change in tax revenue (US$ m / year)</th>
+        <th data-k="pct">% of multinationals' current tax</th>
+        <th data-k="roy">Minimum-royalty add-on (US$ m / year)</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table></div>
+    <p class="tbl-note" id="tblNote"></p>
+  </section>
+</div>
+
+<footer><div class="wrap">
+  <p><span class="brand">The data.</span> Large multinational groups — those with more than
+    €750&nbsp;million in annual revenue — report to tax authorities, country by country, where they
+    book their profit, employees, sales and assets. The OECD publishes aggregated statistics from
+    these reports (2016–2022); we use only the lines that countries report properly and directly,
+    not the residual "other" or regional groupings and no gap-filled figures. Under your chosen
+    formula, each group's profit is then shared out in proportion to its real activity and valued at
+    each country's tax rates, in constant 2025 US dollars. These are research estimates, not
+    forecasts. Built by the Tax Justice Network.</p>
+  <p><span class="brand">How we scale up from multinationals in the OECD data to all multinationals.</span>
+    <em>Multinationals in OECD data</em> are the groups that
+    report country by country — the directly reported lines used here, covering about three-quarters
+    of all multinational profit worldwide. <em>All multinationals</em> scales these figures up to the
+    full population, multiplying each year by the ratio of total global multinational profit to the
+    profit our sample covers. Global multinational profit is taken from OECD estimates
+    (Hugger et&nbsp;al., 2024); for the most recent years, which those estimates do not yet cover, we
+    extend them in line with GDP.</p>
+  <p class="links" id="links"></p>
+</div></footer>
+
+<script>
+const DATA = /*__DATA__*/;
+
+// paper / methodology links (rendered only when a URL is provided)
+(function () {
+  const L = (DATA.meta.links || {}), host = document.getElementById("links");
+  const bits = [];
+  if (L.paper) bits.push('<a href="' + L.paper + '" target="_blank" rel="noopener">Read the paper</a>');
+  if (L.methodology) bits.push('<a href="' + L.methodology + '" target="_blank" rel="noopener">Methodology note</a>');
+  host.innerHTML = bits.length ? bits.join("")
+    : '<span class="plain">Accompanies the Tax Justice Network’s unitary taxation paper and methodology note.</span>';
+})();
+
+const GROUP_ORDER = ["low_income","lower_middle_income","upper_middle_income","high_income","tax_haven"];
+const GROUP_LABEL = {low_income:"Low income", lower_middle_income:"Lower-middle income",
+  upper_middle_income:"Upper-middle income", high_income:"High income", tax_haven:"Tax havens"};
+const GROUP_SHORT = {low_income:"Low", lower_middle_income:"Lower-mid",
+  upper_middle_income:"Upper-mid", high_income:"High", tax_haven:"Tax havens"};
+const SCEN_LABEL = {
+  ignore:"Resource rights ignored — extractive profits are reapportioned like any other profit",
+  excl:"Resource rights come before taxing rights — source countries' existing resource-rent capture (resource taxes and state equity) is removed from the profit pool before profits are reapportioned",
+  floor:"Resource rights first, plus a guaranteed minimum royalty on production for resource-dependent developing countries (shown in gold)"};
+const SCEN_SHORT = {ignore:"Ignored", excl:"Accounted for", floor:"+ minimum royalty"};
+const RATE_LABEL = {
+  cit:"Headline — profit that arrives will be taxed at the statutory rate; profit that leaves is valued at its country's average effective rate (probably higher than the shifted profit actually faced)",
+  etr:"Conservative — profit that arrives will be taxed at the country's average effective rate; profit that leaves is valued at that same average effective rate",
+  opt:"Optimistic — profit that arrives will be taxed at the statutory rate; profit that leaves is valued at the bottom 10% of effective rates observed (closer to what shifted profit faces)"};
+const FACTORS = [["E","Employees"],["P","Payroll"],["S","Sales"],["A","Assets"]];
+// Concise labels shown in the closed dropdown; the full wording moves to the ⓘ tip.
+const MEASURE_SHORT = {origin:"Origin", dest:"Destination",
+  dest_pe:"Destination + physical", dest_nodigital:"Destination − remote digital",
+  dest_consumer:"Destination, consumer-facing"};
+const RATE_SHORT = {cit:"Headline", etr:"Conservative", opt:"Optimistic"};
+// Human weight description for the formula ⓘ tip (weights = [E,P,S,A]).
+function weightDesc(fk) {
+  const f = DATA.meta.families.find(x => x[0] === fk);
+  if (!f || !f[2]) return "";
+  const names = ["employees","payroll","sales","assets"];
+  return f[2].map((w, i) => w > 0 ? Math.round(w*100)+"% "+names[i] : null)
+             .filter(Boolean).join(" + ");
+}
+const SPY = 31557600;
+const HL = DATA.meta.headline;
+
+const state = { formula: HL.formula, custom: false, weights: {E:50,P:0,S:50,A:0},
+                measure: HL.measure, scen: HL.scen, rate: HL.rate,
+                grouping: "group", unit: "usd", scaled: true, filterGroup: null,
+                sortK: "rev", sortDir: -1, search: "", country: null };
+const SCALE = DATA.meta.scale || null;   // sample → all-multinationals factor
+function scaleMul() { return (state.scaled && SCALE) ? SCALE : 1; }
+const t0 = Date.now();
+const N = DATA.countries.length;
+const RATE_KEYS = DATA.meta.rates.map(r => r[0]);   // which rate modes were exported
+
+function famUsesSales(fk) {
+  const f = DATA.meta.families.find(x => x[0] === fk);
+  return f ? f[2][2] > 0 : true;
+}
+function presetSeries(scen, fk, mk, rk) {
+  const m = famUsesSales(fk) ? mk : "origin";
+  return DATA.series[scen + "|" + fk + "|" + m + "|" + rk] || null;
+}
+function customSeries(scen, rk) {
+  const fac = DATA.factors[scen + "|" + rk + "|" + state.measure]
+           || DATA.factors[scen + "|" + rk + "|origin"];
+  if (!fac) return null;
+  const wsum = state.weights.E + state.weights.P + state.weights.S + state.weights.A;
+  if (wsum <= 0) return null;
+  const w = {E: state.weights.E/wsum, P: state.weights.P/wsum,
+             S: state.weights.S/wsum, A: state.weights.A/wsum};
+  const out = new Array(N);
+  for (let i = 0; i < N; i++) {
+    if (fac.E[i] === null || fac.S[i] === null) { out[i] = null; continue; }
+    out[i] = w.E*fac.E[i] + w.P*fac.P[i] + w.S*fac.S[i] + w.A*fac.A[i];
+  }
+  return out;
+}
+function seriesFor(scen) {
+  return state.custom ? customSeries(scen, state.rate)
+                      : presetSeries(scen, state.formula, state.measure, state.rate);
+}
+function series() { return seriesFor(state.scen); }
+function royaltyOn() { return state.scen === "floor"; }
+function rowValue(i, s) {
+  const base = s[i];
+  if (base === null || base === undefined) return null;
+  return base + (royaltyOn() ? (DATA.royalty[i] || 0) : 0);
+}
+function grossGains() {
+  const s = series(); if (!s) return null;
+  let t = 0; for (let i = 0; i < N; i++) { const v = rowValue(i, s); if (v > 0) t += v; }
+  return t;
+}
+function worldTotal() {
+  const s = series(); if (!s) return null;
+  let t = 0; for (let i = 0; i < N; i++) { const v = rowValue(i, s); if (v) t += v; }
+  return t;
+}
+function worldCash() {
+  let t = 0; for (let i = 0; i < N; i++) if (DATA.cashtax[i] > 0) t += DATA.cashtax[i];
+  return t;
+}
+
+const fmt0 = new Intl.NumberFormat("en-US", {maximumFractionDigits: 0});
+const fmt1 = new Intl.NumberFormat("en-US", {maximumFractionDigits: 1, minimumFractionDigits: 1});
+function money(musd) {
+  if (musd === null) return "–";
+  if (Math.abs(musd) >= 1000) return "$" + fmt1.format(musd / 1000) + " bn";
+  return "$" + fmt0.format(musd) + " m";
+}
+// signed integer; a value that rounds to 0 shows "0" (no + / − sign)
+function signed(v, suffix) {
+  suffix = suffix || "";
+  if (Math.round(Math.abs(v)) === 0) return "0" + suffix;
+  return (v >= 0 ? "+" : "−") + fmt0.format(Math.abs(v)) + suffix;
+}
+function signClass(v) { return Math.round(Math.abs(v)) === 0 ? "" : (v >= 0 ? "pos" : "neg"); }
+
+// ── spec dropdowns ──────────────────────────────────────────────────
+function opt(sel, value, label, selected) {
+  const o = document.createElement("option");
+  o.value = value; o.textContent = label; if (selected) o.selected = true;
+  sel.appendChild(o);
+}
+// Put the headline choice first in each dropdown.
+function hlFirst(list, hlKey, keyOf) {
+  const k = keyOf || (x => x);
+  return list.filter(x => k(x) === hlKey).concat(list.filter(x => k(x) !== hlKey));
+}
+function buildSelects() {
+  const sf = document.getElementById("selFormula"); sf.innerHTML = "";
+  hlFirst(DATA.meta.families, HL.formula, x => x[0]).forEach(([k, lab]) =>
+    opt(sf, k, lab, !state.custom && k === state.formula));
+  opt(sf, "__custom", "Build your own formula…", state.custom);
+  sf.onchange = () => {
+    if (sf.value === "__custom") state.custom = true;
+    else { state.custom = false; state.formula = sf.value; }
+    render();
+  };
+  document.getElementById("customPanel").classList.toggle("show", state.custom);
+
+  const sm = document.getElementById("selMeasure"); sm.innerHTML = "";
+  hlFirst(DATA.meta.measures, HL.measure, x => x[0]).forEach(([k, lab]) =>
+    opt(sm, k, (MEASURE_SHORT[k] || lab) + (k === HL.measure ? "  (headline)" : ""),
+        k === state.measure));
+  sm.disabled = !(state.custom ? state.weights.S > 0 : famUsesSales(state.formula));
+  sm.onchange = () => { state.measure = sm.value; render(); };
+
+  const ss = document.getElementById("selScenario"); ss.innerHTML = "";
+  hlFirst(["ignore","excl","floor"], HL.scen).forEach(k =>
+    opt(ss, k, SCEN_SHORT[k] + (k === HL.scen ? "  (headline)" : ""), k === state.scen));
+  ss.onchange = () => { state.scen = ss.value; render(); };
+
+  const sr = document.getElementById("selRate"); sr.innerHTML = "";
+  // Only offer rate modes that were actually estimated for the current
+  // formula/measure (the optimistic bottom-10% bound exists for the headline
+  // specification only).
+  const availRates = DATA.meta.rates.map(r => r[0]).filter(rk =>
+    state.custom ? !!(DATA.factors[state.scen + "|" + rk + "|" + state.measure]
+                      || DATA.factors[state.scen + "|" + rk + "|origin"])
+                 : presetSeries(state.scen, state.formula, state.measure, rk) !== null);
+  if (!availRates.includes(state.rate))
+    state.rate = availRates.includes(HL.rate) ? HL.rate : (availRates[0] || HL.rate);
+  hlFirst(availRates, HL.rate).forEach(k =>
+    opt(sr, k, RATE_SHORT[k] || k, k === state.rate));
+  sr.onchange = () => { state.rate = sr.value; render(); };
+
+  // ── ⓘ tips: the full wording for the currently-selected option ──────
+  const measLab = k => ((DATA.meta.measures.find(m => m[0] === k) || [])[1] || k);
+  setTip("tip_formula", state.custom
+    ? "Your own weighting of employees, payroll, sales and assets."
+    : weightDesc(state.formula));
+  setTip("tip_measure", measLab(state.measure));
+  setTip("tip_scenario", SCEN_LABEL[state.scen]);
+  setTip("tip_rate", RATE_LABEL[state.rate]);
+}
+function setTip(id, txt) { const e = document.getElementById(id); if (e) e.textContent = txt || ""; }
+function buildSliders() {
+  const host = document.getElementById("customSliders");
+  if (host.childElementCount) { syncSliders(); return; }
+  FACTORS.forEach(([k, lab]) => {
+    const l = document.createElement("label"); l.textContent = lab; l.htmlFor = "w_" + k;
+    const r = document.createElement("input");
+    r.type = "range"; r.min = 0; r.max = 100; r.step = 5; r.id = "w_" + k; r.value = state.weights[k];
+    r.addEventListener("input", () => { state.weights[k] = +r.value; render(); });
+    const s = document.createElement("span"); s.className = "pct"; s.id = "wp_" + k;
+    host.append(l, r, s);
+  });
+  syncSliders();
+}
+function syncSliders() {
+  const wsum = state.weights.E + state.weights.P + state.weights.S + state.weights.A;
+  FACTORS.forEach(([k]) => {
+    const el = document.getElementById("wp_" + k), inp = document.getElementById("w_" + k);
+    if (inp) inp.value = state.weights[k];
+    if (el) el.textContent = wsum > 0 ? Math.round(100 * state.weights[k] / wsum) + "%" : "–";
+  });
+}
+
+// ── counter band ────────────────────────────────────────────────────
+function tick() {
+  const wt = worldTotal();
+  const el = document.getElementById("bigCounter");
+  if (wt === null) { el.textContent = "–"; return; }
+  const g = wt * scaleMul();
+  el.textContent = "$" + fmt0.format(g * 1e6 / SPY * (Date.now() - t0) / 1000);
+}
+setInterval(tick, 100);
+
+// ── chart ───────────────────────────────────────────────────────────
+function groupsInUse() {
+  if (state.grouping === "group") return GROUP_ORDER.map(g => [g, GROUP_SHORT[g]]);
+  const rs = [...new Set(DATA.countries.map(c => c[3]).filter(Boolean))].sort();
+  return rs.map(r => [r, r]);
+}
+function groupOf(c) { return state.grouping === "group" ? c[2] : c[3]; }
+
+function drawChart() {
+  const host = document.getElementById("chart"), leg = document.getElementById("legend");
+  const totEl = document.getElementById("chartTotal");
+  const hint = document.getElementById("chartHint");
+  if (state.grouping === "year") { drawYearChart(host, leg, totEl, hint); return; }
+  if (hint) hint.textContent = "Yearly averages over 2016–2022 (2020 excluded), in constant 2025 US dollars. Percentages compare the change with the tax these same multinationals already pay in the data — not a country's total tax take. Click a bar to see the countries in it, in the table below.";
+  const s = series();
+  host.innerHTML = ""; leg.innerHTML = "";
+  if (!s) { host.innerHTML = '<p class="chart-hint">This combination is not available.</p>'; totEl.textContent = ""; return; }
+  const isPct = state.unit === "pct";
+  const mul = scaleMul();
+  const wt = worldTotal();
+  // aggregate in the heading
+  if (isPct) {   // percentages are scale-invariant (num and denom scale together)
+    const wc = worldCash(), p = wc > 0 ? 100 * wt / wc : null;
+    totEl.textContent = p === null ? "" : "· world " + (p >= 0 ? "+" : "−") + fmt0.format(Math.abs(p)) + "% of multinationals' current tax";
+    totEl.className = "total " + (p >= 0 ? "pos" : "neg");
+  } else {
+    totEl.textContent = "· world " + (wt >= 0 ? "+" : "−") + "$" + fmt1.format(Math.abs(wt) * mul / 1000) + " bn/yr";
+    totEl.className = "total " + (wt >= 0 ? "pos" : "neg");
+  }
+  const groups = groupsInUse();
+  const ut = new Map(), roy = new Map(), cashg = new Map();
+  groups.forEach(([g]) => { ut.set(g, 0); roy.set(g, 0); cashg.set(g, 0); });
+  DATA.countries.forEach((c, i) => {
+    const g = groupOf(c); if (!ut.has(g)) return;
+    if (s[i]) ut.set(g, ut.get(g) + s[i]);
+    if (royaltyOn() && DATA.royalty[i]) roy.set(g, roy.get(g) + DATA.royalty[i]);
+    if (DATA.cashtax[i] > 0) cashg.set(g, cashg.get(g) + DATA.cashtax[i]);
+  });
+  const val = g => { if (!isPct) return (ut.get(g) + roy.get(g)) / 1000 * mul;
+    const c = cashg.get(g); return c > 0 ? 100 * (ut.get(g) + roy.get(g)) / c : 0; };
+  const valUt = g => { if (!isPct) return ut.get(g) / 1000 * mul;
+    const c = cashg.get(g); return c > 0 ? 100 * ut.get(g) / c : 0; };
+  const totals = groups.map(([g]) => val(g));
+  const maxV = Math.max(...totals, 0), minV = Math.min(...totals, 0);
+  const W = Math.max(640, groups.length * 118), H = 290, padB = 42, padT = 26, padL = 8;
+  const span = (maxV - minV) || 1;
+  const y = v => padT + (maxV - v) / span * (H - padT - padB);
+  const bw = Math.min(58, (W - padL * 2) / groups.length * 0.5);
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("width", "100%");
+  svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Change in tax revenue by group");
+  const css = getComputedStyle(document.documentElement);
+  const cPos = css.getPropertyValue("--pos").trim(), cNeg = css.getPropertyValue("--neg").trim(),
+        cGold = css.getPropertyValue("--gold").trim(), cInk = css.getPropertyValue("--ink").trim(),
+        cSoft = css.getPropertyValue("--ink-soft").trim(), cLine = css.getPropertyValue("--line").trim();
+  const zl = document.createElementNS(ns, "line");
+  zl.setAttribute("x1", 0); zl.setAttribute("x2", W);
+  zl.setAttribute("y1", y(0)); zl.setAttribute("y2", y(0)); zl.setAttribute("stroke", cLine);
+  svg.appendChild(zl);
+  groups.forEach(([g, lab], gi) => {
+    const cx = padL + (gi + 0.5) * (W - padL * 2) / groups.length;
+    const utv = valUt(g), tot = val(g), royv = tot - utv;
+    const col = tot >= 0 ? cPos : cNeg;
+    const r1 = document.createElementNS(ns, "rect");
+    r1.setAttribute("x", cx - bw / 2); r1.setAttribute("width", bw);
+    r1.setAttribute("y", Math.min(y(0), y(utv)));
+    r1.setAttribute("height", Math.max(1, Math.abs(y(utv) - y(0))));
+    r1.setAttribute("fill", col); r1.setAttribute("rx", 2); r1.classList.add("bar-rect");
+    r1.addEventListener("click", () => { state.filterGroup = g; state.country = null; render(); });
+    const t1 = document.createElementNS(ns, "title");
+    t1.textContent = (state.grouping === "group" ? GROUP_LABEL[g] : g) + ": " +
+      (isPct ? fmt1.format(tot) + "% of multinationals' current tax"
+             : money(ut.get(g) * mul) + (roy.get(g) ? " + " + money(roy.get(g) * mul) + " royalty add-on" : ""));
+    r1.appendChild(t1); svg.appendChild(r1);
+    if (royv > 0.0005) {
+      const base = Math.max(utv, 0);
+      const r2 = document.createElementNS(ns, "rect");
+      r2.setAttribute("x", cx - bw / 2); r2.setAttribute("width", bw);
+      r2.setAttribute("y", y(base + royv)); r2.setAttribute("height", Math.max(1, y(base) - y(base + royv)));
+      r2.setAttribute("fill", cGold); r2.setAttribute("rx", 2); r2.classList.add("bar-rect");
+      r2.addEventListener("click", () => { state.filterGroup = g; state.country = null; render(); });
+      svg.appendChild(r2);
+    }
+    const tv = document.createElementNS(ns, "text");
+    tv.setAttribute("x", cx); tv.setAttribute("text-anchor", "middle");
+    tv.setAttribute("y", tot >= 0 ? y(tot) - 6 : y(tot) + 14);
+    tv.setAttribute("fill", cInk); tv.setAttribute("font-size", "12"); tv.setAttribute("font-weight", "600");
+    tv.textContent = (tot >= 0 ? "+" : "−") +
+      (isPct ? fmt0.format(Math.abs(tot)) + "%" : "$" + fmt1.format(Math.abs(tot)) + "bn");
+    svg.appendChild(tv);
+    const tx = document.createElementNS(ns, "text");
+    tx.setAttribute("x", cx); tx.setAttribute("text-anchor", "middle");
+    tx.setAttribute("y", H - 9); tx.setAttribute("fill", cSoft); tx.setAttribute("font-size", "11");
+    tx.textContent = lab;
+    svg.appendChild(tx);
+  });
+  host.appendChild(svg);
+  leg.innerHTML = '<span><span class="sw" style="background:var(--pos)"></span>Revenue gained</span>' +
+    '<span><span class="sw" style="background:var(--neg)"></span>Revenue lost</span>' +
+    (royaltyOn() ? '<span><span class="sw" style="background:var(--gold)"></span>Minimum-royalty add-on (extra royalty, on top of the tax change)</span>' : "");
+}
+
+// ── year view: world net gain per year, following the selected specification ──
+function drawYearChart(host, leg, totEl, hint) {
+  host.innerHTML = ""; leg.innerHTML = "";
+  // Per-spec world-by-year series (presets). Custom formulas have no per-year
+  // decomposition and fall back to the headline reference series below.
+  let rows = null, isSpec = false;
+  if (!state.custom && DATA.yearly && (DATA.meta.years || []).length) {
+    const m = famUsesSales(state.formula) ? state.measure : "origin";
+    const yv = DATA.yearly[state.scen + "|" + state.formula + "|" + m + "|" + state.rate];
+    if (yv) {
+      const sfy = DATA.meta.sfyear || [], cy = DATA.cashyear || [];
+      rows = DATA.meta.years.map((yr, i) => ({
+        yr, samp: yv[i],
+        scal: (sfy[i] ? yv[i] * sfy[i] : null),
+        cash: (cy[i] || 0) }));
+      isSpec = true;
+    }
+  }
+  if (!rows) {
+    const tl = DATA.meta.timeline || [];
+    if (!tl.length) { host.innerHTML = '<p class="chart-hint">No yearly series available.</p>'; totEl.textContent = ""; return; }
+    rows = tl.map(r => ({ yr: r[0], samp: r[1], scal: r[2], cash: (r.length > 3 ? r[3] : 0) }));
+  }
+  const showScaled = !!(state.scaled && SCALE);   // the 'All multinationals' toggle
+  const isPct = state.unit === "pct" && rows.every(r => r.cash > 0);
+  const valOf = r => isPct ? 100 * r.samp / r.cash
+                           : (showScaled && r.scal !== null ? r.scal : r.samp);
+  const wsum = rows.reduce((a, r) => a + r.samp, 0);
+  if (isPct) {   // scale-invariant: numerator and denominator scale together
+    const p = 100 * wsum / rows.reduce((a, r) => a + r.cash, 0);
+    totEl.textContent = "\u00b7 avg " + (p >= 0 ? "+" : "\u2212") + fmt0.format(Math.abs(p)) + "% of multinationals' current tax";
+  } else {
+    const avg = rows.reduce((a, r) => a + valOf(r), 0) / rows.length;
+    totEl.textContent = "\u00b7 " + (showScaled ? "all multinationals" : "multinationals in OECD data")
+      + ", avg " + (avg >= 0 ? "+" : "\u2212") + "$" + fmt0.format(Math.abs(avg)) + " bn/yr";
+  }
+  totEl.className = "total " + (wsum >= 0 ? "pos" : "neg");
+  const ns = "http://www.w3.org/2000/svg";
+  const css = getComputedStyle(document.documentElement);
+  const cPos = css.getPropertyValue("--pos").trim(), cNeg = css.getPropertyValue("--neg").trim(),
+        cInk = css.getPropertyValue("--ink").trim(),
+        cSoft = css.getPropertyValue("--ink-soft").trim(), cLine = css.getPropertyValue("--line").trim();
+  const n = rows.length;
+  const vals = rows.map(valOf);
+  const maxV = Math.max(...vals, ...(showScaled && !isPct ? rows.map(r => r.scal || 0) : []), 0);
+  const minV = Math.min(...vals, 0);
+  const W = Math.max(640, n * 100), H = 290, padB = 42, padT = 26, padL = 8, padR = 8;
+  const span = (maxV - minV) || 1;
+  const y = v => padT + (maxV - v) / span * (H - padT - padB);
+  const bw = Math.min(58, (W - padL - padR) / n * 0.5);
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("width", "100%");
+  svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "World revenue gain per year");
+  const zl = document.createElementNS(ns, "line");
+  zl.setAttribute("x1", 0); zl.setAttribute("x2", W);
+  zl.setAttribute("y1", y(0)); zl.setAttribute("y2", y(0)); zl.setAttribute("stroke", cLine);
+  svg.appendChild(zl);
+  rows.forEach((r, i) => {
+    const v = vals[i];
+    const cx = padL + (i + 0.5) * (W - padL - padR) / n;
+    if (showScaled && !isPct && r.scal !== null) {   // faint scaled bar behind the sample bar
+      const g = document.createElementNS(ns, "rect");
+      g.setAttribute("x", cx - bw/2); g.setAttribute("width", bw);
+      g.setAttribute("y", Math.min(y(0), y(r.scal)));
+      g.setAttribute("height", Math.max(1, Math.abs(y(r.scal) - y(0))));
+      g.setAttribute("fill", r.scal >= 0 ? cPos : cNeg); g.setAttribute("opacity", "0.26"); g.setAttribute("rx", 2);
+      const gt = document.createElementNS(ns, "title");
+      gt.textContent = r.yr + ": scaled to all multinationals \u2248 " + (r.scal >= 0 ? "+" : "\u2212") + "$" + fmt0.format(Math.abs(r.scal)) + " bn";
+      g.appendChild(gt); svg.appendChild(g);
+    }
+    const solidV = isPct ? v : r.samp;   // OECD-data sample (or its % of current tax)
+    const solid = document.createElementNS(ns, "rect");
+    solid.setAttribute("x", cx - bw/2); solid.setAttribute("width", bw);
+    solid.setAttribute("y", Math.min(y(0), y(solidV)));
+    solid.setAttribute("height", Math.max(1, Math.abs(y(solidV) - y(0))));
+    solid.setAttribute("fill", solidV >= 0 ? cPos : cNeg); solid.setAttribute("rx", 2);
+    const st = document.createElementNS(ns, "title");
+    st.textContent = isPct
+      ? r.yr + ": " + (v >= 0 ? "+" : "\u2212") + fmt1.format(Math.abs(v)) + "% of these multinationals' current tax"
+      : r.yr + ": multinationals in the OECD data " + (r.samp >= 0 ? "+" : "\u2212") + "$" + fmt0.format(Math.abs(r.samp)) + " bn";
+    solid.appendChild(st); svg.appendChild(solid);
+    const topv = isPct ? v : (showScaled && r.scal !== null ? r.scal : r.samp);
+    const tv = document.createElementNS(ns, "text");
+    tv.setAttribute("x", cx); tv.setAttribute("text-anchor", "middle");
+    tv.setAttribute("y", topv >= 0 ? y(topv) - 6 : y(topv) + 14);
+    tv.setAttribute("fill", cInk);
+    tv.setAttribute("font-size", "12"); tv.setAttribute("font-weight", "600");
+    tv.textContent = (topv >= 0 ? "+" : "\u2212") +
+      (isPct ? fmt0.format(Math.abs(v)) + "%" : "$" + fmt0.format(Math.abs(topv)) + "bn");
+    svg.appendChild(tv);
+    const tx = document.createElementNS(ns, "text");
+    tx.setAttribute("x", cx); tx.setAttribute("text-anchor", "middle");
+    tx.setAttribute("y", H - 9); tx.setAttribute("fill", cSoft); tx.setAttribute("font-size", "11");
+    tx.textContent = r.yr;
+    svg.appendChild(tx);
+  });
+  host.appendChild(svg);
+  leg.innerHTML = isPct
+    ? '<span><span class="sw" style="background:var(--pos)"></span>% of the current tax paid by the multinationals in the data</span>'
+    : '<span><span class="sw" style="background:var(--pos)"></span>Multinationals in the OECD data</span>'
+      + (showScaled ? '<span><span class="sw" style="background:var(--pos);opacity:.32"></span>Scaled to all multinationals</span>' : "");
+  if (hint) {
+    let t = isSpec
+      ? "Net additional world tax revenue each year (2020 included) for the specification selected above, constant 2025 US$ bn."
+      : "Net additional world tax revenue each year (2020 included), constant 2025 US$ bn \u2014 headline reference series (custom formulas have no per-year decomposition).";
+    if (isPct) t += " Percentages compare each year's gain with the tax the multinationals in the data already pay that year; they are unaffected by the \u2018All multinationals\u2019 toggle (numerator and denominator scale together).";
+    else t += " The \u2018All multinationals\u2019 toggle scales each year up by that year's coverage factor.";
+    if (royaltyOn()) t += " The minimum-royalty add-on is not included in the yearly series.";
+    hint.textContent = t;
+  }
+}
+
+// ── table ───────────────────────────────────────────────────────────
+function tableRows() {
+  const s = series(); if (!s) return [];
+  const q = state.search.trim().toLowerCase();
+  const rows = [];
+  DATA.countries.forEach((c, i) => {
+    const v = rowValue(i, s); if (v === null || v === undefined) return;
+    if (state.filterGroup && groupOf(c) !== state.filterGroup) return;
+    if (q && !c[1].toLowerCase().includes(q) && !c[0].toLowerCase().includes(q)) return;
+    const roy = royaltyOn() ? (DATA.royalty[i] || 0) : 0, cash = DATA.cashtax[i];
+    rows.push({ i, iso: c[0], name: c[1], grp: c[2], reg: c[3], thin: c[4], rev: v, roy,
+                pct: cash > 0 ? v / cash * 100 : null });
+  });
+  const k = state.sortK, d = state.sortDir;
+  rows.sort((a, b) => {
+    if (k === "name") return d * a.name.localeCompare(b.name);
+    const av = a[k] === null ? -Infinity : a[k], bv = b[k] === null ? -Infinity : b[k];
+    return d * (av - bv);
+  });
+  return rows;
+}
+function drawTable() {
+  const tb = document.getElementById("tbody"); tb.innerHTML = "";
+  const mul = scaleMul();
+  tableRows().forEach(r => {
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      "<td>" + r.name +
+        (r.thin ? ' <span class="thin" title="Estimate based on few reported observations — read with caution">*</span>' : "") +
+        '<span class="grp">' +
+        (state.grouping === "region" ? (r.reg || "") : (GROUP_LABEL[r.grp] || "")) + "</span></td>" +
+      '<td class="' + signClass(r.rev * mul) + '">' + signed(r.rev * mul) + "</td>" +
+      "<td>" + (r.pct === null ? "" : signed(r.pct, "%")) + "</td>" +
+      "<td>" + (Math.round((r.roy || 0) * mul) === 0 ? "" : fmt0.format(r.roy * mul)) + "</td>";
+    tr.addEventListener("click", () => { state.country = r.i; render(); });
+    tb.appendChild(tr);
+  });
+  document.querySelectorAll("thead th").forEach(th => {
+    const k = th.dataset.k;
+    th.innerHTML = th.textContent.replace(/[▲▼\s]+$/,"") +
+      (state.sortK === k ? ' <span class="arrow">' + (state.sortDir < 0 ? "▼" : "▲") + "</span>" : "");
+    th.onclick = () => {
+      if (state.sortK === k) state.sortDir *= -1;
+      else { state.sortK = k; state.sortDir = k === "name" ? 1 : -1; }
+      drawTable();
+    };
+  });
+  const chip = document.getElementById("filterChip");
+  if (state.filterGroup) {
+    const lab = state.grouping === "group" ? (GROUP_LABEL[state.filterGroup] || state.filterGroup) : state.filterGroup;
+    chip.innerHTML = "Showing: " + lab + ' <button aria-label="Clear filter">✕</button>';
+    chip.classList.add("show");
+    chip.querySelector("button").onclick = () => { state.filterGroup = null; render(); };
+  } else chip.classList.remove("show");
+  document.getElementById("tblNote").innerHTML =
+    "The change in tax revenue already includes the minimum-royalty add-on where that option is chosen; " +
+    "the add-on column shows just the extra royalty from the minimum royalty — a separate stream on top " +
+    "of the tax change. The percentage compares the change with the tax these same multinationals already " +
+    "pay in the data (not a country's total tax take); it is blank where that base is zero or negative. " +
+    "<span class=\"thin\">*</span> marks a country whose estimate rests on few reported observations — read it with caution.";
+}
+
+// ── country card ────────────────────────────────────────────────────
+function drawCountryCard() {
+  const card = document.getElementById("countryCard");
+  if (state.country === null) { card.classList.remove("show"); card.innerHTML = ""; return; }
+  const i = state.country, c = DATA.countries[i];
+  const scens = ["ignore","excl","floor"];
+  const vals = scens.map(sc => {
+    const s = seriesFor(sc);
+    if (!s || s[i] === null || s[i] === undefined) return null;
+    return s[i] + (sc === "floor" ? (DATA.royalty[i] || 0) : 0);
+  });
+  const mul = scaleMul();
+  const cur = vals[{"ignore":0,"excl":1,"floor":2}[state.scen]];
+  const perSec = cur === null ? null : cur * mul * 1e6 / SPY;
+  card.innerHTML =
+    '<button class="cc-close" aria-label="Close">✕ close</button>' +
+    "<h3>" + c[1] + (c[4] ? ' <span class="thin">*</span>' : "") + "</h3>" +
+    '<div class="meta">' + (GROUP_LABEL[c[2]] || "") + (c[3] ? " · " + c[3] : "") +
+      (c[4] ? " · estimate based on few reported observations" : "") + "</div>" +
+    '<div class="cc-counter">Under your specification, ' + c[1] + " would have " +
+      (cur === null ? "no estimate" : (cur >= 0 ? "gained <b id=ccTick></b>" : "lost <b id=ccTick></b>")) +
+      " while this page has been open — " + (cur === null ? "" : money(cur * mul) + " per year.") + "</div>" +
+    '<div class="cc-bars">' + scens.map((sc, j) =>
+      '<div class="cc-bar"><div class="lab">' + SCEN_SHORT[sc] + '</div><div class="val ' +
+      (vals[j] === null ? "" : vals[j] >= 0 ? "pos" : "neg") + '">' +
+      (vals[j] === null ? "–" : (vals[j] >= 0 ? "+" : "−") + fmt0.format(Math.abs(vals[j]) * mul) + " m") +
+      "</div></div>").join("") + "</div>";
+  card.classList.add("show");
+  card.querySelector(".cc-close").onclick = () => { state.country = null; render(); };
+  if (perSec !== null) {
+    const tickEl = card.querySelector("#ccTick");
+    const upd = () => { if (!document.body.contains(tickEl)) return;
+      tickEl.textContent = "$" + fmt0.format(Math.abs(perSec) * (Date.now() - t0) / 1000);
+      requestAnimationFrame(() => setTimeout(upd, 200)); };
+    upd();
+  }
+  card.scrollIntoView({behavior: "smooth", block: "nearest"});
+}
+
+document.getElementById("groupToggle").querySelectorAll("button").forEach(b => {
+  b.onclick = () => { state.grouping = b.dataset.g; state.filterGroup = null; render(); };
+});
+document.getElementById("unitToggle").querySelectorAll("button").forEach(b => {
+  b.onclick = () => { state.unit = b.dataset.u; render(); };
+});
+document.getElementById("scaleToggle").querySelectorAll("button").forEach(b => {
+  b.onclick = () => { state.scaled = (b.dataset.s === "global"); render(); };
+});
+document.getElementById("search").addEventListener("input", e => { state.search = e.target.value; drawTable(); });
+
+function render() {
+  buildSelects();
+  buildSliders();
+  document.getElementById("groupToggle").querySelectorAll("button").forEach(b =>
+    b.classList.toggle("on", b.dataset.g === state.grouping));
+  const yearPctOk =
+    ((DATA.cashyear || []).length > 0 && DATA.cashyear.every(c => c > 0)) ||
+    ((DATA.meta.timeline || []).length > 0 &&
+     DATA.meta.timeline.every(r => r.length > 3 && r[3] > 0));
+  document.getElementById("unitToggle").querySelectorAll("button").forEach(b => {
+    b.classList.toggle("on", b.dataset.u === state.unit);
+    // % in the year view needs the per-year cash denominator
+    b.disabled = (state.grouping === "year" && b.dataset.u === "pct" && !yearPctOk);
+  });
+  // scale toggle (hidden when no scale factor was exported)
+  const stog = document.getElementById("scaleToggle");
+  stog.style.display = SCALE ? "" : "none";
+  stog.querySelectorAll("button").forEach(b =>
+    b.classList.toggle("on", (b.dataset.s === "global") === state.scaled));
+  // Warn above the country table whenever the scaled-up (all-multinationals) view is on.
+  document.getElementById("scaleWarning").style.display = (state.scaled && SCALE) ? "block" : "none";
+  drawChart(); drawTable(); drawCountryCard(); tick();
+}
+render();
+</script>
