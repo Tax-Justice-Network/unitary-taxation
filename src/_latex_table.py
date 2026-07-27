@@ -174,7 +174,9 @@ def csv_to_latex(csv_path, tex_path=None, caption=None, label=None, title_super=
         return "\\firstrowcolor{}\\firstrowfont{}" if first else "\\firstrowfont{}"
     def _wrap(t):
         # break a long spanning header onto two centred lines at the middle space
-        if len(t) <= 18 or " " not in t:
+        # (threshold keeps the four formula names on one line now the table is widened;
+        # only genuinely long group labels, e.g. the scenario headings, still wrap)
+        if len(t) <= 22 or " " not in t:
             return _esc(t)
         spaces = [i for i, ch in enumerate(t) if ch == " "]
         b = min(spaces, key=lambda i: abs(i - len(t) // 2))
@@ -196,22 +198,38 @@ def csv_to_latex(csv_path, tex_path=None, caption=None, label=None, title_super=
             else:
                 trail.append(text)
         gspan = sum(s for _, s in groups)
-        row = [_fr(True) + "\\multirow{3}{*}{\\firstrowfont{}%s}" % (_esc(lead[0]) if lead else "")]
+        # Vertically-spanning labels (Country + the trailing reference column)
+        # are drawn with \multirow{-3} FROM THE LAST header row — the
+        # colortbl-safe pattern: a top-anchored \multirow gets painted over by
+        # the row colours of the following header rows and can appear to float
+        # above the band on longtable continuation pages.
+        row = [_fr(True)]
         row.append("\\multicolumn{%d}{c|}{\\firstrowfont{}%s}" % (gspan, _esc(title_super)))
-        row += ["\\multirow{2}{*}{\\firstrowfont{}\\makecell{%s}}" % _esc(t).replace(" ", "\\\\", 1)
-                for t in trail]   # label spans 2 rows, breaking after the first word
+        row += ["" for _ in trail]
         hdr.append(" & ".join(row) + " \\\\")
         hdr.append("\\cline{2-%d}" % (1 + gspan))
         row = [_fr(True)]
         for t, s in groups:
             row.append("\\multicolumn{%d}{c|}{\\firstrowfont{}%s}" % (s, _wrap(t)))
-        row += ["\\firstrowfont{}" for _ in trail]
+        row += ["" for _ in trail]
         hdr.append(" & ".join(row) + " \\\\")
         hdr.append("\\cline{2-%d}" % ncol)
-        row = [_fr(True)]
+        row = [_fr(True) + "\\multirow{-3}{*}{\\firstrowfont{}%s}"
+               % (_esc(lead[0]) if lead else "")]
         for text, span in sub_row[len(lead):len(lead) + gspan]:
             row.append("\\firstrowfont{}" + ("" if text is None else _esc(text)))
-        row += ["\\firstrowfont{}US\\$ m" for _ in trail]                          # unit under the label
+        def _trail_cell(t):
+            # ≤3 lines (middle-split label + unit): a taller makecell than the
+            # three header rows overflows upward past the table edge.
+            if " " in t:
+                sp = [i for i, ch in enumerate(t) if ch == " "]
+                b = min(sp, key=lambda i: abs(i - len(t) // 2))
+                lab = _esc(t[:b]) + "\\\\" + _esc(t[b + 1:])
+            else:
+                lab = _esc(t)
+            return ("\\multirow{-3}{*}{\\firstrowfont{}\\makecell{%s\\\\(US\\$ m)}}"
+                    % lab)
+        row += [_trail_cell(t) for t in trail]               # label + unit, bottom-anchored
         hdr.append(" & ".join(row) + " \\\\")
         hdr.append("\\hline")
     elif spec:
@@ -262,9 +280,10 @@ def csv_to_latex(csv_path, tex_path=None, caption=None, label=None, title_super=
         for v in row:
             txt = _esc(_fmt(v))
             # [1]/[2]/[3] flags → hyperlinks to the shared notes block
-            # (regular weight/shape — not italic)
-            txt = re.sub(r"\[([123])\]",
-                         r"\\hyperref[tab:tablenotes]{[\1]}", txt)
+            # (regular weight/shape — not italic). The tie (~) keeps the flag
+            # on the same line as its number instead of wrapping beneath it.
+            txt = re.sub(r"\s*\[([123])\]",
+                         r"~\\hyperref[tab:tablenotes]{[\1]}", txt)
             if is_grp and txt:
                 txt = f"\\textbf{{{txt}}}"
             cells.append(txt)
