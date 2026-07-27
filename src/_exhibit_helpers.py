@@ -165,9 +165,9 @@ def figdir_appendix_b():
 # Wrapped world-region tick labels for the Appendix-B figures (two lines for the
 # long names, matching the IG_LABELS_PAPER convention).
 REGION_LABELS_PAPER = {
-    "Africa": "Africa", "Asia": "Asia", "Latin America": "Latin\nAmerica",
-    "Caribbean/American isl.": "Caribbean\n& Am. isl.",
-    "Northern America": "Northern\nAmerica", "Europe": "Europe", "Oceania": "Oceania",
+    "Africa": "Africa", "Asia & Oceania": "Asia &\nOceania",
+    "Latin America & Caribbean": "Latin America\n& Caribbean",
+    "Northern America": "Northern\nAmerica", "Europe": "Europe",
 }
 
 
@@ -389,7 +389,8 @@ def region(sample):
     """iso -> region_tjn (geographic grouping), from the same summary file."""
     p = _summary_path(sample, "excl_resource")
     d = pd.read_csv(p, usecols=["iso_partner", "region_tjn"], low_memory=False)
-    return d.drop_duplicates("iso_partner").set_index("iso_partner")["region_tjn"]
+    s = d.drop_duplicates("iso_partner").set_index("iso_partner")["region_tjn"]
+    return s.replace(REGION_MERGE)   # coarser continents, matching the app
 
 
 def floor_royalty_musd(sample="reported_only",
@@ -444,8 +445,13 @@ IG_HEADING = {
 # Parallel geographic grouping (region_tjn column): every income-group table
 # gets a "…_by_region" counterpart. Tax havens are NOT pulled out here (a
 # haven is grouped with its geographic region).
-REGION_ORDER = ["Africa", "Asia", "Latin America", "Caribbean/American isl.",
-                "Northern America", "Europe", "Oceania"]
+# Merge the finer split into the app's coarser continents (UN "Latin America and
+# the Caribbean"; OECD's "Asia & Oceania"), matching the interactive explorer.
+REGION_MERGE = {"Caribbean/American isl.": "Latin America & Caribbean",
+                "Latin America": "Latin America & Caribbean",
+                "Asia": "Asia & Oceania", "Oceania": "Asia & Oceania"}
+REGION_ORDER = ["Africa", "Asia & Oceania", "Latin America & Caribbean",
+                "Northern America", "Europe"]
 REGION_HEADING = {r: r.upper() for r in REGION_ORDER}
 
 

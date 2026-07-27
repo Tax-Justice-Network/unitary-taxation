@@ -846,7 +846,8 @@ function drawCountryCard() {
       '<div class="cc-bar"><div class="lab">' + SCEN_SHORT[sc] + '</div><div class="val ' +
       (vals[j] === null ? "" : vals[j] >= 0 ? "pos" : "neg") + '">' +
       (vals[j] === null ? "–" : (vals[j] >= 0 ? "+" : "−") + fmt0.format(Math.abs(vals[j]) * mul) + " m") +
-      "</div></div>").join("") + "</div>";
+      "</div></div>").join("") + "</div>" +
+    ((DATA.notes && DATA.notes[c[0]]) ? '<div class="cc-note">' + DATA.notes[c[0]] + '</div>' : "");
   card.classList.add("show");
   card.querySelector(".cc-close").onclick = () => { state.country = null; render(); };
   if (perSec !== null) {
@@ -894,4 +895,16 @@ function render() {
   drawChart(); drawTable(); drawCountryCard(); tick();
 }
 render();
+
+// ── iframe embedding (e.g. a WordPress page) ────────────────────────────
+// When framed, post the document height to the parent so the host page can
+// grow the iframe instead of showing a nested scrollbar. The matching
+// listener lives in the embed snippet (see unitary_taxation_explorer/README).
+if (window.parent !== window) {
+  const postH = () => parent.postMessage(
+    { utExplorerHeight: document.documentElement.scrollHeight }, "*");
+  new ResizeObserver(postH).observe(document.documentElement);
+  window.addEventListener("load", postH);
+  setInterval(postH, 1500);   // safety net for content the observer misses
+}
 </script>

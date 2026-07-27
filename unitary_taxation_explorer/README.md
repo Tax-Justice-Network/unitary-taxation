@@ -16,6 +16,25 @@ static files.
   results as a spreadsheet); host it next to `index.html` if download links
   are wanted.
 
+## WordPress specifically
+
+Two supported routes — do NOT paste the file's contents into the page editor
+(block editors strip or mangle the embedded script):
+
+1. **Static folder (preferred).** With hosting/SFTP access, place `index.html`
+   in a folder next to the WordPress install, e.g.
+   `public_html/unitary-taxation-explorer/` → the page is live at
+   `https://<site>/unitary-taxation-explorer/`, full-screen, no WordPress
+   involvement. WordPress happily coexists with static folders.
+2. **WordPress page + iframe.** Create a normal page (it keeps the site's
+   header and menu) and paste `wordpress_embed_snippet.html` into a
+   Custom HTML block, pointing its `EXPLORER_URL` at wherever `index.html`
+   is hosted (the static folder above, or the project's GitHub Pages URL).
+   The app posts its height to the host page, so the iframe grows with the
+   content — no nested scrollbar. Updates then never touch WordPress: replace
+   the hosted file (or `git push` when using GitHub Pages) and the embed
+   follows.
+
 ## Updating
 
 The file is generated from the replication package:

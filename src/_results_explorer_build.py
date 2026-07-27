@@ -77,6 +77,21 @@ NYRS = _eh.N_AVG_YEARS
 DEFL = config.deflator_to_base()
 EXCL = set(config.DATA_QUALITY_EXCLUSIONS)   # presentation exclusions
 
+# Per-country story note shown on the country card (keyed by ISO3).
+ESWATINI_APP_NOTE = (
+    "Eswatini’s projected loss is driven by the exceptionally high profits reported there by "
+    "US-headquartered multinationals — in 2022, US$962 million, or 94% of all multinational "
+    "profits reported in Eswatini (about 76% on average over 2018–2022). The aggregate data do "
+    "not name individual companies, but the pattern is consistent with Coca-Cola’s large "
+    "concentrate operation in the country. Sharife (2015, 100Reporters) documented that Coca-Cola "
+    "established the operation mainly to supply the South African market and reportedly benefited "
+    "from financial secrecy and a 6% corporate tax rate; the Financial Times (Foley and Meyer, "
+    "2024) identified the Eswatini plant among the concentrate subsidiaries at the centre of "
+    "Coca-Cola’s transfer-pricing dispute with the US tax authorities. Under unitary taxation, "
+    "part of these profits is reallocated to the countries where Coca-Cola has employees and sales "
+    "to customers.")
+COUNTRY_NOTES = {"SWZ": ESWATINI_APP_NOTE}
+
 
 def _summary(scenario):
     p = os.path.join(str(config.estimates_dir("reported_only", scenario)),
@@ -259,6 +274,7 @@ def main():
         "series": series,
         "yearly": yearly,
         "factors": factors,
+        "notes": {iso: COUNTRY_NOTES[iso] for iso in COUNTRY_NOTES if iso in idx},
     }
     data["meta"]["years"] = ALL_YEARS
 

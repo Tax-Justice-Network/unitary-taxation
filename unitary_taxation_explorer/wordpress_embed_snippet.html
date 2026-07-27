@@ -1,0 +1,19 @@
+<!-- Unitary Taxation Explorer — WordPress embed snippet.
+     Paste into a "Custom HTML" block on a normal WordPress page. Ready to use
+     as-is: the src already points at the hosted app (GitHub Pages; live from
+     2 August 2026 — before that date the frame shows a 404, which is expected
+     under the embargo). The script grows the iframe with the app's content,
+     so there is no nested scrollbar. -->
+<iframe id="ut-explorer"
+        src="https://tax-justice-network.github.io/unitary-taxation-explorer/"
+        title="Unitary Taxation Explorer"
+        style="width:100%;border:0;min-height:80vh;display:block"
+        loading="lazy"></iframe>
+<script>
+  window.addEventListener("message", function (e) {
+    if (e.data && e.data.utExplorerHeight) {
+      document.getElementById("ut-explorer").style.height =
+        (e.data.utExplorerHeight + 20) + "px";
+    }
+  });
+</script>
