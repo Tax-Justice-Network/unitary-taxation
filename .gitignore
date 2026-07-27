@@ -3,5 +3,6 @@ __pycache__/
 .env
 data/final/
 data/intermediate/gravity/
-output/
+output/*
+!output/README.md
 *.log
