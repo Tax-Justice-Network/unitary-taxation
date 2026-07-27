@@ -77,6 +77,10 @@ _TOPIC_REMAP_EXACT = {
     "unitary_taxation_incl_resource": "unitary_taxation/gravity/incl_resource",
     # reported-only sample (recorded profits, no imputed rows)
     "unitary_taxation_disaggregated_reported": "unitary_taxation/reported_only/baseline",
+    # Consolidation upper bound (9i2): UT on the OECD "Sub-groups with positive
+    # profits" panel only (loss sub-groups contribute zero taxable profit).
+    "unitary_taxation_positive_panel_reported": "unitary_taxation/reported_only/positive_panel",
+    "unitary_taxation_positive_panel": "unitary_taxation/gravity/positive_panel",
     "unitary_taxation_excl_resource_reported": "unitary_taxation/reported_only/excl_resource",
     "unitary_taxation_excl_resource_floored_reported": "unitary_taxation/reported_only/excl_resource_floored",
     "unitary_taxation_incl_resource_reported": "unitary_taxation/reported_only/incl_resource",
@@ -212,44 +216,44 @@ tjn_shared_bilateral = r"C:\Users\aliso\Tax Justice Network Ltd\TJN - Shared Doc
 # CbCR file
 ## Please give the path to the most recent CbCR file here. This file can be downloaded here: https://stats.oecd.org/Index.aspx?DataSetCode=CBCR_TABLEI.
 ## The link still refers to the old data portal of the OECD. At a certain point in time, the data should be on the new data portal.
-cbcr_data = "../data/raw/OECD.CTP.TPS,DSD_CBCR@DF_CBCRI,1.1+all.csv"
+cbcr_data = "../data/raw/cbcr/oecd_cbcr_tableI_2026-02.csv"
 
 # CIT rates
 ## Please give the path to the most recent corporate income tax (CIT) rate data here. The data has downloaded from two differentthe OECD for many countries here ('Measure: Combined corporate income tax rate'): https://data-explorer.oecd.org/vis?lc=en&fs[0]=Topic%2C1%7CTaxation%23TAX%23%7CCorporate%20tax%23TAX_CPT%23&pg=0&fc=Topic&bp=true&snb=15&df[ds]=dsDisseminateFinalDMZ&df[id]=DSD_TAX_CIT%40DF_CIT&df[ag]=OECD.CTP.TPS&df[vs]=1.0&dq=AUS%2BAUT%2BBEL%2BCAN%2BCHL%2BCOL%2BCRI%2BCZE%2BDNK%2BEST%2BFIN%2BFRA%2BDEU%2BGRC%2BHUN%2BISL%2BIRL%2BISR%2BITA%2BJPN%2BKOR%2BLVA%2BLTU%2BLUX%2BMEX%2BNLD%2BNZL%2BNOR%2BPOL%2BPRT%2BSVK%2BSVN%2BESP%2BSWE%2BCHE%2BTUR%2BGBR%2BUSA%2BALB%2BAGO%2BAND%2BAIA%2BATG%2BARG%2BARM%2BABW%2BAZE%2BBHS%2BBHR%2BGGY%2BBRB%2BBLZ%2BBEN%2BBMU%2BBIH%2BBWA%2BBRA%2BVGB%2BBRN%2BBGR%2BBFA%2BCPV%2BCMR%2BCYM%2BCHN%2BCOG%2BCOK%2BCIV%2BHRV%2BCUW%2BCOD%2BDJI%2BDMA%2BDOM%2BEGY%2BSWZ%2BFRO%2BGAB%2BGEO%2BGIB%2BGRL%2BGRD%2BHTI%2BHND%2BHKG%2BIND%2BIDN%2BIMN%2BJAM%2BJEY%2BJOR%2BKAZ%2BKEN%2BKWT%2BLBR%2BLIE%2BMAC%2BMYS%2BMDV%2BMLT%2BMRT%2BMUS%2BMCO%2BMNG%2BMNE%2BMSR%2BMAR%2BNAM%2BNGA%2BMKD%2BOMN%2BPAK%2BPAN%2BPNG%2BPRY%2BPER%2BPHL%2BQAT%2BROU%2BKNA%2BLCA%2BVCT%2BWSM%2BSMR%2BSAU%2BSEN%2BSRB%2BSYC%2BSLE%2BSGP%2BZAF%2BLKA%2BTHA%2BTGO%2BTTO%2BTUN%2BTCA%2BUKR%2BARE%2BURY%2BUZB%2BVNM%2BZMB.A.CIT_C.ST..S13%2BS1311%2BS13M..&to[TIME_PERIOD]=false&pd=2016%2C2024
 # and for all other ones here: https://taxfoundation.org/data/global-tax/?_sft_topics=corporate-tax-rates-around-the-world#results (see notebook "1_clean").
-cit_data_oecd = "../data/raw/OECD.CTP.TPS,DSD_TAX_CIT@DF_CIT,2.0+all.csv"
+cit_data_oecd = "../data/raw/tax_rates/oecd_cit_rates_2026-02.csv"
 cit_data_taxfoundation = (
-    "../data/raw/1980_2023_Corporate_Tax_Rates_Around_the_World_Tax_Foundation.xlsx"
+    "../data/raw/tax_rates/taxfoundation_cit_rates_1980-2023.xlsx"
 )
 
 # Wage data
 ## Please give the path to the most recent ILO wage data "Wages and Working Time Statistics (COND)" here. The data be downloaded here: https://www.ilo.org/ilostat-files/WEB_bulk_download/indicator/EAR_4MTH_SEX_ECO_CUR_NB_A.csv.gz (see notebook "1_clean").
-wage_data = "../data/raw/EAR_4MTH_SEX_CUR_NB_A-full-2025-08-25.csv"
+wage_data = "../data/raw/macro_variables/ilo_wages_ear4mth_2025-08.csv"
 
 # GDP and population data
 ## Please give the path to the most recent GDP and population data from the World Bank here. The data be downloaded here: https://databank.worldbank.org/source/world-development-indicators/preview/on, selecting the series "GDP (current US$)" and "Population, total" (see notebook "1_clean").
 ## NOTE: only POPULATION is now taken from this file; GDP is overridden by the
 ## canonical WB snapshot below (this DataBank export is a stale vintage — it
 ## misses WB revisions such as Nigeria's +41% rebasing and Angola).
-gdp_population_data = "../data/raw/55f1d958-0a59-4690-ab16-59602d3dab91_Data.csv"
+gdp_population_data = "../data/raw/macro_variables/wb_gdp_population_2026-02.csv"
 
 ## Canonical GDP — the SINGLE GDP per (iso3, year) used across the repo
 ## (CbCR pipeline + extractive WB-GDP reference): WB WDI NY.GDP.MKTP.CD,
 ## current US$, dated snapshot. Refresh with src/_fetch_canonical_gdp.py.
-canonical_gdp_data = "../data/raw/wb_gdp_current_usd.csv"
+canonical_gdp_data = "../data/raw/macro_variables/wb_gdp_current_usd_2026-07.csv"
 
 # Health expenditure data
 ## Please give the path to the most recent WHO health expenditure data here. The data be downloaded here: https://apps.who.int/nha/database/Select/Indicators/en selecting "Domestic General Government Health Expenditure" and "million current US$" as a unit (see notebook "1_clean").
-health_expenditure_data = "../data/raw/WHO health expenditure.xlsx"
+health_expenditure_data = "../data/raw/macro_variables/who_health_expenditure_2026-02.xlsx"
 
 # Tax revenue data
 ## Please give the path to the most recent tax revenue data here. The data be downloaded here: https://api.worldbank.org/v2/en/indicator/GC.TAX.TOTL.GD.ZS?downloadformat=csv
-tax_revenue_data = "../data/raw/API_GC.TAX.TOTL.GD.ZS_DS2_en_csv_v2_1167.csv"
+tax_revenue_data = "../data/raw/macro_variables/wb_tax_revenue_pct_gdp_2026-04.csv"
 
 # Data on regions and membership in regional or international organizations
 ## Please copy the most recent version of TJN's unilateral cross data from the TJN sharepoint: "...\Tax Justice Network Ltd\TJN - Shared Documents\Research team\Data\Final data\{date}_unilateral_cross.csv"
 ## in the data/raw/{sotj_year} folder and give the path below.
-unilateral_cross_data = "../data/raw/20240626_unilateral_cross.csv"
+unilateral_cross_data = "../data/raw/country_info/tjn_portal_unilateral_cross_2024-06.csv"
 
 # Number of firms
 ## Orbis data on number of firms above USD 750mn revenue headquartered in a country, from Orbis flatfiles (to be obtained externally).
@@ -257,13 +261,13 @@ unilateral_cross_data = "../data/raw/20240626_unilateral_cross.csv"
 orbis_data = "../data/raw/orbis.xlsx"
 
 # Exchange rates
-exchange_rates_wb = "../data/raw/API_PA.NUS.FCRF_DS2_en_csv_v2_114.csv"
+exchange_rates_wb = "../data/raw/macro_variables/wb_fx_official_rate_2026-02.csv"
 
 # Consumer Price Index (national CPI, 2010=100). Used in 1_clean.py to
 # extrapolate ILO survey wage observations across panel years for countries
 # where ILO does not provide annual coverage. WB indicator FP.CPI.TOTL,
 # downloaded from the WB Open Data API.
-cpi_data = "../data/raw/API_FP.CPI.TOTL_DS2_en_csv_v2_115366.csv"
+cpi_data = "../data/raw/macro_variables/wb_cpi_2026-04.csv"
 
 # Destination-based sales inputs (OECD 2020, "Tax Challenges Arising from
 # Digitalisation - Economic Impact Assessment", Chapter 2, p.40ff). Used by
@@ -273,32 +277,32 @@ cpi_data = "../data/raw/API_FP.CPI.TOTL_DS2_en_csv_v2_115366.csv"
 ## OECD Analytical AMNE database, "AAMNE_XVEM": output, value added, exports
 ## and imports of domestic- (D) and foreign-owned (F) firms by host country,
 ## industry and ownership. Million USD, 2000-2020. http://oe.cd/gvc-mne
-aamne_data = "../data/raw/AAMNE_XVEM(2).csv"
+aamne_data = "../data/raw/destination_based_sales/oecd_aamne_xvem_2026-06.csv"
 ## OECD Analytical AMNE "MNE" file: output, value added and trade split by
 ## ownership into foreign-owned (F), domestic-owned MNEs (D_MNE) and other
 ## domestic-owned non-MNE firms (D_OTH). Exports column is EXGR. Used as the
 ## exact source for MNE CFB sales (F + D_MNE); the XVEM file + flat 14% is the
 ## fallback if this is absent. Same http://oe.cd/gvc-mne download.
-aamne_dmne_data = "../data/raw/AAMNE_MNE_XVEM.csv"
+aamne_dmne_data = "../data/raw/destination_based_sales/oecd_aamne_mne_xvem_2026-06.csv"
 ## OECD Analytical AMNE BILATERAL output (downloaded 2026-07-12): WIDE format —
 ## year, cou (HOST), isic (sector), then one column per OWNER country (incl.
 ## ROW; the host's own column = domestic-owned output). Million USD, 2000-2020.
 ## Drives the bilateral (parent-specific) destination-sales variant in 1b
 ## (Part D). Same http://oe.cd/gvc-mne family.
-aamne_bilateral_data = "../data/raw/aamne-bilateral-output.csv"
+aamne_bilateral_data = "../data/raw/destination_based_sales/oecd_aamne_bilateral_output_2026-07.csv"
 ## ITU "Individuals using the Internet" (% of population), long format
 ## (entityIso, dataYear, dataValue). Used for the ADS proxy.
-itu_internet_data = "../data/raw/itu_individualsusinginternet.csv"
+itu_internet_data = "../data/raw/destination_based_sales/itu_internet_users_2026-06.csv"
 ## UN National Accounts: individual consumption expenditure by COICOP item and
 ## institutional sector (national currency). The "Equals: Household final
 ## consumption expenditure" line for households is the ADS consumption input.
-un_consumption_data = "../data/raw/UN_consumption.csv"
+un_consumption_data = "../data/raw/destination_based_sales/un_household_consumption_2026-06.csv"
 ## WTO Digitally Delivered Services bulk download: cross-border (Mode 1) trade
 ## in digitally delivered services by reporter (ISO2), year, flow (M/X),
 ## million US$. IMPORTS of the total (INDICATOR "DDS") proxy "remote" digital
 ## value consumed in a market but not booked as local turnover - i.e. the
 ## "ADS not in CFB" increment, added to CFB to form the combined sales key.
-ddt_data = "../data/raw/DDS_bulk_download.csv"
+ddt_data = "../data/raw/destination_based_sales/wto_dds_imports_2026-06.csv"
 ## OECD-WTO BaTIS (Balanced Trade in Services), bilateral EBOPS-2010 categories.
 ## Source of the "digitally DELIVERABLE services" imports aggregate (IMF-OECD-
 ## UNCTAD-WTO Handbook definition: SF, SG, SH, SI, SJ, SK1/SK) used by the
@@ -309,15 +313,15 @@ ddt_data = "../data/raw/DDS_bulk_download.csv"
 ## Reporter/Partner ISO2 + type flags, Flow M/X, Item_code EBOPS, Year,
 ## Reported/Final/Balanced value in million USD). The BALANCED value is the
 ## reconciled series (notes sheet) — used with Final_value as row fallback.
-batis_data = ("../data/raw/OECD-WTO_BATIS_data_BPM6-1/"
+batis_data = ("../data/raw/destination_based_sales/oecd_wto_batis_data_bpm6/"
               "OECD-WTO_BATIS_BPM6_December2025_bulk.csv")
 ## WB Trade (% of GDP), indicator NE.TRD.GNFS.ZS (API download CSV).
-trade_openness_data = "../data/raw/API_NE.TRD.GNFS.ZS_DS2_en_csv_v2_355938.csv"
+trade_openness_data = "../data/raw/macro_variables/wb_trade_pct_gdp_2026-06.csv"
 ## WB Personal remittances, received (current US$), BX.TRF.PWKR.CD.DT (API CSV).
-remittances_data = "../data/raw/API_BX.TRF.PWKR.CD.DT_DS2_en_csv_v2_355149.csv"
+remittances_data = "../data/raw/macro_variables/wb_remittances_received_2026-06.csv"
 ## WB Net official development assistance received (current US$),
 ## DT.ODA.ODAT.CD (Databank export, same wide format as the GDP/population file).
-oda_data = "../data/raw/f6cb9ec3-b98a-448f-9f40-6e850bf1cc88_Data.csv"
+oda_data = "../data/raw/context/wb_oda_received_2026-06.csv"
 
 # Resource carve-out inputs — built by the extractive sub-pipeline
 # (src/3_extractive_prep/), so they live in data/intermediate/extractive/.
@@ -411,7 +415,7 @@ TAX_HAVENS_CLEANING = _GB_PROFIT_CENTRES | _GB_COORDINATION_CENTRES  # 17 jurisd
 #    net-recipient" rule): the GB cleaning list, UNIONed with every jurisdiction
 #    that
 #      (a) has a CTHI-2025 Haven Score >= 65
-#          (data/raw/cthi_2025_scores.csv, cthi_2025_score), AND
+#          (data/raw/country_info/tjn_cthi_2025_scores.csv, cthi_2025_score), AND
 #      (b) booked INWARD-shifted profit (reported_profit − theoretical_profit
 #          > 0) in AT LEAST TWO years, 2016–2022 excl 2020, on the current
 #          headline spec (reported-only / excl_resource /

@@ -16,7 +16,7 @@ absurd magnitudes, currency field that isn't a 3-letter code, …).
 
 Reads:
   data/final/eiti_production_clean_long.csv
-  data/raw/API_PA.NUS.FCRF_DS2_en_csv_v2_114.csv   (WB official exchange
+  data/raw/macro_variables/wb_fx_official_rate_2026-02.csv   (WB official exchange
                                                      rate, LCU per USD,
                                                      period average)
 Writes:
@@ -44,7 +44,7 @@ from _reference_prices import (                                 # noqa: E402
 )
 
 EITI_CLEAN = EXT_INT / "eiti_production_clean_long.csv"
-FX_CSV = RAW / "API_PA.NUS.FCRF_DS2_en_csv_v2_114.csv"
+FX_CSV = RAW / "macro_variables/wb_fx_official_rate_2026-02.csv"
 OUT_TABLES, _ = output_dirs("extractive")
 OUT_CSV = OUT_TABLES / "eiti_extraction_diagnostic.csv"
 

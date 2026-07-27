@@ -18,14 +18,14 @@ todos_and_thougts.txt
 # 2) Files over GitHub's 100 MB limit — large PUBLIC downloads. Obtain them per
 #    the instructions in src/config.py, then re-run the pipeline.
 /data/raw/gravity/
-/data/raw/OECD.CTP.TPS,DSD_CBCR@DF_CBCRI,*.csv
+/data/raw/cbcr/oecd_cbcr_tableI_*.csv
 # BaTIS bulk trade-in-services download (~2.8 GB; read by 1b_destination_based_sales.py):
-/data/raw/OECD-WTO_BATIS_data_BPM6-1/
+/data/raw/destination_based_sales/oecd_wto_batis_data_bpm6/
 *.mp4
 
 # 3) Provenance source documents (NOT read by any script — only the curated CSVs
 #    extracted from them are). Excluded for now to keep the repo lean.
-/data/raw/EITI reports/
+/data/raw/resources/eiti_reports/
 
 # 4) Old-year archive — not needed to reproduce the current run.
 /data/archive/
@@ -47,21 +47,19 @@ todos_and_thougts.txt
 #    (company filings, government reports, images extracted from them) and
 #    generated reports. Kept on disk for transparency / future use, but not
 #    committed; the pipeline reads only the curated CSVs extracted from them.
-# Resource/EITI source documents — keep ONLY the curated extraction tables:
-/data/raw/resources/country sources/**
-!/data/raw/resources/country sources/brazil_anp_extracted.csv
-!/data/raw/resources/country sources/lesotho_revenue_extracted.csv
-!/data/raw/resources/country sources/petrobras_union_dividends_extracted.csv
-!/data/raw/resources/country sources/turkey_cit_extractive_extracted.csv
-!/data/raw/resources/country sources/China_resource_tax_from_statistical_yearbooks.txt
-!/data/raw/resources/country sources/resource_revenue_extracted_new.csv
-# (The generated per-country resource reports in data/raw/country_resource_info/
+# Resource/EITI manual source documents (imf/ + government/ + company/, all named
+# ISO3_Doc_YEAR.ext) — documents are not committed; the curated extraction tables
+# now live directly under data/raw/resources/ (ISO3-prefixed *_extracted.csv) and
+# ARE committed. The rename manifest (old -> new names, 2026-07-21) IS committed:
+/data/raw/resources/resource_profits_manual_sources/**
+!/data/raw/resources/resource_profits_manual_sources/_rename_manifest_2026-07-21.csv
+# (The generated per-country resource reports in output/extractive/country_resource_info/
 #  ARE committed — kept as a reference deliverable.)
 # Public CbCR report PDFs (provenance, not a pipeline input):
-/data/raw/pCbCR/
+/data/raw/cbcr/pcbcr/
 # Climate-finance SOURCE workbooks (only the curated cpi_africa_*.csv are read):
-/data/raw/climate_finance/*.xlsx
-/data/raw/Data-Landscape-of-Climate-Finance-in-Africa-2024.xlsx
+/data/raw/context/climate_finance/*.xlsx
+/data/raw/context/climate_finance/Data-Landscape-of-Climate-Finance-in-Africa-2024_v2.xlsx
 # Unused German trade-tax tables (only 71231-0001 is read, by the us_only sub-project):
 /data/raw/corporate_taxes_germany/71231-0002_en/
 /data/raw/corporate_taxes_germany/71231-0003_en/
@@ -69,10 +67,10 @@ todos_and_thougts.txt
 /data/raw/corporate_taxes_germany/71231-0011_en/
 /data/raw/corporate_taxes_germany/71231-0012_en/
 # Other unused loose inputs / strays:
-/data/raw/ReadMe_AAMNE.xlsx
-/data/raw/CbcR_reporters_over_time.xlsx
-/data/raw/cthi_unilateral_cross_scores.csv
-/data/raw/Interactive Budget Dashboard 2026_Budget Data_Tabel.csv
+/data/guides/oecd_aamne_readme.xlsx
+/data/raw/cbcr/oecd_cbcr_reporters_over_time_2026-06.xlsx
+/data/archive/raw_superseded/cthi_unilateral_cross_scores.csv
+/data/raw/context/sau_mof_budget_dashboard_2026.csv
 /data/output/
 
 # Keep the folder skeleton everywhere.

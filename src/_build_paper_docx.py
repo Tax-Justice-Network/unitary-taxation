@@ -152,7 +152,7 @@ TXT_APP_E = [
 TXT_APP_F = [
     "This appendix lists the resource-revenue figures, resource profit-tax rates, and "
     "small-territory macro, corporate-income-tax and wage values that were collected by "
-    "hand — from EITI reports, company filings and government sources, and, where noted, "
+    "hand — from resources/eiti_reports, company filings and government sources, and, where noted, "
     "with AI-assisted extraction — rather than taken from a single machine-readable dataset.",
     "Each row gives the jurisdiction, the commodity or variable, a confidence rating, and "
     "the source. These values feed the resource-rent-capture correction (Section 4.1) and "

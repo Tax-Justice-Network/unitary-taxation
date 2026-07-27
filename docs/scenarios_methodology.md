@@ -131,6 +131,38 @@ caveat so the figure is not read as a firm-level loss-consolidation estimate.
 
 Output: `output/unitary_taxation/across_samples/loss_consolidation_sensitivity/`.
 
+## Consolidation bounds (9i2): the positive-panel upper bound
+
+Added 2026-07-22 (`src/9i2_consolidation_upper_bound.py`). The headline pools each
+parent country's cells **net of losses** (the OECD "Total (All sub-groups)" panel) —
+implicitly full cross-border AND cross-**group** loss offsetting (one group's losses
+net against a *different* group's profits when both are headquartered in the same
+country, which real unitary consolidation would not allow). The opposite pole is a UT
+run on the **"Sub-groups with positive profits" panel only**: loss-making sub-groups
+contribute **zero taxable profit to any jurisdiction** — their losses neither shrink
+the pool nor earn recovery credits, and their factors claim nothing.
+
+Three-number bracket (never summed — no double counting; the bounds are alternative
+worlds):
+
+| | pool | loss cells | interpretation |
+|---|---|---|---|
+| **Lower bound** (9i) | net (all panel) | zero tax | maximal consolidation |
+| **Headline** | net (all panel) | recovery credited | in between |
+| **Upper bound** (9i2) | positive panel only | excluded entirely | zero consolidation |
+
+**Caveat.** The OECD sub-group split is by the sign of each group's profit **per
+jurisdiction** (sub-group = one group's entities in one partner country), NOT by
+group-wide profitability. Whether a given loss "belongs" to a group that could absorb
+it is unobservable in aggregate CbCR data; the true group-level consolidation world
+lies inside the bracket (WIFO 2026 estimates it at the firm level: ~10% base
+reduction). Positive-panel run: reported-only sample, baseline scenario (no resource
+correction — script 4 is keyed to the all-groups panel), dataset
+`data/final/cbcr_main_positive_panel.csv`, output topic
+`unitary_taxation/reported_only/positive_panel`. Bracket tables:
+`consolidation_bounds_{by_income_group,by_region,country_long}.csv` in the
+loss-consolidation-sensitivity folder.
+
 ## Sample exclusions (stateless entities and aggregate codes)
 
 The pipeline drops partner rows in exactly one place — `1_clean.py`, right after

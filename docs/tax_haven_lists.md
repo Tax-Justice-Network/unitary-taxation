@@ -32,7 +32,7 @@ net-recipient" rule):** a jurisdiction is presented as a tax haven iff
 
 1. it is on the **GB cleaning list** (list 1 above), **OR**
 2. it has a **CTHI-2025 Haven Score ≥ 65**
-   (`data/raw/cthi_2025_scores.csv`, `cthi_2025_score`) **AND** booked
+   (`data/raw/country_info/tjn_cthi_2025_scores.csv`, `cthi_2025_score`) **AND** booked
    **inward-shifted profit** (`reported_profit − theoretical_profit > 0`) in
    **at least TWO years**, 2016–2022 excl 2020, on the current headline spec
    (reported-only / excl_resource / `sales_employees_destmnedds` / `domfor` ETR

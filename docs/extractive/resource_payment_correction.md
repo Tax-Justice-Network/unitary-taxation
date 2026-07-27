@@ -118,6 +118,32 @@ profit / tax / ETR / output-folder via the `DATASET_CONFIGS` dict at the top.
 
 - `manual_resource_revenue.csv` — resource government revenue (USD bn, 2016–22) by `source_iso3 × commodity × year`, split into `frac_pre_profit / frac_post_profit / frac_equity` with a `domestic_share`. Sources in `manual_resource_data_sources.md`.
 - `resource_profit_tax_rate.csv` — effective extractive profit-tax rate by `source_iso3 × commodity` (statutory CIT fallback). Sources in `manual_resource_data_sources.md`.
+- `manual_foreign_hq_shares.csv` (2026-07-21) — hand-curated **foreign HQ-country splits** per `source_iso3 × commodity (× year)`, for countries whose foreign take would otherwise be spread by the generic global Orbis HQ-share table even though the actual operator consortium is documented (SSD/SDN → CNPC/Petronas/ONGC, GNQ → US majors, BWA → De Beers/Anglo (GBR), BRN → Shell/Total). Weights within the foreign slice only; `domestic_share` still carves out the NOC. Sources inline in the file's `source_note` column.
+
+## HQ-share cascade & auditability (2026-07-21)
+
+`1_8`'s foreign split of every distributed (manual/GRD) total now cascades
+**EITI-bilateral + operator-P2G shares > `manual_foreign_hq_shares.csv` > generic
+global Orbis table**, and every panel row carries `hq_share_basis`
+∈ {`domestic`, `eiti_bilateral`, `eiti_operator`, `manual_foreign`, `generic_global`}.
+The GRD tier now receives the EITI/operator override too (previously only the
+manual tier did). EITI rows outside the 2016–2022 window are excluded from the
+**panel** (they can never match a CbCR cell), but near-window rows (±3 years,
+i.e. 2013–2015 / 2023–2025) still feed the **gap-year extrapolation** (2026-07-22,
+user request: EITI 2015 is a good guess for a missing 2016, EITI 2023 for a
+missing 2022). They join the take-average/structure base; the profit scaler is
+anchored on in-window covered years only (previously out-of-window years entered
+the profit mean as zeros, inflating the scaler). A country covered ONLY outside
+the window (e.g. Solomon Is., EITI 2012–13) gets an unscaled carry into gap years
+within 3 years of its coverage.
+
+Script 4 writes `data/intermediate/extractive/resource_correction_unmatched_cells.csv`
+— every `(iso_parent, iso_partner, year)` correction cell that found **no CbCR
+line** and was therefore silently lost by the left merge (the "correction lands
+on a non-existing line" failure mode). Watch its $ totals in the run log: foreign
+volume there means the payment was attributed to an HQ with no line in that
+source country while the HQs that actually book the resource profits keep them
+uncorrected — fix by adding a row to `manual_foreign_hq_shares.csv`.
 
 ## Headline totals (2016–2022, $ bn — as of the 2026-06-30 re-run; rerun script 4 to refresh)
 

@@ -125,10 +125,10 @@ def load_manual_imputation_values():
 
     Single source of truth for the values that used to be hard-coded in this
     script (small-territory GDP/population, the flat CIT overrides, and the
-    hand-collected wages). Lives in ``data/raw/manual_imputation_values.csv``
+    hand-collected wages). Lives in ``data/raw/macro_variables/manual_imputation_values.csv``
     with columns ``iso_partner, year, variable, value, mode, source_url, note``.
     """
-    manual = pd.read_csv(f"{data_raw}manual_imputation_values.csv")
+    manual = pd.read_csv(f"{data_raw}macro_variables/manual_imputation_values.csv")
     manual["year"] = pd.to_numeric(manual["year"], errors="coerce")
     return manual
 
@@ -1299,7 +1299,7 @@ cits = pd.concat([cits, pd.DataFrame(missing_cits)], ignore_index=True)
 # a derived (multiplicative) adjustment, so it stays in code; MTQ<-FRA and
 # BVT<-NOR above are likewise derived. The flat and fill-if-missing CIT
 # overrides (GIB, MCO, AND, CAF, ..., SMR) now live in
-# data/raw/manual_imputation_values.csv.
+# data/raw/macro_variables/manual_imputation_values.csv.
 cits.loc[cits["iso_partner"] == "MLT", "cit"] *= 1 / 7
 apply_manual_values(cits, MANUAL_VALUES, ["cit"])
 
@@ -1452,7 +1452,7 @@ kosovo_code = "XKX" if "XKX" in gdp_population["iso_partner"].unique() else "XKV
 # %%
 # 2.3a Manual GDP and population fills.
 # Curated values + their source URLs now live in
-# data/raw/manual_imputation_values.csv (see load_manual_imputation_values).
+# data/raw/macro_variables/manual_imputation_values.csv (see load_manual_imputation_values).
 # These are fill-if-missing: only small territories absent from WB fill here.
 apply_manual_values(gdp_population, MANUAL_VALUES, ["gdp_current_usd", "population"])
 
@@ -1883,7 +1883,7 @@ wages["wage_monthly"] = wages["wage_monthly"].fillna(avg_wage)
 
 # Hand-collected monthly wages for small territories missing from ILO. These
 # are unconditional overrides; the values + sources live in
-# data/raw/manual_imputation_values.csv (see load_manual_imputation_values).
+# data/raw/macro_variables/manual_imputation_values.csv (see load_manual_imputation_values).
 apply_manual_values(wages, MANUAL_VALUES, ["wage_monthly"])
 
 cbcr_etrs_cits_gdp_wages = cbcr_etrs_cits_gdp.merge(
@@ -2358,7 +2358,7 @@ cbcr_main[variables_to_replace] = cbcr_main[variables_to_replace].fillna(0)
 # Taiwan, the Pacific islands, the Channel Islands, etc.) and the flat CIT
 # overrides are NOT stored as columns in the dataset. They live — values AND
 # their source URLs together — in a single hand-maintained reference:
-#   - data/raw/manual_imputation_values.csv    (iso_partner, year, variable,
+#   - data/raw/macro_variables/manual_imputation_values.csv    (iso_partner, year, variable,
 #                                                value, mode, source_url, note)
 #   - docs/manual_macro_imputation_sources.md  (human-readable overview)
 # Edit that CSV to add or revise a value or its source; the script consumes it

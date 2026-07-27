@@ -34,7 +34,7 @@ list (one consistent core; the lists never disagree on a shared jurisdiction):
 - **`TAX_HAVENS_REPRESENTATION`** (29) — drives the `investment_hub` income-group
   classification in figures/tables. **Rule (2026-07-18):** the GB cleaning list,
   UNIONed with every jurisdiction that has a **CTHI-2025 Haven Score ≥ 65**
-  (`data/raw/cthi_2025_scores.csv`) AND booked **inward-shifted profit
+  (`data/raw/country_info/tjn_cthi_2025_scores.csv`) AND booked **inward-shifted profit
   (reported − theoretical profit > 0) in at least TWO years** (2016–2022 excl
   2020, current headline reported-only / excl_resource / sales_employees_**destmnedds**
   / etrdef_domfor), plus the manual substance keep **`_EXTRA_MANUAL` = {IOT}**
@@ -73,8 +73,8 @@ jurisdictions are documented in `docs/tax_haven_lists.md`; reproduce with
 Run scripts sequentially from `src/`:
 
 1. **Data cleaning** (`1_clean.py`): Cleans and merges raw data sources (CbCR, CIT rates, wages, GDP, etc.). Computes the canonical reported-profit ETR family via `_etr_construction.compute_partner_year_etrs`. Writes `data/final/cbcr_main.csv` and `cbcr_main_allsubgroupsonly.csv`.
-   - **1b. Destination-based sales** (`1b_destination_based_sales.py`): standalone prep (runs **after** script 1 — reuses its filled GDP/population), following OECD (2020) ch.2. Builds a per-`(iso_partner, year)` market allocation key: **CFB** (Analytical AMNE `F + D_MNE` turnover−exports over consumer-facing ISIC sectors; `AAMNE_MNE_XVEM.csv`), **ADS** (ITU internet penetration × UN household consumption), and the headline **combined** CFB + WTO digitally-delivered-services imports (`cfb_plus_digital_share`). Missing countries extrapolated by regression (log GDP/GDPpc/trade), remittance/aid adjusted; 2021–2022 reuse 2019 ratios; pop < 250k & missing → 0. Writes `data/intermediate/destination_based_sales.csv` (`cfb_share, ads_share, cfb_plus_digital_share, …`).
-     **Broadened HEADLINE measure (2026-07-12)**: `mne_plus_dds_share` (tag **`destmnedds`**) = `mne_share` (same construction over **all 41 AAMNE sectors incl. finance** — matches the CbCR sales variable's scope; globally ≈2.4× CFB) + **the MNE share of digitally-DELIVERABLE services imports** (IMF-OECD-UNCTAD-WTO Handbook definition, from raw **BaTIS**; WTO "digitally delivered" = loud fallback; per the G24 paper BaTIS deliverable > WTO delivered). The MNE share = AAMNE (F+D_MNE) fraction of EXGR in the deliverable-producing ISIC sectors, per year ≈53–58% (last AAMNE year rolled forward); the headline DDS leg **excludes SH / charges for IP** (ex-IP promoted to headline 2026-07-12 — SH ≈15% of the aggregate, largely intra-group royalties; the IP-inclusive full aggregate = `destmneddsinclip` sensitivity); scaled ex-IP DDS leg ≈3.1–3.7% of the global key. **The former `destmneddsads` third leg (0.20 × ITU-internet × consumption ADS proxy) was RETIRED 2026-07-12** — paid ADS is already inside BaTIS (ADS ⊂ deliverable), and the proxy's consumption scale gave the ad-funded free slice ~14% of the key vs a realistic <1%; the free slice is excluded, not proxied. Hierarchy: ADS ⊂ digitally delivered (WTO) ⊂ digitally deliverable (Handbook/BaTIS). **Part D bilateral variant** (gated on `data/raw/aamne-bilateral-output.csv`, host×owner output): parent-specific factor = market `mne_sales` × parent's ownership fraction of the market's MNE output (D_MNE → host as owner; uncovered pairs → parent's global share) → `destination_based_sales_bilateral.csv`, merged in script 2 on `(iso_parent, iso_partner, year)`; formula tag `destmnebilat` (no `_nexus` — ownership already encodes nexus). Script-5 tags: `destmne`, `destmnedds` (+`_nexus` each), `destmneddsexip` (ex-IP sensitivity, plain only). See `docs/destination_based_sales.md`.
+   - **1b. Destination-based sales** (`1b_destination_based_sales.py`): standalone prep (runs **after** script 1 — reuses its filled GDP/population), following OECD (2020) ch.2. Builds a per-`(iso_partner, year)` market allocation key: **CFB** (Analytical AMNE `F + D_MNE` turnover−exports over consumer-facing ISIC sectors; `destination/oecd_aamne_mne_xvem_2026-06.csv`), **ADS** (ITU internet penetration × UN household consumption), and the headline **combined** CFB + WTO digitally-delivered-services imports (`cfb_plus_digital_share`). Missing countries extrapolated by regression (log GDP/GDPpc/trade), remittance/aid adjusted; 2021–2022 reuse 2019 ratios; pop < 250k & missing → 0. Writes `data/intermediate/destination_based_sales.csv` (`cfb_share, ads_share, cfb_plus_digital_share, …`).
+     **Broadened HEADLINE measure (2026-07-12)**: `mne_plus_dds_share` (tag **`destmnedds`**) = `mne_share` (same construction over **all 41 AAMNE sectors incl. finance** — matches the CbCR sales variable's scope; globally ≈2.4× CFB) + **the MNE share of digitally-DELIVERABLE services imports** (IMF-OECD-UNCTAD-WTO Handbook definition, from raw **BaTIS**; WTO "digitally delivered" = loud fallback; per the G24 paper BaTIS deliverable > WTO delivered). The MNE share = AAMNE (F+D_MNE) fraction of EXGR in the deliverable-producing ISIC sectors, per year ≈53–58% (last AAMNE year rolled forward); the headline DDS leg **excludes SH / charges for IP** (ex-IP promoted to headline 2026-07-12 — SH ≈15% of the aggregate, largely intra-group royalties; the IP-inclusive full aggregate = `destmneddsinclip` sensitivity); scaled ex-IP DDS leg ≈3.1–3.7% of the global key. **The former `destmneddsads` third leg (0.20 × ITU-internet × consumption ADS proxy) was RETIRED 2026-07-12** — paid ADS is already inside BaTIS (ADS ⊂ deliverable), and the proxy's consumption scale gave the ad-funded free slice ~14% of the key vs a realistic <1%; the free slice is excluded, not proxied. Hierarchy: ADS ⊂ digitally delivered (WTO) ⊂ digitally deliverable (Handbook/BaTIS). **Part D bilateral variant** (gated on `data/raw/destination_based_sales/oecd_aamne_bilateral_output_2026-07.csv`, host×owner output): parent-specific factor = market `mne_sales` × parent's ownership fraction of the market's MNE output (D_MNE → host as owner; uncovered pairs → parent's global share) → `destination_based_sales_bilateral.csv`, merged in script 2 on `(iso_parent, iso_partner, year)`; formula tag `destmnebilat` (no `_nexus` — ownership already encodes nexus). Script-5 tags: `destmne`, `destmnedds` (+`_nexus` each), `destmneddsexip` (ex-IP sensitivity, plain only). See `docs/destination_based_sales.md`.
    - **1d. Origin-vs-destination diagnostic** (`1d_compare_unrelated_vs_destination_sales.py`): correlates each jurisdiction's share of global unrelated-party revenue (origin) with the destination shares → `output/destination_sales/`.
    - **1e. Orbis nexus matrix**: the throwback nexus used by script 5 is a **per-`(hq_iso3, market_iso3)` distinct-group count**, `data/intermediate/extractive/cbcr_universe_presence.csv` (`hq_iso3, market_iso3, n_groups, n_entities`) — `n_groups` = number of distinct in-scope (≥€750M consolidated revenue) GUO groups headquartered in `hq` with ≥1 Orbis subsidiary in `market`. Built by the CbCR-universe Orbis passes: **Pass 1** (`build_cbcr_universe_pass1_financials.py`) filters `Key_financials-EUR.txt` to C1/C2 turnover ≥ €750M → `cbcr_inscope_groups.csv`; **Pass 2 assemble** (`build_cbcr_universe_pass2_assemble.py`) expands those GUOs via the `Links_current.txt` GUO-50 filter to the member-entity universe `cbcr_universe_entities.csv`; **Pass 2 presence** (`build_cbcr_universe_pass2_presence.py`) group-bys that to the distinct-group matrix. The matrix deliberately carries **no** `n_cbcr` column — the coverage denominator is the OECD CbCR cell count, which lives in the CbCR dataset (propagated by script 2), so there is no ambiguity about which group count the nexus divides by. The legacy `1e_orbis_presence_matrix.py` → `data/intermediate/orbis_hq_subsidiary_presence.csv` (`n_links`, full-universe link **count**) is kept only as a binary-presence fallback when the group-count file is absent.
 2. **Disaggregation** (`2_disaggregate_aggregated_values.py`): Disaggregates bad-reporter continent / WXD aggregates across **all eligible markets**, imputing activity by the **gravity model** and profit by **partner profitability** (the single method — see "Disaggregation: the single gravity + profitability method"). Writes `data/final/cbcr_main_disaggregated.csv` (one row per `(iso_parent, iso_partner, year)` cell, with `is_distributed ∈ {0, 1}`); also **merges in the destination-based sales columns** from step 1b on `(iso_partner, year)`. The pair ETR (`etr_parent_partner_corrected`) is NaN on distributed rows by design.
@@ -121,10 +121,26 @@ The misalignment formula weights can be configured. Vars are `[n_employees, unre
 
 ```
 data/
+  guides/                    # Database codebooks/metadata + README.md INDEX of every
+                             #   external database (source, URL, vintage, consumer).
+                             #   No pipeline inputs live here.
   raw/                       # Datasets obtained from elsewhere ONLY — external
-                             #   downloads, API pulls, hand-curated files.
-                             #   Nothing here is produced by a transformation
-                             #   step in this pipeline.
+                             #   downloads, API pulls, hand-curated files. Nothing
+                             #   here is produced by a transformation step.
+                             #   Reorganised 2026-07-22 into kind-of-data subfolders,
+                             #   files named <source>_<content>_<date>.<ext>:
+    cbcr/                    #   OECD CbCR Table I (gitignored) + reporters list + pcbcr/
+    tax_rates/               #   OECD CIT rates, Tax Foundation, OECD RSGLOBAL CIT revenue
+    macro_variables/         #   WB WDI bundles, ILO wages, WHO health, BLS US CPI,
+                             #   manual_imputation_values.csv
+    destination_based_sales/          #   AAMNE, BaTIS (gitignored), WTO DDS, UN consumption, ITU
+    country_info/             #   CTHI/FSI/portal exports, G77
+    context/                 #   IMF credit, Marshall plan, debt, climate finance, ODA
+    resources/               #   extractive sub-pipeline (incl. eiti_reports/ and
+                             #   resource_profits_manual_sources/)
+    orbis/                   #   proprietary Orbis pulls (gitignored)
+    gravity/                 #   gravity-imputation model inputs (gitignored)
+                             #   (rename map: data/guides/_raw_reorg_manifest_2026-07-22.txt)
   intermediate/              # Pipeline working files derived from raw inputs.
     extractive/              #   Extractive sub-pipeline: EITI-cleaned panels,
                              #   calibrated rent fractions, BGS scaling,
@@ -193,12 +209,12 @@ Semantic helpers: `POSITIVE`/`NEGATIVE` (green/red), `ORIGIN_DEST_NEXUS`
 scripts — pull from `_brand`. Montserrat Black (slogans) and Catamaran Black
 (logo) are intentionally NOT used in charts (brand guide).
 
-### Manual macro / CIT / wage values (`manual_imputation_values.csv`)
+### Manual macro / CIT / wage values (`macro_variables/manual_imputation_values.csv`)
 
 The values that used to be **hard-coded** in `1_clean.py` — small-territory
 GDP/population (§2.3a), the flat CIT overrides, and the hand-collected wages
 (§2.4) — now live in a single hand-maintained file alongside their source URLs:
-`data/raw/manual_imputation_values.csv`
+`data/raw/macro_variables/manual_imputation_values.csv`
 (`iso_partner, year, variable, value, mode, source_url, note`). The script
 consumes it via `load_manual_imputation_values()` / `apply_manual_values()`
 (defined near the top of `1_clean.py`).

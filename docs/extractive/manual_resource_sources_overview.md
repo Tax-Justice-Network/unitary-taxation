@@ -1,9 +1,12 @@
 # Manual resource-revenue sources — overview & links
 
 This file documents the country-specific sources used to populate
-`data/raw/resources/manual_resource_revenue.csv`. Each country has a sub-folder under
-`data/raw/resources/country sources/<ISO3>/` containing the raw
-PDFs / Excel files cited.
+`data/raw/resources/manual_resource_revenue.csv`. The raw PDFs / Excel files
+cited live in `data/raw/resources/resource_profits_manual_sources/` — one folder per
+document type (`imf/` Article IV & Selected Issues, `government/` budgets / GFS /
+agency reports, `company/` operator disclosures), every file named
+`ISO3_Doc_YEAR.ext`. The mapping from the original download names is in
+`_rename_manifest_2026-07-21.csv` inside that folder.
 
 The pipeline cascade (`src/3_extractive_prep/1_8_resource_payments_by_hq_source.py`)
 prioritises sources in this order: **EITI bilateral > manual table > GRD > rent-proxy**.
@@ -25,12 +28,11 @@ Ministry of Finance GFS publications were a useful cross-check but do
 **not** separately disclose the hydrocarbon component (Article 14 "Other
 revenue" is the upper bound on hydrocarbon take).
 
-Files in `data/raw/resources/country sources/ARE/`:
-- `IMF_UAE_2016.pdf` … `IMF_UAE_2022.pdf` — IMF Article IV Consolidated Government Operations tables
-- `1areea2025001-source-pdf.pdf` — IMF 2025 Article IV
-- `GFS-Data-2025-English-07.04.2026.xlsx` — UAE MoF GFS quarterly 2025 (Q1-Q4)
-- `UAE-Government-Finance-Statistics-GFS-data-for-the-Year-2016.pdf` and similar
-- Arabic-titled UAE GFS PDFs for 2017, 2018, 2020
+Files in `data/raw/resources/resource_profits_manual_sources/` imf/ + government/ (ARE_*):
+- `ARE_IMF4_2016.pdf` … `ARE_IMF4_2022.pdf` — IMF Article IV Consolidated Government Operations tables
+- `ARE_IMF4_2025.pdf` — IMF 2025 Article IV
+- `ARE_GFS_2025.xlsx` — UAE MoF GFS quarterly 2025 (Q1-Q4)
+- `ARE_GFS_2016.pdf` … `ARE_GFS_2023.pdf` — UAE MoF GFS annual publications (incl. the formerly Arabic-titled 2017/2018/2020 files)
 
 Source URLs:
 - IMF Article IV (UAE): https://www.imf.org/en/Countries/ARE
@@ -44,8 +46,8 @@ Source URLs:
 tables. Hydrocarbon revenue includes royalty + special petroleum tax +
 Sonatrach dividends (line "Recettes des hydrocarbures" in IMF tables).
 
-Files in `data/raw/resources/country sources/DZA/`:
-- `IMF_DZA_2018.pdf` … `IMF_DZA_2025.pdf`
+Files in `data/raw/resources/resource_profits_manual_sources/` imf/ (DZA_*):
+- `DZA_IMF4_2018.pdf` … `DZA_IMF4_2025.pdf`
 
 Source URLs:
 - IMF Article IV (Algeria): https://www.imf.org/en/Countries/DZA
@@ -62,10 +64,10 @@ estimated under sanctions (rial collapse makes official-rate figures
 unreliable). 2021-2022 use EIA OPEC Net Oil Export Revenue series as a
 proxy for fiscal revenue.
 
-Files in `data/raw/resources/country sources/IRN/`:
-- `IMF_Iran_2018.pdf` — IMF Article IV 2018 (last before sanctions reimposition)
-- `EIA_Iran_2024.pdf` — EIA Country Analysis Brief
-- `Oil-and-Gas-3_stzatistical_yearbook_iran_2016_2017.pdf` — Iran Statistical Yearbook (Farsi, not parsed)
+Files in `data/raw/resources/resource_profits_manual_sources/` imf/ + government/ (IRN_*):
+- `IRN_IMF4_2018.pdf` — IMF Article IV 2018 (last before sanctions reimposition)
+- `IRN_EIA_2024.pdf` — EIA Country Analysis Brief
+- `IRN_StatYearbook_2016_2017.pdf` — Iran Statistical Yearbook (Farsi, not parsed)
 
 Source URLs:
 - EIA Iran briefs: https://www.eia.gov/international/analysis/country/IRN
@@ -79,8 +81,8 @@ Source URLs:
 (directly sourced). Earlier years are carried-over prior estimates (highly
 disrupted period, civil war, oil blockades).
 
-Files in `data/raw/resources/country sources/LBY/`:
-- `Libya_2022.pdf` … `Libya_2025.pdf` — Libya MoF Revenue/Expenditure Statements
+Files in `data/raw/resources/resource_profits_manual_sources/` government/ (LBY_*):
+- `LBY_MoF_RevExp_2022.pdf` … `LBY_MoF_RevExp_2025.pdf` — Libya MoF Revenue/Expenditure Statements
 
 Source URLs:
 - Libya MoF: https://www.mof.gov.ly (Arabic; English partial)
@@ -92,17 +94,17 @@ Source URLs:
 
 Σ 2016–22 ≈ $2B from MAPEG mining royalty + petroleum state-share. This is the
 ROYALTY-ONLY component. Real Turkish extractive fiscal take is ~$5-6B over
-7 yrs (royalty + sector CIT). The separate `data/raw/resources/country sources/turkey_cit_extractive_extracted.csv`
+7 yrs (royalty + sector CIT). The separate `data/raw/resources/TUR_cit_extractive_extracted.csv`
 staging file has rough CIT estimates that haven't been merged. Turkish
 extractive sector is genuinely small (mining ~1.36% of GDP, upstream oil/gas
 tiny — TÜPRAŞ refining is downstream not extractive).
 
-Files in `data/raw/resources/country sources/TUR/`:
-- `MAPEG 2019 YILI FAALİYET RAPORU.pdf` (Mining and Petroleum General Directorate annual report)
-- `2020 MAPEG Yıllık Faaliyet Raporu 22.03.2021.pdf`
-- `MAPEG 2021 Yılı İdare Faaliyet Raporu 180322.pdf`
-- `MAPEG 2022 Yılı İdare Faaliyet Raporu 28.02.2023 16_50.pdf`
-- `4yillaragoredevlethakkıbilgileri.png` — image of 4-year state-rights summary (not OCR'd)
+Files in `data/raw/resources/resource_profits_manual_sources/` government/ (TUR_*):
+- `TUR_MAPEG_2019.pdf` (Mining and Petroleum General Directorate annual report)
+- `TUR_MAPEG_2020.pdf`
+- `TUR_MAPEG_2021.pdf`
+- `TUR_MAPEG_2022.pdf`
+- `TUR_MAPEG_RoyaltyByYear.png` — image of 4-year state-rights summary (not OCR'd)
 
 Source URLs:
 - MAPEG (Maden ve Petrol İşleri Genel Müdürlüğü): https://www.mapeg.gov.tr
@@ -123,16 +125,16 @@ Real Lesotho mining is Letseng / Mothae / Liqhobong / Kao diamond mines
 (Gem Diamonds majority owner). State revenue = $30-43M/year (Diamond Sales
 Tax + Royalties + state dividends from Letseng).
 
-Files in `data/raw/resources/country sources/LSO/`:
-- `2018-2019 Budget Estimates Book-…_lesotho.pdf` (and similar 2019-2020, 2020-2021, 2021-2022, 2022-23, 2024-25, 2025-2026)
-- `Budget-Speech_2020_2021-Final_lesotho.pdf`
-- `2022-2023-Budget-Speech-Wednesday-02-03-2022_lesotho.pdf`
+Files in `data/raw/resources/resource_profits_manual_sources/` government/ (LSO_*):
+- `LSO_Budget_2018.pdf` … `LSO_Budget_2025.pdf` (budget estimates books; `_v2` = duplicate/alternate edition)
+- `LSO_BudgetSpeech_2020.pdf`
+- `LSO_BudgetSpeech_2022.pdf`
 
 Source URLs:
 - Lesotho Ministry of Finance: https://www.finance.gov.ls
 - Lesotho Revenue Authority: https://www.lra.org.ls
 
-Extracted figures saved to `data/raw/resources/country sources/lesotho_revenue_extracted.csv` for reference.
+Extracted figures saved to `data/raw/resources/LSO_revenue_extracted.csv` for reference.
 
 ---
 
@@ -148,8 +150,8 @@ Outstanding refinement: PSC profit-oil from PPSA, private-operator
 sector CIT, full Petrobras→Union dividend reconciliation against Tesouro
 Nacional.
 
-Files in `data/raw/resources/country sources/BRA/`:
-- `valores-consolidados-2016-1_brazil.xlsx` … `valores-consolidados-2025_brazil.xlsx` — ANP government-take consolidated values
+Files in `data/raw/resources/resource_profits_manual_sources/` government/ (BRA_*):
+- `BRA_ANP_2016.xlsx` … `BRA_ANP_2025.xlsx` — ANP government-take consolidated values
 
 Source URLs:
 - ANP (Agência Nacional do Petróleo) statistics: https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-estatisticos
@@ -157,8 +159,8 @@ Source URLs:
 - Tesouro Nacional (dividends): https://www.tesourotransparente.gov.br/
 - PPSA (Pré-Sal Petróleo) profit-oil: https://www.presalpetroleo.gov.br
 
-Staging file: `data/raw/resources/country sources/brazil_anp_extracted.csv` (ANP detail by year);
-`data/raw/resources/country sources/petrobras_union_dividends_extracted.csv` (Tesouro dividends).
+Staging file: `data/raw/resources/BRA_anp_extracted.csv` (ANP detail by year);
+`data/raw/resources/BRA_petrobras_union_dividends_extracted.csv` (Tesouro dividends).
 
 ---
 
@@ -169,8 +171,8 @@ Tributaria) tax revenue from mining + hydrocarbons. SUNAT replaces EITI
 bilateral data for Peru because (a) EITI Peru is missing 2021-2022 entirely
 and (b) SUNAT 2016-2020 is ~65% larger than EITI for the overlap years.
 
-Files in `data/raw/resources/country sources/PER/`:
-- `cdro_A18_peru.xlsx` — SUNAT "Ingreso Tributario Recaudado" by sector (Cuadro A 18); time series 2000-2025
+Files in `data/raw/resources/resource_profits_manual_sources/` government/ (PER_*):
+- `PER_IngresosTributarios_CuadroA18.xlsx` — SUNAT "Ingreso Tributario Recaudado" by sector (Cuadro A 18); time series 2000-2025
 
 Source URLs:
 - SUNAT Estadísticas: https://www.sunat.gob.pe/estadisticasestudios/index.html
@@ -187,8 +189,8 @@ to state (equity). Pre-2020 Pemex fiscal regime was royalty-heavy; post-2020
 reforms reduced overall take. Manual entries replace EITI bilateral (Pemex
 doesn't report to EITI).
 
-Files in `data/raw/resources/country sources/MEX/`:
-- `Consulta_20260513-134851930_mexico.xlsx` — SHCP fiscal data query (user-uploaded)
+Files in `data/raw/resources/resource_profits_manual_sources/` government/ (MEX_*):
+- `MEX_Banxico_IngresosPresupuestales_2026.xlsx` — SHCP fiscal data query (user-uploaded)
 
 Source URLs:
 - SHCP Estadísticas Oportunas: https://www.finanzaspublicas.hacienda.gob.mx
@@ -205,7 +207,7 @@ Source URLs:
 - Saudi MoF Budget Dashboard: https://www.mof.gov.sa
 - Saudi Vision 2030 / NDMC data: https://www.ndmc.gov.sa
 
-Raw file: `data/raw/Interactive Budget Dashboard 2026_Budget Data_Tabel.csv`
+Raw file: `data/raw/context/sau_mof_budget_dashboard_2026.csv`
 
 ---
 
@@ -224,7 +226,7 @@ Source URLs:
 Σ 2016–22 ≈ $491B (oil_gas + coal + minerals). Resource tax line directly
 from NBS yearbooks; CIT and SOE dividend components estimated.
 
-Files: see `data/raw/resources/country sources/China_resource_tax_from_statistical_yearbooks.txt`.
+Files: see `data/raw/resources/CHN_resource_tax_statistical_yearbooks.txt`.
 
 Source URLs:
 - NBS yearbook (English): https://www.stats.gov.cn/sj/ndsj/YYYY/indexeh.htm
@@ -287,11 +289,11 @@ CSV is preserved alongside `manual_resource_revenue.csv`:
 
 | Country | Staging CSV | Extracted via |
 |---|---|---|
-| Multi (UAE, DZA, IRN, LBY, TUR) | `resource_revenue_extracted_new.csv` | pymupdf on IMF/MoF PDFs |
-| Turkey CIT | `turkey_cit_extractive_extracted.csv` | WebSearch on industry sources |
-| Lesotho | `lesotho_revenue_extracted.csv` | pymupdf on Lesotho budget books |
-| Brazil ANP | `brazil_anp_extracted.csv` | openpyxl on ANP xlsx |
-| Brazil Petrobras | `petrobras_union_dividends_extracted.csv` | WebSearch on Tesouro Nacional reports |
+| Multi (UAE, DZA, IRN, LBY, TUR) | `resource_revenue_extracted.csv` | pymupdf on IMF/MoF PDFs |
+| Turkey CIT | `TUR_cit_extractive_extracted.csv` | WebSearch on industry sources |
+| Lesotho | `LSO_revenue_extracted.csv` | pymupdf on Lesotho budget books |
+| Brazil ANP | `BRA_anp_extracted.csv` | openpyxl on ANP xlsx |
+| Brazil Petrobras | `BRA_petrobras_union_dividends_extracted.csv` | WebSearch on Tesouro Nacional reports |
 
 These staging files are inputs to `manual_resource_revenue.csv` but are
 preserved for re-derivation if the source files are re-extracted with

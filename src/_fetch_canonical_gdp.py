@@ -8,7 +8,7 @@ reproducible between refreshes).
 
     python src/_fetch_canonical_gdp.py
 
-Writes: data/raw/wb_gdp_current_usd.csv  (iso3, year, gdp_current_usd)
+Writes: data/raw/macro_variables/wb_gdp_current_usd_2026-07.csv  (iso3, year, gdp_current_usd)
 """
 import csv
 import json
@@ -17,7 +17,7 @@ import urllib.request
 from datetime import date
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(_ROOT, "data", "raw", "wb_gdp_current_usd.csv")
+OUT = os.path.join(_ROOT, "data", "raw", "macro_variables/wb_gdp_current_usd_2026-07.csv")
 INDICATOR = "NY.GDP.MKTP.CD"
 YEARS = "2016:2022"
 

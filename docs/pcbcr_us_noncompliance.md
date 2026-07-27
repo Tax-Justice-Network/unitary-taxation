@@ -5,7 +5,7 @@ country-by-country (pCbCR) data as they should**, which is why granular
 company-level disclosure cannot yet be used to locate US-MNE profit shifting and
 the analysis must rely on the OECD aggregate CbCR + a unitary-apportionment
 estimate. It combines (a) the Fair Tax Foundation's compliance analyses and
-(b) two primary pCbCR filings held in `data/raw/pCbCR/`.
+(b) two primary pCbCR filings held in `data/raw/cbcr/pcbcr/`.
 
 ## Background: why Romania filings exist at all
 
@@ -49,7 +49,7 @@ Key qualitative points from the FTF analyses:
 exact cross-report comparability, because FTF's sample grows each round
 (137 → 190 reports) and category definitions are FTF's own.
 
-## Primary evidence in this repo (`data/raw/pCbCR/`)
+## Primary evidence in this repo (`data/raw/cbcr/pcbcr/`)
 
 Two filings illustrate the **two distinct evasion routes** FTF documents:
 
@@ -103,9 +103,9 @@ unitary-taxation estimate in this project) and is itself the strongest case for
 - Fair Tax Foundation, *Trump administration wages war on corporate tax
   transparency whilst many US MNCs quietly embrace pCbCR*:
   https://fairtaxmark.net/trump-administration-wages-war-on-corporate-tax-transparency-whilst-many-us-mncs-quietly-embrace-public-country-by-country-reporting/
-- Primary filings: `data/raw/pCbCR/apple_Romania-CbCR-FY24.pdf`,
-  `data/raw/pCbCR/romania-tax-info_2024-1-1_2024-12-31_ro_v1_google.pdf`,
-  `data/raw/pCbCR/romania-tax-info_2023-1-1_2023-12-31_ro_v1_google.pdf`
+- Primary filings: `data/raw/cbcr/pcbcr/apple_Romania-CbCR-FY24.pdf`,
+  `data/raw/cbcr/pcbcr/romania-tax-info_2024-1-1_2024-12-31_ro_v1_google.pdf`,
+  `data/raw/cbcr/pcbcr/romania-tax-info_2023-1-1_2023-12-31_ro_v1_google.pdf`
 
 Chart: `output/us_multinationals/figures/pcbcr_us_compliance_gap.png` (built by
 `src/us_only/pcbcr_compliance_chart.py`).

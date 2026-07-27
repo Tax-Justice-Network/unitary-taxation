@@ -130,7 +130,7 @@ cm = pd.read_csv(os.path.join(ROOT, "data", "final", "cbcr_main.csv"),
                  usecols=["iso_partner", "year", "cit", "wage_monthly",
                           "gvt_health_expenditure", "tax_revenue_pct_gdp"])
 cm = cm.rename(columns={"iso_partner": "iso3"}).groupby(["iso3", "year"], as_index=False).first()
-fsi = pd.read_csv(os.path.join(ROOT, "data", "raw", "portal_fsi_results.csv"))
+fsi = pd.read_csv(os.path.join(ROOT, "data", "raw", "country_info/tjn_portal_fsi_2026-03.csv"))
 si = [c for c in fsi.columns if c.startswith("fsi_indicator_si")]
 fsi["fsi_secrecy_score"] = fsi[si].apply(pd.to_numeric, errors="coerce").mean(axis=1)
 repo_uni = cm.merge(fsi[["iso3", "year", "fsi_secrecy_score"]], on=["iso3", "year"], how="outer")

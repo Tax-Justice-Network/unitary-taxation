@@ -1,0 +1,747 @@
+﻿old_rel,new_rel,rule,review,note
+country sources/adnoc_distribution_ar_2020.pdf,resource_profits_manual_sources/company/ARE_ADNOCDistribution_AR_2020.pdf,operator flat,,
+country sources/adnoc_distribution_ar_2021.pdf,resource_profits_manual_sources/company/ARE_ADNOCDistribution_AR_2021.pdf,operator flat,,
+country sources/adnoc_distribution_ar_2022.pdf,resource_profits_manual_sources/company/ARE_ADNOCDistribution_AR_2022.pdf,operator flat,,
+country sources/adnoc_distribution_ar_2024.pdf,resource_profits_manual_sources/company/ARE_ADNOCDistribution_AR_2024.pdf,operator flat,,
+country sources/adnoc_distribution_ar_2025.pdf,resource_profits_manual_sources/company/ARE_ADNOCDistribution_AR_2025.pdf,operator flat,,
+country sources/adnoc_drilling_fs_2021.pdf,resource_profits_manual_sources/company/ARE_ADNOCDrilling_FS_2021.pdf,operator flat,,
+country sources/adnoc_drilling_fs_2022.pdf,resource_profits_manual_sources/company/ARE_ADNOCDrilling_FS_2022.pdf,operator flat,,
+country sources/adnoc_drilling_fs_2023.pdf,resource_profits_manual_sources/company/ARE_ADNOCDrilling_FS_2023.pdf,operator flat,,
+country sources/adnoc_drilling_fs_2024.pdf,resource_profits_manual_sources/company/ARE_ADNOCDrilling_FS_2024.pdf,operator flat,,
+country sources/adnoc_drilling_fs_2025.pdf,resource_profits_manual_sources/company/ARE_ADNOCDrilling_FS_2025.pdf,operator flat,,
+country sources/adnoc_gas_prospectus.pdf,resource_profits_manual_sources/company/ARE_ADNOCGas_Prospectus_2023.pdf,override,,ADNOC Gas plc IPO prospectus (ADGM listing 2023)
+country sources/adnoc_offering_memo_murban_sukuk.pdf,resource_profits_manual_sources/company/ARE_ADNOC_OfferingMemoMurbanSukuk_2025.pdf,override,,Base offering memorandum; PDF created 2025-04-25
+country sources/adnoc_offering_memo_reset.pdf,resource_profits_manual_sources/company/ARE_ADNOC_OfferingMemoReset_2025.pdf,override,,Base offering memorandum (reset notes); PDF created 2025-04-25
+country sources/adnoc_prospectus_2017.pdf,resource_profits_manual_sources/company/ARE_ADNOC_Prospectus_2017.pdf,operator flat,,
+country sources/akerbp_ar_2016.pdf,resource_profits_manual_sources/company/NOR_AkerBP_AR_2016.pdf,operator flat,,
+country sources/akerbp_ar_2017.pdf,resource_profits_manual_sources/company/NOR_AkerBP_AR_2017.pdf,operator flat,,
+country sources/akerbp_ar_2018.pdf,resource_profits_manual_sources/company/NOR_AkerBP_AR_2018.pdf,operator flat,,
+country sources/akerbp_ar_2019.pdf,resource_profits_manual_sources/company/NOR_AkerBP_AR_2019.pdf,operator flat,,
+country sources/akerbp_ar_2020.pdf,resource_profits_manual_sources/company/NOR_AkerBP_AR_2020.pdf,operator flat,,
+country sources/akerbp_ar_2021.pdf,resource_profits_manual_sources/company/NOR_AkerBP_AR_2021.pdf,operator flat,,
+country sources/akerbp_ar_2022.pdf,resource_profits_manual_sources/company/NOR_AkerBP_AR_2022.pdf,operator flat,,
+country sources/akerbp_ar_2023.pdf,resource_profits_manual_sources/company/NOR_AkerBP_AR_2023.pdf,operator flat,,
+country sources/akerbp_ar_2024.pdf,resource_profits_manual_sources/company/NOR_AkerBP_AR_2024.pdf,operator flat,,
+country sources/akerbp_ar_2025.pdf,resource_profits_manual_sources/company/NOR_AkerBP_AR_2025.pdf,operator flat,,
+country sources/anglo_tax_2016.pdf,resource_profits_manual_sources/company/GBR_AngloAmerican_Tax_2016.pdf,operator flat,,
+country sources/anglo_tax_2017.pdf,resource_profits_manual_sources/company/GBR_AngloAmerican_Tax_2017.pdf,operator flat,,
+country sources/anglo_tax_2018.pdf,resource_profits_manual_sources/company/GBR_AngloAmerican_Tax_2018.pdf,operator flat,,
+country sources/anglo_tax_2019.pdf,resource_profits_manual_sources/company/GBR_AngloAmerican_Tax_2019.pdf,operator flat,,
+country sources/anglo_tax_2020.pdf,resource_profits_manual_sources/company/GBR_AngloAmerican_Tax_2020.pdf,operator flat,,
+country sources/anglo_tax_2021.pdf,resource_profits_manual_sources/company/GBR_AngloAmerican_Tax_2021.pdf,operator flat,,
+country sources/anglo_tax_2022.pdf,resource_profits_manual_sources/company/GBR_AngloAmerican_Tax_2022.pdf,operator flat,,
+country sources/anglo_tax_2023.pdf,resource_profits_manual_sources/company/GBR_AngloAmerican_Tax_2023.pdf,operator flat,,
+country sources/anglo_tax_2024.pdf,resource_profits_manual_sources/company/GBR_AngloAmerican_Tax_2024.pdf,operator flat,,
+country sources/anglo_tax_2025.pdf,resource_profits_manual_sources/company/GBR_AngloAmerican_Tax_2025.pdf,operator flat,,
+country sources/antofagasta_ar_2023.pdf,resource_profits_manual_sources/company/GBR_Antofagasta_AR_2023.pdf,operator flat,,
+country sources/antofagasta_p2g_2016.pdf,resource_profits_manual_sources/company/GBR_Antofagasta_P2G_2016.pdf,operator flat,,
+country sources/antofagasta_p2g_2017.pdf,resource_profits_manual_sources/company/GBR_Antofagasta_P2G_2017.pdf,operator flat,,
+country sources/antofagasta_p2g_2018.pdf,resource_profits_manual_sources/company/GBR_Antofagasta_P2G_2018.pdf,operator flat,,
+country sources/antofagasta_p2g_2020.pdf,resource_profits_manual_sources/company/GBR_Antofagasta_P2G_2020.pdf,operator flat,,
+country sources/antofagasta_p2g_2021.pdf,resource_profits_manual_sources/company/GBR_Antofagasta_P2G_2021.pdf,operator flat,,
+country sources/antofagasta_p2g_2022.pdf,resource_profits_manual_sources/company/GBR_Antofagasta_P2G_2022.pdf,operator flat,,
+country sources/antofagasta_p2g_2023.pdf,resource_profits_manual_sources/company/GBR_Antofagasta_P2G_2023.pdf,operator flat,,
+country sources/antofagasta_p2g_2024.pdf,resource_profits_manual_sources/company/GBR_Antofagasta_P2G_2024.pdf,operator flat,,
+country sources/aramco_ar_2019.pdf,resource_profits_manual_sources/company/SAU_Aramco_AR_2019.pdf,operator flat,,
+country sources/aramco_ar_2020.pdf,resource_profits_manual_sources/company/SAU_Aramco_AR_2020.pdf,operator flat,,
+country sources/aramco_ar_2021.pdf,resource_profits_manual_sources/company/SAU_Aramco_AR_2021.pdf,operator flat,,
+country sources/aramco_ar_2022.pdf,resource_profits_manual_sources/company/SAU_Aramco_AR_2022.pdf,operator flat,,
+country sources/aramco_ar_2023.pdf,resource_profits_manual_sources/company/SAU_Aramco_AR_2023.pdf,operator flat,,
+country sources/aramco_ar_2024.pdf,resource_profits_manual_sources/company/SAU_Aramco_AR_2024.pdf,operator flat,,
+country sources/aramco_ar_2025.pdf,resource_profits_manual_sources/company/SAU_Aramco_AR_2025.pdf,operator flat,,
+country sources/aramco_financials_2017_2018.pdf,resource_profits_manual_sources/company/SAU_Aramco_Financials_2017_2018.pdf,operator flat,,
+country sources/aramco_prospectus_2019.pdf,resource_profits_manual_sources/company/SAU_Aramco_Prospectus_2019.pdf,operator flat,,
+country sources/bp_p2g_2016.pdf,resource_profits_manual_sources/company/GBR_BP_P2G_2016.pdf,operator flat,,
+country sources/bp_p2g_2017.pdf,resource_profits_manual_sources/company/GBR_BP_P2G_2017.pdf,operator flat,,
+country sources/bp_p2g_2018.pdf,resource_profits_manual_sources/company/GBR_BP_P2G_2018.pdf,operator flat,,
+country sources/bp_p2g_2019.pdf,resource_profits_manual_sources/company/GBR_BP_P2G_2019.pdf,operator flat,,
+country sources/bp_p2g_2020.pdf,resource_profits_manual_sources/company/GBR_BP_P2G_2020.pdf,operator flat,,
+country sources/bp_p2g_2021.pdf,resource_profits_manual_sources/company/GBR_BP_P2G_2021.pdf,operator flat,,
+country sources/bp_p2g_2022.pdf,resource_profits_manual_sources/company/GBR_BP_P2G_2022.pdf,operator flat,,
+country sources/bp_p2g_2023.pdf,resource_profits_manual_sources/company/GBR_BP_P2G_2023.pdf,operator flat,,
+country sources/bp_p2g_2024.pdf,resource_profits_manual_sources/company/GBR_BP_P2G_2024.pdf,operator flat,,
+country sources/bp_tax_2019.pdf,resource_profits_manual_sources/company/GBR_BP_Tax_2019.pdf,operator flat,,
+country sources/bp_tax_2020.pdf,resource_profits_manual_sources/company/GBR_BP_Tax_2020.pdf,operator flat,,
+country sources/bp_tax_2021.pdf,resource_profits_manual_sources/company/GBR_BP_Tax_2021.pdf,operator flat,,
+country sources/bp_tax_2022.pdf,resource_profits_manual_sources/company/GBR_BP_Tax_2022.pdf,operator flat,,
+country sources/bp_tax_2023.pdf,resource_profits_manual_sources/company/GBR_BP_Tax_2023.pdf,operator flat,,
+country sources/bp_tax_2024.pdf,resource_profits_manual_sources/company/GBR_BP_Tax_2024.pdf,operator flat,,
+country sources/brazil_anp_extracted.csv,BRA_anp_extracted.csv,extracted->resources root,,
+country sources/China_resource_tax_from_statistical_yearbooks.txt,CHN_resource_tax_statistical_yearbooks.txt,extracted->resources root,,
+country sources/cmoc_ar_2016.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2016.pdf,operator flat,,
+country sources/cmoc_ar_2017.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2017.pdf,operator flat,,
+country sources/cmoc_ar_2017_v2.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2017_v2.pdf,operator flat,,
+country sources/cmoc_ar_2018.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2018.pdf,operator flat,,
+country sources/cmoc_ar_2018_v2.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2018_v2.pdf,operator flat,,
+country sources/cmoc_ar_2019.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2019.pdf,operator flat,,
+country sources/cmoc_ar_2019_v2.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2019_v2.pdf,operator flat,,
+country sources/cmoc_ar_2020.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2020.pdf,operator flat,,
+country sources/cmoc_ar_2020_v2.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2020_v2.pdf,operator flat,,
+country sources/cmoc_ar_2021.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2021.pdf,operator flat,,
+country sources/cmoc_ar_2021_v2.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2021_v2.pdf,operator flat,,
+country sources/cmoc_ar_2022.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2022.pdf,operator flat,,
+country sources/cmoc_ar_2022_v2.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2022_v2.pdf,operator flat,,
+country sources/cmoc_ar_2023.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2023.pdf,operator flat,,
+country sources/cmoc_ar_2023_v2.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2023_v2.pdf,operator flat,,
+country sources/cmoc_ar_2024.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2024.pdf,operator flat,,
+country sources/cmoc_ar_2024_v2.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2024_v2.pdf,operator flat,,
+country sources/cmoc_ar_2025.pdf,resource_profits_manual_sources/company/CHN_CMOC_AR_2025.pdf,operator flat,,
+country sources/cmoc_esg_2019.pdf,resource_profits_manual_sources/company/CHN_CMOC_ESG_2019.pdf,operator flat,,
+country sources/cmoc_esg_2020.pdf,resource_profits_manual_sources/company/CHN_CMOC_ESG_2020.pdf,operator flat,,
+country sources/cmoc_esg_2021.pdf,resource_profits_manual_sources/company/CHN_CMOC_ESG_2021.pdf,operator flat,,
+country sources/cmoc_esg_2022.pdf,resource_profits_manual_sources/company/CHN_CMOC_ESG_2022.pdf,operator flat,,
+country sources/cmoc_esg_2023.pdf,resource_profits_manual_sources/company/CHN_CMOC_ESG_2023.pdf,operator flat,,
+country sources/cmoc_esg_2024.pdf,resource_profits_manual_sources/company/CHN_CMOC_ESG_2024.pdf,operator flat,,
+country sources/cmoc_esg_2025.pdf,resource_profits_manual_sources/company/CHN_CMOC_ESG_2025.pdf,operator flat,,
+country sources/cmoc_full_year_results_2025.pdf,resource_profits_manual_sources/company/CHN_CMOC_FullYearResults_2025.pdf,operator flat,,
+country sources/cmoc_interim_2019_a.pdf,resource_profits_manual_sources/company/CHN_CMOC_Interim_2019_a.pdf,operator flat,,
+country sources/cmoc_interim_2019_b.pdf,resource_profits_manual_sources/company/CHN_CMOC_Interim_2019_b.pdf,operator flat,,
+country sources/cmoc_kfm_due_diligence_2023.pdf,resource_profits_manual_sources/company/CHN_CMOC_KFM_DueDiligence_2023.pdf,operator flat,,
+country sources/cmoc_kfm_due_diligence_2024.pdf,resource_profits_manual_sources/company/CHN_CMOC_KFM_DueDiligence_2024.pdf,operator flat,,
+country sources/cmoc_tfm_esg_2022.pdf,resource_profits_manual_sources/company/CHN_CMOC_TFM_ESG_2022.pdf,operator flat,,
+country sources/cmoc_tfm_esg_2023.pdf,resource_profits_manual_sources/company/CHN_CMOC_TFM_ESG_2023.pdf,operator flat,,
+country sources/cmoc_tfm_esg_2024.pdf,resource_profits_manual_sources/company/CHN_CMOC_TFM_ESG_2024.pdf,operator flat,,
+country sources/cnooc_ar_2020.pdf,resource_profits_manual_sources/company/CHN_CNOOC_AR_2020.pdf,operator flat,,
+country sources/cnooc_ar_2021.pdf,resource_profits_manual_sources/company/CHN_CNOOC_AR_2021.pdf,operator flat,,
+country sources/cnooc_ar_2022.pdf,resource_profits_manual_sources/company/CHN_CNOOC_AR_2022.pdf,operator flat,,
+country sources/cnooc_ar_2023.pdf,resource_profits_manual_sources/company/CHN_CNOOC_AR_2023.pdf,operator flat,,
+country sources/cnooc_ar_2024.pdf,resource_profits_manual_sources/company/CHN_CNOOC_AR_2024.pdf,operator flat,,
+country sources/eni_ar_2016.pdf,resource_profits_manual_sources/company/ITA_Eni_AR_2016.pdf,operator flat,,
+country sources/eni_ar_2019.pdf,resource_profits_manual_sources/company/ITA_Eni_AR_2019.pdf,operator flat,,
+country sources/eni_ar_2020.pdf,resource_profits_manual_sources/company/ITA_Eni_AR_2020.pdf,operator flat,,
+country sources/eni_ar_2021.pdf,resource_profits_manual_sources/company/ITA_Eni_AR_2021.pdf,operator flat,,
+country sources/eni_ar_2022.pdf,resource_profits_manual_sources/company/ITA_Eni_AR_2022.pdf,operator flat,,
+country sources/eni_ar_2023.pdf,resource_profits_manual_sources/company/ITA_Eni_AR_2023.pdf,operator flat,,
+country sources/eni_ar_2024.pdf,resource_profits_manual_sources/company/ITA_Eni_AR_2024.pdf,operator flat,,
+country sources/eni_ar_2025.pdf,resource_profits_manual_sources/company/ITA_Eni_AR_2025.pdf,operator flat,,
+country sources/eni_cbc_2017.pdf,resource_profits_manual_sources/company/ITA_Eni_CbCR_2017.pdf,operator flat,,
+country sources/eni_cbc_2018.pdf,resource_profits_manual_sources/company/ITA_Eni_CbCR_2018.pdf,operator flat,,
+country sources/eni_cbc_2019.pdf,resource_profits_manual_sources/company/ITA_Eni_CbCR_2019.pdf,operator flat,,
+country sources/eni_cbc_2020.pdf,resource_profits_manual_sources/company/ITA_Eni_CbCR_2020.pdf,operator flat,,
+country sources/eni_p2g_2016.pdf,resource_profits_manual_sources/company/ITA_Eni_P2G_2016.pdf,operator flat,,
+country sources/eni_p2g_2017.pdf,resource_profits_manual_sources/company/ITA_Eni_P2G_2017.pdf,operator flat,,
+country sources/eni_p2g_2018.pdf,resource_profits_manual_sources/company/ITA_Eni_P2G_2018.pdf,operator flat,,
+country sources/eni_p2g_2019.pdf,resource_profits_manual_sources/company/ITA_Eni_P2G_2019.pdf,operator flat,,
+country sources/eni_p2g_2020.pdf,resource_profits_manual_sources/company/ITA_Eni_P2G_2020.pdf,operator flat,,
+country sources/eni_p2g_2021.pdf,resource_profits_manual_sources/company/ITA_Eni_P2G_2021.pdf,operator flat,,
+country sources/eni_p2g_2022.pdf,resource_profits_manual_sources/company/ITA_Eni_P2G_2022.pdf,operator flat,,
+country sources/eni_p2g_2023.pdf,resource_profits_manual_sources/company/ITA_Eni_P2G_2023.pdf,operator flat,,
+country sources/eni_p2g_2024.pdf,resource_profits_manual_sources/company/ITA_Eni_P2G_2024.pdf,operator flat,,
+country sources/eni_summary_ar_2017.pdf,resource_profits_manual_sources/company/ITA_Eni_SummaryAR_2017.pdf,operator flat,,
+country sources/eni_summary_ar_2018.pdf,resource_profits_manual_sources/company/ITA_Eni_SummaryAR_2018.pdf,operator flat,,
+country sources/equinor_ar_2018.pdf,resource_profits_manual_sources/company/NOR_Equinor_AR_2018.pdf,operator flat,,
+country sources/equinor_p2g_2018.xlsx,resource_profits_manual_sources/company/NOR_Equinor_P2G_2018.xlsx,operator flat,,
+country sources/equinor_p2g_2019.xls,resource_profits_manual_sources/company/NOR_Equinor_P2G_2019.xls,operator flat,,
+country sources/equinor_p2g_2020.xlsx,resource_profits_manual_sources/company/NOR_Equinor_P2G_2020.xlsx,operator flat,,
+country sources/equinor_p2g_2022.pdf,resource_profits_manual_sources/company/NOR_Equinor_P2G_2022.pdf,operator flat,,
+country sources/equinor_p2g_2023.pdf,resource_profits_manual_sources/company/NOR_Equinor_P2G_2023.pdf,operator flat,,
+country sources/equinor_p2g_2024.pdf,resource_profits_manual_sources/company/NOR_Equinor_P2G_2024.pdf,operator flat,,
+country sources/equinor_tax_2023.pdf,resource_profits_manual_sources/company/NOR_Equinor_Tax_2023.pdf,operator flat,,
+country sources/equinor_tax_2024.pdf,resource_profits_manual_sources/company/NOR_Equinor_Tax_2024.pdf,operator flat,,
+country sources/firstquantum_tax_2020.pdf,resource_profits_manual_sources/company/CAN_FirstQuantum_Tax_2020.pdf,operator flat,,
+country sources/firstquantum_tax_2021.pdf,resource_profits_manual_sources/company/CAN_FirstQuantum_Tax_2021.pdf,operator flat,,
+country sources/firstquantum_tax_2022.pdf,resource_profits_manual_sources/company/CAN_FirstQuantum_Tax_2022.pdf,operator flat,,
+country sources/firstquantum_tax_2023.pdf,resource_profits_manual_sources/company/CAN_FirstQuantum_Tax_2023.pdf,operator flat,,
+country sources/firstquantum_tax_2024.pdf,resource_profits_manual_sources/company/CAN_FirstQuantum_Tax_2024.pdf,operator flat,,
+country sources/galp_ar_2016.pdf,resource_profits_manual_sources/company/PRT_Galp_AR_2016.pdf,operator flat,,
+country sources/galp_ar_2017.pdf,resource_profits_manual_sources/company/PRT_Galp_AR_2017.pdf,operator flat,,
+country sources/galp_ar_2018.pdf,resource_profits_manual_sources/company/PRT_Galp_AR_2018.pdf,operator flat,,
+country sources/galp_fs_2019.pdf,resource_profits_manual_sources/company/PRT_Galp_FS_2019.pdf,operator flat,,
+country sources/galp_fs_2020.pdf,resource_profits_manual_sources/company/PRT_Galp_FS_2020.pdf,operator flat,,
+country sources/galp_imr_2020.pdf,resource_profits_manual_sources/company/PRT_Galp_IMR_2020.pdf,operator flat,,
+country sources/galp_p2g_2021.pdf,resource_profits_manual_sources/company/PRT_Galp_P2G_2021.pdf,operator flat,,
+country sources/galp_p2g_2023.pdf,resource_profits_manual_sources/company/PRT_Galp_P2G_2023.pdf,operator flat,,
+country sources/glencore_p2g_2016.pdf,resource_profits_manual_sources/company/CHE_Glencore_P2G_2016.pdf,operator flat,,
+country sources/glencore_p2g_2017.pdf,resource_profits_manual_sources/company/CHE_Glencore_P2G_2017.pdf,operator flat,,
+country sources/glencore_p2g_2018.pdf,resource_profits_manual_sources/company/CHE_Glencore_P2G_2018.pdf,operator flat,,
+country sources/glencore_p2g_2019.pdf,resource_profits_manual_sources/company/CHE_Glencore_P2G_2019.pdf,operator flat,,
+country sources/glencore_p2g_2020.pdf,resource_profits_manual_sources/company/CHE_Glencore_P2G_2020.pdf,operator flat,,
+country sources/glencore_p2g_2021.pdf,resource_profits_manual_sources/company/CHE_Glencore_P2G_2021.pdf,operator flat,,
+country sources/glencore_p2g_2022.pdf,resource_profits_manual_sources/company/CHE_Glencore_P2G_2022.pdf,operator flat,,
+country sources/glencore_p2g_2023.pdf,resource_profits_manual_sources/company/CHE_Glencore_P2G_2023.pdf,operator flat,,
+country sources/glencore_p2g_2024.pdf,resource_profits_manual_sources/company/CHE_Glencore_P2G_2024.pdf,operator flat,,
+country sources/glencore_p2g_2025.pdf,resource_profits_manual_sources/company/CHE_Glencore_P2G_2025.pdf,operator flat,,
+country sources/jsw_consolidated_fs_2022.pdf,resource_profits_manual_sources/company/POL_JSW_ConsolidatedFS_2022.pdf,operator flat,,
+country sources/jsw_p2g_2016_pl.pdf,resource_profits_manual_sources/company/POL_JSW_P2G_2016_PL.pdf,operator flat,,
+country sources/jsw_p2g_2017_pl.pdf,resource_profits_manual_sources/company/POL_JSW_P2G_2017_PL.pdf,operator flat,,
+country sources/jsw_p2g_2018_pl.pdf,resource_profits_manual_sources/company/POL_JSW_P2G_2018_PL.pdf,operator flat,,
+country sources/jsw_p2g_2019.pdf,resource_profits_manual_sources/company/POL_JSW_P2G_2019.pdf,operator flat,,
+country sources/jsw_p2g_2019_pl.pdf,resource_profits_manual_sources/company/POL_JSW_P2G_2019_PL.pdf,operator flat,,
+country sources/jsw_p2g_2020.pdf,resource_profits_manual_sources/company/POL_JSW_P2G_2020.pdf,operator flat,,
+country sources/jsw_p2g_2021_pl.pdf,resource_profits_manual_sources/company/POL_JSW_P2G_2021_PL.pdf,operator flat,,
+country sources/jsw_p2g_2022.pdf,resource_profits_manual_sources/company/POL_JSW_P2G_2022.pdf,operator flat,,
+country sources/jsw_p2g_2024.pdf,resource_profits_manual_sources/company/POL_JSW_P2G_2024.pdf,operator flat,,
+country sources/jsw_p2g_2025.pdf,resource_profits_manual_sources/company/POL_JSW_P2G_2025.pdf,operator flat,,
+country sources/kghm_p2g_2016.pdf,resource_profits_manual_sources/company/POL_KGHM_P2G_2016.pdf,operator flat,,
+country sources/kghm_p2g_2017.pdf,resource_profits_manual_sources/company/POL_KGHM_P2G_2017.pdf,operator flat,,
+country sources/kghm_p2g_2018.pdf,resource_profits_manual_sources/company/POL_KGHM_P2G_2018.pdf,operator flat,,
+country sources/kghm_p2g_2019.pdf,resource_profits_manual_sources/company/POL_KGHM_P2G_2019.pdf,operator flat,,
+country sources/kghm_p2g_2020.zip,resource_profits_manual_sources/company/POL_KGHM_P2G_2020.zip,operator flat,,
+country sources/kghm_p2g_2021.zip,resource_profits_manual_sources/company/POL_KGHM_P2G_2021.zip,operator flat,,
+country sources/kghm_p2g_2022.zip,resource_profits_manual_sources/company/POL_KGHM_P2G_2022.zip,operator flat,,
+country sources/kghm_p2g_2023.zip,resource_profits_manual_sources/company/POL_KGHM_P2G_2023.zip,operator flat,,
+country sources/kghm_p2g_2024.zip,resource_profits_manual_sources/company/POL_KGHM_P2G_2024.zip,operator flat,,
+country sources/lesotho_revenue_extracted.csv,LSO_revenue_extracted.csv,extracted->resources root,,
+country sources/lumina_gold_estma_2020.pdf,resource_profits_manual_sources/company/CAN_LuminaGold_ESTMA_2020.pdf,operator flat,,
+country sources/lumina_gold_estma_2021.pdf,resource_profits_manual_sources/company/CAN_LuminaGold_ESTMA_2021.pdf,operator flat,,
+country sources/lumina_gold_estma_2022.pdf,resource_profits_manual_sources/company/CAN_LuminaGold_ESTMA_2022.pdf,operator flat,,
+country sources/lumina_gold_estma_2023.pdf,resource_profits_manual_sources/company/CAN_LuminaGold_ESTMA_2023.pdf,operator flat,,
+country sources/lumina_gold_estma_2024.pdf,resource_profits_manual_sources/company/CAN_LuminaGold_ESTMA_2024.pdf,operator flat,,
+country sources/lumina_gold_estma_2025.pdf,resource_profits_manual_sources/company/CAN_LuminaGold_ESTMA_2025.pdf,operator flat,,
+country sources/medco_ar_2016.pdf,resource_profits_manual_sources/company/IDN_Medco_AR_2016.pdf,operator flat,,
+country sources/medco_ar_2017.pdf,resource_profits_manual_sources/company/IDN_Medco_AR_2017.pdf,operator flat,,
+country sources/medco_ar_2018.pdf,resource_profits_manual_sources/company/IDN_Medco_AR_2018.pdf,operator flat,,
+country sources/medco_ar_2019.pdf,resource_profits_manual_sources/company/IDN_Medco_AR_2019.pdf,operator flat,,
+country sources/medco_ar_2020.pdf,resource_profits_manual_sources/company/IDN_Medco_AR_2020.pdf,operator flat,,
+country sources/medco_ar_2021.pdf,resource_profits_manual_sources/company/IDN_Medco_AR_2021.pdf,operator flat,,
+country sources/medco_ar_2022.pdf,resource_profits_manual_sources/company/IDN_Medco_AR_2022.pdf,operator flat,,
+country sources/medco_ar_2023.pdf,resource_profits_manual_sources/company/IDN_Medco_AR_2023.pdf,operator flat,,
+country sources/medco_ar_2024.pdf,resource_profits_manual_sources/company/IDN_Medco_AR_2024.pdf,operator flat,,
+country sources/medco_ar_2025.pdf,resource_profits_manual_sources/company/IDN_Medco_AR_2025.pdf,operator flat,,
+country sources/newmont_tax_2021.pdf,resource_profits_manual_sources/company/USA_Newmont_Tax_2021.pdf,operator flat,,
+country sources/newmont_tax_2022.pdf,resource_profits_manual_sources/company/USA_Newmont_Tax_2022.pdf,operator flat,,
+country sources/newmont_tax_2023.pdf,resource_profits_manual_sources/company/USA_Newmont_Tax_2023.pdf,operator flat,,
+country sources/newmont_tax_2024.pdf,resource_profits_manual_sources/company/USA_Newmont_Tax_2024.pdf,operator flat,,
+country sources/omv_p2g_2018.pdf,resource_profits_manual_sources/company/AUT_OMV_P2G_2018.pdf,operator flat,,
+country sources/omv_p2g_2021.pdf,resource_profits_manual_sources/company/AUT_OMV_P2G_2021.pdf,operator flat,,
+country sources/omv_p2g_2022.pdf,resource_profits_manual_sources/company/AUT_OMV_P2G_2022.pdf,operator flat,,
+country sources/omv_p2g_2023.pdf,resource_profits_manual_sources/company/AUT_OMV_P2G_2023.pdf,operator flat,,
+country sources/omv_p2g_2024.pdf,resource_profits_manual_sources/company/AUT_OMV_P2G_2024.pdf,operator flat,,
+country sources/ongc_videsh_ar_2015_16.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2015_16.pdf,operator flat,,
+country sources/ongc_videsh_ar_2016_17.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2016_17.pdf,operator flat,,
+country sources/ongc_videsh_ar_2016_17_v2.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2016_17_v2.pdf,operator flat,,
+country sources/ongc_videsh_ar_2017_18.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2017_18.pdf,operator flat,,
+country sources/ongc_videsh_ar_2017_18_v2.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2017_18_v2.pdf,operator flat,,
+country sources/ongc_videsh_ar_2018_19.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2018_19.pdf,operator flat,,
+country sources/ongc_videsh_ar_2019_20.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2019_20.pdf,operator flat,,
+country sources/ongc_videsh_ar_2020_21.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2020_21.pdf,operator flat,,
+country sources/ongc_videsh_ar_2020_21_v2.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2020_21_v2.pdf,operator flat,,
+country sources/ongc_videsh_ar_2021_22.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2021_22.pdf,operator flat,,
+country sources/ongc_videsh_ar_2022_23.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2022_23.pdf,operator flat,,
+country sources/ongc_videsh_ar_2022_23_v2.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2022_23_v2.pdf,operator flat,,
+country sources/ongc_videsh_ar_2023_24.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2023_24.pdf,operator flat,,
+country sources/ongc_videsh_ar_2023_24_v2.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2023_24_v2.pdf,operator flat,,
+country sources/ongc_videsh_ar_2024_25.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2024_25.pdf,operator flat,,
+country sources/ongc_videsh_ar_2024_25_v2.pdf,resource_profits_manual_sources/company/IND_ONGCVidesh_AR_2024_25_v2.pdf,operator flat,,
+country sources/orano_ar_2016.pdf,resource_profits_manual_sources/company/FRA_Orano_AR_2016.pdf,operator flat,,
+country sources/orano_ar_2017a.pdf,resource_profits_manual_sources/company/FRA_Orano_AR_2017_a.pdf,operator flat,,
+country sources/orano_ar_2017b.pdf,resource_profits_manual_sources/company/FRA_Orano_AR_2017_b.pdf,operator flat,,
+country sources/orano_ar_2018.pdf,resource_profits_manual_sources/company/FRA_Orano_AR_2018.pdf,operator flat,,
+country sources/orano_ar_2019.pdf,resource_profits_manual_sources/company/FRA_Orano_AR_2019.pdf,operator flat,,
+country sources/orano_ar_2020.pdf,resource_profits_manual_sources/company/FRA_Orano_AR_2020.pdf,operator flat,,
+country sources/orano_ar_2022.pdf,resource_profits_manual_sources/company/FRA_Orano_AR_2022.pdf,operator flat,,
+country sources/orano_ar_2023.pdf,resource_profits_manual_sources/company/FRA_Orano_AR_2023.pdf,operator flat,,
+country sources/orano_ar_2024.pdf,resource_profits_manual_sources/company/FRA_Orano_AR_2024.pdf,operator flat,,
+country sources/orano_ar_2025.pdf,resource_profits_manual_sources/company/FRA_Orano_AR_2025.pdf,operator flat,,
+country sources/orlen_p2g_2016.pdf,resource_profits_manual_sources/company/POL_Orlen_P2G_2016.pdf,operator flat,,
+country sources/orlen_p2g_2017.pdf,resource_profits_manual_sources/company/POL_Orlen_P2G_2017.pdf,operator flat,,
+country sources/orlen_p2g_2018.pdf,resource_profits_manual_sources/company/POL_Orlen_P2G_2018.pdf,operator flat,,
+country sources/orlen_p2g_2019.pdf,resource_profits_manual_sources/company/POL_Orlen_P2G_2019.pdf,operator flat,,
+country sources/orlen_p2g_2020.pdf,resource_profits_manual_sources/company/POL_Orlen_P2G_2020.pdf,operator flat,,
+country sources/orlen_p2g_2021.pdf,resource_profits_manual_sources/company/POL_Orlen_P2G_2021.pdf,operator flat,,
+country sources/orlen_p2g_2022.pdf,resource_profits_manual_sources/company/POL_Orlen_P2G_2022.pdf,operator flat,,
+country sources/orlen_p2g_2023.pdf,resource_profits_manual_sources/company/POL_Orlen_P2G_2023.pdf,operator flat,,
+country sources/orlen_p2g_2024.pdf,resource_profits_manual_sources/company/POL_Orlen_P2G_2024.pdf,operator flat,,
+country sources/orlen_p2g_2025.pdf,resource_profits_manual_sources/company/POL_Orlen_P2G_2025.pdf,operator flat,,
+country sources/pemex_20f_2020.htm,resource_profits_manual_sources/company/MEX_Pemex_20F_2020.htm,operator flat,,
+country sources/pemex_20f_2021.htm,resource_profits_manual_sources/company/MEX_Pemex_20F_2021.htm,operator flat,,
+country sources/pemex_20f_2022.htm,resource_profits_manual_sources/company/MEX_Pemex_20F_2022.htm,operator flat,,
+country sources/pemex_20f_2023.htm,resource_profits_manual_sources/company/MEX_Pemex_20F_2023.htm,operator flat,,
+country sources/pemex_20f_2024.htm,resource_profits_manual_sources/company/MEX_Pemex_20F_2024.htm,operator flat,,
+country sources/petrobras_20f_2020.htm,resource_profits_manual_sources/company/BRA_Petrobras_20F_2020.htm,operator flat,,
+country sources/petrobras_20f_2021.htm,resource_profits_manual_sources/company/BRA_Petrobras_20F_2021.htm,operator flat,,
+country sources/petrobras_20f_2022.htm,resource_profits_manual_sources/company/BRA_Petrobras_20F_2022.htm,operator flat,,
+country sources/petrobras_20f_2023.htm,resource_profits_manual_sources/company/BRA_Petrobras_20F_2023.htm,operator flat,,
+country sources/petrobras_20f_2024.htm,resource_profits_manual_sources/company/BRA_Petrobras_20F_2024.htm,operator flat,,
+country sources/petrobras_union_dividends_extracted.csv,BRA_petrobras_union_dividends_extracted.csv,extracted->resources root,,
+country sources/petrochina_20f_2019.pdf,resource_profits_manual_sources/company/CHN_PetroChina_20F_2019.pdf,operator flat,,
+country sources/petrochina_20f_2020.pdf,resource_profits_manual_sources/company/CHN_PetroChina_20F_2020.pdf,operator flat,,
+country sources/petrochina_ar_2022.pdf,resource_profits_manual_sources/company/CHN_PetroChina_AR_2022.pdf,operator flat,,
+country sources/petrochina_ar_2022_v2.pdf,resource_profits_manual_sources/company/CHN_PetroChina_AR_2022_v2.pdf,operator flat,,
+country sources/petrochina_ar_2023.pdf,resource_profits_manual_sources/company/CHN_PetroChina_AR_2023.pdf,operator flat,,
+country sources/petrochina_ar_2024.pdf,resource_profits_manual_sources/company/CHN_PetroChina_AR_2024.pdf,operator flat,,
+country sources/petronas_activity_outlook_2018_2020.pdf,resource_profits_manual_sources/company/MYS_Petronas_ActivityOutlook_2018_2020.pdf,operator flat,,
+country sources/petronas_activity_outlook_2019_2021.pdf,resource_profits_manual_sources/company/MYS_Petronas_ActivityOutlook_2019_2021.pdf,operator flat,,
+country sources/petronas_activity_outlook_2020_2022.pdf,resource_profits_manual_sources/company/MYS_Petronas_ActivityOutlook_2020_2022.pdf,operator flat,,
+country sources/petronas_activity_outlook_2021_2023.pdf,resource_profits_manual_sources/company/MYS_Petronas_ActivityOutlook_2021_2023.pdf,operator flat,,
+country sources/petronas_activity_outlook_2022_2024.pdf,resource_profits_manual_sources/company/MYS_Petronas_ActivityOutlook_2022_2024.pdf,operator flat,,
+country sources/petronas_activity_outlook_2023_2025.pdf,resource_profits_manual_sources/company/MYS_Petronas_ActivityOutlook_2023_2025.pdf,operator flat,,
+country sources/petronas_activity_outlook_2024_2026.pdf,resource_profits_manual_sources/company/MYS_Petronas_ActivityOutlook_2024_2026.pdf,operator flat,,
+country sources/petronas_activity_outlook_2025_2027.pdf,resource_profits_manual_sources/company/MYS_Petronas_ActivityOutlook_2025_2027.pdf,operator flat,,
+country sources/petronas_fr_2024.pdf,resource_profits_manual_sources/company/MYS_Petronas_FR_2024.pdf,operator flat,,
+country sources/petronas_fr_2025.pdf,resource_profits_manual_sources/company/MYS_Petronas_FR_2025.pdf,operator flat,,
+country sources/petronas_q4_fr_2016.pdf,resource_profits_manual_sources/company/MYS_Petronas_Q4FR_2016.pdf,operator flat,,
+country sources/petronas_q4_fr_2017.pdf,resource_profits_manual_sources/company/MYS_Petronas_Q4FR_2017.pdf,operator flat,,
+country sources/petronas_q4_fr_2018.pdf,resource_profits_manual_sources/company/MYS_Petronas_Q4FR_2018.pdf,operator flat,,
+country sources/petronas_q4_fr_2019.pdf,resource_profits_manual_sources/company/MYS_Petronas_Q4FR_2019.pdf,operator flat,,
+country sources/petronas_q4_fr_2020.pdf,resource_profits_manual_sources/company/MYS_Petronas_Q4FR_2020.pdf,operator flat,,
+country sources/petronas_q4_fr_2021.pdf,resource_profits_manual_sources/company/MYS_Petronas_Q4FR_2021.pdf,operator flat,,
+country sources/petronas_q4_fr_2022.pdf,resource_profits_manual_sources/company/MYS_Petronas_Q4FR_2022.pdf,operator flat,,
+country sources/petronas_q4_fr_2023.pdf,resource_profits_manual_sources/company/MYS_Petronas_Q4FR_2023.pdf,operator flat,,
+country sources/petronas_sustainability_2016.pdf,resource_profits_manual_sources/company/MYS_Petronas_Sustainability_2016.pdf,operator flat,,
+country sources/petronas_sustainability_2017.pdf,resource_profits_manual_sources/company/MYS_Petronas_Sustainability_2017.pdf,operator flat,,
+country sources/petronas_sustainability_2018.pdf,resource_profits_manual_sources/company/MYS_Petronas_Sustainability_2018.pdf,operator flat,,
+country sources/petronas_sustainability_2019_h1.pdf,resource_profits_manual_sources/company/MYS_Petronas_Sustainability_2019_H1.pdf,operator flat,,
+country sources/petronas_sustainability_2019_h2.pdf,resource_profits_manual_sources/company/MYS_Petronas_Sustainability_2019_H2.pdf,operator flat,,
+country sources/petronas_sustainability_2020_h1.pdf,resource_profits_manual_sources/company/MYS_Petronas_Sustainability_2020_H1.pdf,operator flat,,
+country sources/petronas_sustainability_2020_h2.pdf,resource_profits_manual_sources/company/MYS_Petronas_Sustainability_2020_H2.pdf,operator flat,,
+country sources/petronas_sustainability_2021_h1.pdf,resource_profits_manual_sources/company/MYS_Petronas_Sustainability_2021_H1.pdf,operator flat,,
+country sources/petronas_sustainability_2021_h2.pdf,resource_profits_manual_sources/company/MYS_Petronas_Sustainability_2021_H2.pdf,operator flat,,
+country sources/pge_p2g_2020_pl.pdf,resource_profits_manual_sources/company/POL_PGE_P2G_2020_PL.pdf,operator flat,,
+country sources/pge_p2g_2021.pdf,resource_profits_manual_sources/company/POL_PGE_P2G_2021.pdf,operator flat,,
+country sources/pge_p2g_2021_pl.pdf,resource_profits_manual_sources/company/POL_PGE_P2G_2021_PL.pdf,operator flat,,
+country sources/pge_p2g_2022_pl.pdf,resource_profits_manual_sources/company/POL_PGE_P2G_2022_PL.pdf,operator flat,,
+country sources/pge_p2g_2025.pdf,resource_profits_manual_sources/company/POL_PGE_P2G_2025.pdf,operator flat,,
+country sources/qatarenergy_ar_2016.pdf,resource_profits_manual_sources/company/QAT_QatarEnergy_AR_2016.pdf,operator flat,,
+country sources/qatarenergy_ar_2017.pdf,resource_profits_manual_sources/company/QAT_QatarEnergy_AR_2017.pdf,operator flat,,
+country sources/qatarenergy_ar_2018.pdf,resource_profits_manual_sources/company/QAT_QatarEnergy_AR_2018.pdf,operator flat,,
+country sources/qatarenergy_ar_2019.pdf,resource_profits_manual_sources/company/QAT_QatarEnergy_AR_2019.pdf,operator flat,,
+country sources/qatarenergy_ar_2020.pdf,resource_profits_manual_sources/company/QAT_QatarEnergy_AR_2020.pdf,operator flat,,
+country sources/qatarenergy_ar_2021.pdf,resource_profits_manual_sources/company/QAT_QatarEnergy_AR_2021.pdf,operator flat,,
+country sources/qatarenergy_ar_2022.pdf,resource_profits_manual_sources/company/QAT_QatarEnergy_AR_2022.pdf,operator flat,,
+country sources/qatarenergy_ar_2023.pdf,resource_profits_manual_sources/company/QAT_QatarEnergy_AR_2023.pdf,operator flat,,
+country sources/qatarenergy_ar_2024.pdf,resource_profits_manual_sources/company/QAT_QatarEnergy_AR_2024.pdf,operator flat,,
+country sources/repsol_p2g_2016.pdf,resource_profits_manual_sources/company/ESP_Repsol_P2G_2016.pdf,operator flat,,
+country sources/repsol_p2g_2017.pdf,resource_profits_manual_sources/company/ESP_Repsol_P2G_2017.pdf,operator flat,,
+country sources/repsol_p2g_2018.pdf,resource_profits_manual_sources/company/ESP_Repsol_P2G_2018.pdf,operator flat,,
+country sources/repsol_p2g_2019.pdf,resource_profits_manual_sources/company/ESP_Repsol_P2G_2019.pdf,operator flat,,
+country sources/repsol_p2g_2020.pdf,resource_profits_manual_sources/company/ESP_Repsol_P2G_2020.pdf,operator flat,,
+country sources/repsol_p2g_2021.pdf,resource_profits_manual_sources/company/ESP_Repsol_P2G_2021.pdf,operator flat,,
+country sources/repsol_p2g_2022.pdf,resource_profits_manual_sources/company/ESP_Repsol_P2G_2022.pdf,operator flat,,
+country sources/repsol_p2g_2023.pdf,resource_profits_manual_sources/company/ESP_Repsol_P2G_2023.pdf,operator flat,,
+country sources/repsol_p2g_2024.pdf,resource_profits_manual_sources/company/ESP_Repsol_P2G_2024.pdf,operator flat,,
+country sources/resource_revenue_extracted_new.csv,resource_revenue_extracted.csv,extracted->resources root,,
+country sources/riotinto_taxes_2016.pdf,resource_profits_manual_sources/company/GBR_RioTinto_Tax_2016.pdf,operator flat,,
+country sources/riotinto_taxes_2018.pdf,resource_profits_manual_sources/company/GBR_RioTinto_Tax_2018.pdf,operator flat,,
+country sources/riotinto_taxes_2019.pdf,resource_profits_manual_sources/company/GBR_RioTinto_Tax_2019.pdf,operator flat,,
+country sources/riotinto_taxes_2020.pdf,resource_profits_manual_sources/company/GBR_RioTinto_Tax_2020.pdf,operator flat,,
+country sources/riotinto_taxes_2021.pdf,resource_profits_manual_sources/company/GBR_RioTinto_Tax_2021.pdf,operator flat,,
+country sources/riotinto_taxes_2022.pdf,resource_profits_manual_sources/company/GBR_RioTinto_Tax_2022.pdf,operator flat,,
+country sources/riotinto_taxes_2023.pdf,resource_profits_manual_sources/company/GBR_RioTinto_Tax_2023.pdf,operator flat,,
+country sources/riotinto_taxes_2024.pdf,resource_profits_manual_sources/company/GBR_RioTinto_Tax_2024.pdf,operator flat,,
+country sources/sasol_20f_2023.pdf,resource_profits_manual_sources/company/ZAF_Sasol_20F_2023.pdf,operator flat,,
+country sources/sasol_20f_2025.pdf,resource_profits_manual_sources/company/ZAF_Sasol_20F_2025.pdf,operator flat,,
+country sources/sasol_20f_2025_v2.pdf,resource_profits_manual_sources/company/ZAF_Sasol_20F_2025_v2.pdf,operator flat,,
+country sources/sasol_ar_2016.pdf,resource_profits_manual_sources/company/ZAF_Sasol_AR_2016.pdf,operator flat,,
+country sources/sasol_ar_2017.pdf,resource_profits_manual_sources/company/ZAF_Sasol_AR_2017.pdf,operator flat,,
+country sources/sasol_ar_2018.pdf,resource_profits_manual_sources/company/ZAF_Sasol_AR_2018.pdf,operator flat,,
+country sources/sasol_ar_2019.pdf,resource_profits_manual_sources/company/ZAF_Sasol_AR_2019.pdf,operator flat,,
+country sources/sasol_ar_2020.pdf,resource_profits_manual_sources/company/ZAF_Sasol_AR_2020.pdf,operator flat,,
+country sources/sasol_ar_2021.pdf,resource_profits_manual_sources/company/ZAF_Sasol_AR_2021.pdf,operator flat,,
+country sources/sasol_ar_2022.pdf,resource_profits_manual_sources/company/ZAF_Sasol_AR_2022.pdf,operator flat,,
+country sources/sasol_ar_2024.pdf,resource_profits_manual_sources/company/ZAF_Sasol_AR_2024.pdf,operator flat,,
+country sources/sasol_tax_2024.pdf,resource_profits_manual_sources/company/ZAF_Sasol_Tax_2024.pdf,operator flat,,
+country sources/sasol_tax_2025.pdf,resource_profits_manual_sources/company/ZAF_Sasol_Tax_2025.pdf,operator flat,,
+country sources/shell_p2g_2016.pdf,resource_profits_manual_sources/company/GBR_Shell_P2G_2016.pdf,operator flat,,
+country sources/shell_p2g_2017.pdf,resource_profits_manual_sources/company/GBR_Shell_P2G_2017.pdf,operator flat,,
+country sources/shell_p2g_2018.pdf,resource_profits_manual_sources/company/GBR_Shell_P2G_2018.pdf,operator flat,,
+country sources/shell_p2g_2019.pdf,resource_profits_manual_sources/company/GBR_Shell_P2G_2019.pdf,operator flat,,
+country sources/shell_p2g_2020.pdf,resource_profits_manual_sources/company/GBR_Shell_P2G_2020.pdf,operator flat,,
+country sources/shell_p2g_2021.pdf,resource_profits_manual_sources/company/GBR_Shell_P2G_2021.pdf,operator flat,,
+country sources/shell_p2g_2022.pdf,resource_profits_manual_sources/company/GBR_Shell_P2G_2022.pdf,operator flat,,
+country sources/shell_p2g_2023.pdf,resource_profits_manual_sources/company/GBR_Shell_P2G_2023.pdf,operator flat,,
+country sources/shell_p2g_2025.pdf,resource_profits_manual_sources/company/GBR_Shell_P2G_2025.pdf,operator flat,,
+country sources/shell_tax_2024.pdf,resource_profits_manual_sources/company/GBR_Shell_Tax_2024.pdf,operator flat,,
+country sources/shell_tax_2024_data.pdf,resource_profits_manual_sources/company/GBR_Shell_Tax_2024_data.pdf,operator flat,,
+country sources/sinopec_ar_2020.pdf,resource_profits_manual_sources/company/CHN_Sinopec_AR_2020.pdf,operator flat,,
+country sources/sinopec_csr_2024.pdf,resource_profits_manual_sources/company/CHN_Sinopec_CSR_2024.pdf,operator flat,,
+country sources/total_urd_2016.pdf,resource_profits_manual_sources/company/FRA_TotalEnergies_URD_2016.pdf,operator flat,,
+country sources/total_urd_2017.pdf,resource_profits_manual_sources/company/FRA_TotalEnergies_URD_2017.pdf,operator flat,,
+country sources/total_urd_2018.pdf,resource_profits_manual_sources/company/FRA_TotalEnergies_URD_2018.pdf,operator flat,,
+country sources/total_urd_2019.pdf,resource_profits_manual_sources/company/FRA_TotalEnergies_URD_2019.pdf,operator flat,,
+country sources/total_urd_2020.pdf,resource_profits_manual_sources/company/FRA_TotalEnergies_URD_2020.pdf,operator flat,,
+country sources/total_urd_2021.pdf,resource_profits_manual_sources/company/FRA_TotalEnergies_URD_2021.pdf,operator flat,,
+country sources/total_urd_2022.pdf,resource_profits_manual_sources/company/FRA_TotalEnergies_URD_2022.pdf,operator flat,,
+country sources/total_urd_2023.pdf,resource_profits_manual_sources/company/FRA_TotalEnergies_URD_2023.pdf,operator flat,,
+country sources/total_urd_2024.pdf,resource_profits_manual_sources/company/FRA_TotalEnergies_URD_2024.pdf,operator flat,,
+country sources/total_urd_2025.pdf,resource_profits_manual_sources/company/FRA_TotalEnergies_URD_2025.pdf,operator flat,,
+country sources/tullow_ar_2018.pdf,resource_profits_manual_sources/company/GBR_Tullow_AR_2018.pdf,operator flat,,
+country sources/tullow_ar_2019.pdf,resource_profits_manual_sources/company/GBR_Tullow_AR_2019.pdf,operator flat,,
+country sources/tullow_ar_2020.pdf,resource_profits_manual_sources/company/GBR_Tullow_AR_2020.pdf,operator flat,,
+country sources/tullow_ar_2022.pdf,resource_profits_manual_sources/company/GBR_Tullow_AR_2022.pdf,operator flat,,
+country sources/tullow_ar_2023.pdf,resource_profits_manual_sources/company/GBR_Tullow_AR_2023.pdf,operator flat,,
+country sources/tullow_ar_2024.pdf,resource_profits_manual_sources/company/GBR_Tullow_AR_2024.pdf,operator flat,,
+country sources/tullow_p2g_2021.pdf,resource_profits_manual_sources/company/GBR_Tullow_P2G_2021.pdf,operator flat,,
+country sources/tullow_p2g_2022.pdf,resource_profits_manual_sources/company/GBR_Tullow_P2G_2022.pdf,operator flat,,
+country sources/tullow_p2g_2023.pdf,resource_profits_manual_sources/company/GBR_Tullow_P2G_2023.pdf,operator flat,,
+country sources/tullow_p2g_2024.pdf,resource_profits_manual_sources/company/GBR_Tullow_P2G_2024.pdf,operator flat,,
+country sources/turkey_cit_extractive_extracted.csv,TUR_cit_extractive_extracted.csv,extracted->resources root,,
+country sources/vale_20f_2016.pdf,resource_profits_manual_sources/company/BRA_Vale_20F_2016.pdf,operator flat,,
+country sources/vale_20f_2017.pdf,resource_profits_manual_sources/company/BRA_Vale_20F_2017.pdf,operator flat,,
+country sources/vale_20f_2018.pdf,resource_profits_manual_sources/company/BRA_Vale_20F_2018.pdf,operator flat,,
+country sources/vale_canada_estma_2016.pdf,resource_profits_manual_sources/company/BRA_ValeCanada_ESTMA_2016.pdf,operator flat,,
+country sources/vale_indonesia_ar_2020.pdf,resource_profits_manual_sources/company/BRA_ValeIndonesia_AR_2020.pdf,operator flat,,
+country sources/vale_p2g_2022.pdf,resource_profits_manual_sources/company/BRA_Vale_P2G_2022.pdf,operator flat,,
+country sources/vale_p2g_2023.pdf,resource_profits_manual_sources/company/BRA_Vale_P2G_2023.pdf,operator flat,,
+country sources/vale_p2g_2024.pdf,resource_profits_manual_sources/company/BRA_Vale_P2G_2024.pdf,operator flat,,
+country sources/vale_ttr_2019.pdf,resource_profits_manual_sources/company/BRA_Vale_TTR_2019.pdf,operator flat,,
+country sources/vale_ttr_2020.pdf,resource_profits_manual_sources/company/BRA_Vale_TTR_2020.pdf,operator flat,,
+country sources/vale_ttr_2021.pdf,resource_profits_manual_sources/company/BRA_Vale_TTR_2021.pdf,operator flat,,
+country sources/vale_ttr_2022.pdf,resource_profits_manual_sources/company/BRA_Vale_TTR_2022.pdf,operator flat,,
+country sources/vale_ttr_2023.pdf,resource_profits_manual_sources/company/BRA_Vale_TTR_2023.pdf,operator flat,,
+country sources/vale_ttr_2024_pt.pdf,resource_profits_manual_sources/company/BRA_Vale_TTR_2024_PT.pdf,operator flat,,
+country sources/general/anglo-american-ore-reserves-and-mineral-resources-report-2025.pdf,resource_profits_manual_sources/company/GBR_AngloAmerican_OreReserves_2025.pdf,manual-ish,,
+country sources/general/sustainability-data-2013-2023_angloamerican.xlsx,resource_profits_manual_sources/company/GBR_AngloAmerican_SustainabilityData_2013_2023.xlsx,manual-ish,,
+country sources/general/xom-20201231.htm,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2020.htm,xom modern 10-K,,FY = fiscal-period-end year in filename
+country sources/general/xom-20211231.htm,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2021.htm,xom modern 10-K,,FY = fiscal-period-end year in filename
+country sources/general/xom-20221231.htm,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2022.htm,xom modern 10-K,,FY = fiscal-period-end year in filename
+country sources/general/xom-20231231.htm,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2023.htm,xom modern 10-K,,FY = fiscal-period-end year in filename
+country sources/general/xom-20241231.htm,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2024.htm,xom modern 10-K,,FY = fiscal-period-end year in filename
+country sources/general/xom-20251231.htm,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2025.htm,xom modern 10-K,,FY = fiscal-period-end year in filename
+country sources/general/xom10k2015.htm,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2015.htm,xom classic 10-K,,
+country sources/general/xom10k2016.htm,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2016.htm,xom classic 10-K,,
+country sources/general/xom10k2017.htm,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2017.htm,xom classic 10-K,,
+country sources/general/xom10k2018.htm,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2018.htm,xom classic 10-K,,
+country sources/general/xom10k2019.htm,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2019.htm,xom classic 10-K,,
+country sources/ARE/1areea2025001-source-pdf.pdf,resource_profits_manual_sources/imf/ARE_IMF4_2025.pdf,IMF eLibrary code,,eLibrary code 1areea2025001-source-pdf.pdf; verified Article IV via PDF title 2026-07-21
+country sources/ARE/GFS-2023-updated-Nov-English.pdf,resource_profits_manual_sources/government/ARE_GFS_2023.pdf,ARE GFS,,
+country sources/ARE/GFS-Data-2025-English-07.04.2026.xlsx,resource_profits_manual_sources/government/ARE_GFS_2025.xlsx,ARE GFS,,
+country sources/ARE/GFS_Open-Data_English-2021_v4-2.pdf,resource_profits_manual_sources/government/ARE_GFS_2021.pdf,ARE GFS,,
+country sources/ARE/IMF_UAE_2016.pdf,resource_profits_manual_sources/imf/ARE_IMF4_2016.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/ARE/IMF_UAE_2017.pdf,resource_profits_manual_sources/imf/ARE_IMF4_2017.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/ARE/IMF_UAE_2018.pdf,resource_profits_manual_sources/imf/ARE_IMF4_2018.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/ARE/IMF_UAE_2019.pdf,resource_profits_manual_sources/imf/ARE_IMF4_2019.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/ARE/IMF_UAE_2021.pdf,resource_profits_manual_sources/imf/ARE_IMF4_2021.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/ARE/IMF_UAE_2022.pdf,resource_profits_manual_sources/imf/ARE_IMF4_2022.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/ARE/UAE-Government-Finance-Statistics-GFS-data-for-the-Year-2016.pdf,resource_profits_manual_sources/government/ARE_GFS_2016.pdf,ARE GFS year-in-name,,
+country sources/ARE/UAE_GFS-_2022-البيانات-المفتوحة-V1-english.pdf,resource_profits_manual_sources/government/ARE_GFS_2022.pdf,ARE GFS,,
+country sources/ARE/United-Arab-Emirates-Government-Finance-Statistics-GFS-data-of-the-Year-2019.pdf,resource_profits_manual_sources/government/ARE_GFS_2019.pdf,ARE GFS year-in-name,,
+country sources/ARE/بيانات-احصاءات-مالية-الحكومة-لدولة-الامارات-العربية-المتحدة-لعام-2017-English.pdf,resource_profits_manual_sources/government/ARE_GFS_2017.pdf,ARE GFS year-in-name,,
+country sources/ARE/بيانات-احصاءات-مالية-الحكومة-لدولة-الامارات-العربية-المتحدة-لعام-2018-English.pdf,resource_profits_manual_sources/government/ARE_GFS_2018.pdf,ARE GFS year-in-name,,
+country sources/ARE/بيانات-احصاءات-مالية-الحكومة-لدولة-الامارات-العربية-المتحدة-لعام-2020-English-V4.pdf,resource_profits_manual_sources/government/ARE_GFS_2020.pdf,ARE GFS year-in-name,,
+country sources/BOL/BOL_Article4_2016.pdf,resource_profits_manual_sources/imf/BOL_IMF4_2016.pdf,Article4 pattern,,
+country sources/BOL/BOL_Article4_2017.pdf,resource_profits_manual_sources/imf/BOL_IMF4_2017.pdf,Article4 pattern,,
+country sources/BOL/BOL_Article4_2018.pdf,resource_profits_manual_sources/imf/BOL_IMF4_2018.pdf,Article4 pattern,,
+country sources/BOL/BOL_Article4_2021.pdf,resource_profits_manual_sources/imf/BOL_IMF4_2021.pdf,Article4 pattern,,
+country sources/BOL/BOL_Article4_2022.pdf,resource_profits_manual_sources/imf/BOL_IMF4_2022.pdf,Article4 pattern,,
+country sources/BOL/BOL_Article4_2024.pdf,resource_profits_manual_sources/imf/BOL_IMF4_2024.pdf,Article4 pattern,,
+country sources/BOL/BOL_Article4_2025.pdf,resource_profits_manual_sources/imf/BOL_IMF4_2025.pdf,Article4 pattern,,
+country sources/BOL/BOL_InformeAT_2025.pdf,resource_profits_manual_sources/government/BOL_InformeAT_2025.pdf,BOL,,
+country sources/BOL/BOL_SelectedIssues_2010.pdf,resource_profits_manual_sources/imf/BOL_IMFSI_2010.pdf,SelectedIssues pattern,,
+country sources/BRA/valores-consolidados-2016-1_brazil.xlsx,resource_profits_manual_sources/government/BRA_ANP_2016.xlsx,BRA ANP royalties,,
+country sources/BRA/valores-consolidados-2017-1_brazil.xlsx,resource_profits_manual_sources/government/BRA_ANP_2017.xlsx,BRA ANP royalties,,
+country sources/BRA/valores-consolidados-2018-1_brazil.xlsx,resource_profits_manual_sources/government/BRA_ANP_2018.xlsx,BRA ANP royalties,,
+country sources/BRA/valores-consolidados-2019_brazil.xlsx,resource_profits_manual_sources/government/BRA_ANP_2019.xlsx,BRA ANP royalties,,
+country sources/BRA/valores-consolidados-2020_brazil.xlsx,resource_profits_manual_sources/government/BRA_ANP_2020.xlsx,BRA ANP royalties,,
+country sources/BRA/valores-consolidados-2021-1_brazil.xlsx,resource_profits_manual_sources/government/BRA_ANP_2021.xlsx,BRA ANP royalties,,
+country sources/BRA/valores-consolidados-2022_brazil.xlsx,resource_profits_manual_sources/government/BRA_ANP_2022.xlsx,BRA ANP royalties,,
+country sources/BRA/valores-consolidados-2023_brazil.xlsx,resource_profits_manual_sources/government/BRA_ANP_2023.xlsx,BRA ANP royalties,,
+country sources/BRA/valores-consolidados-2024_brazil.xlsx,resource_profits_manual_sources/government/BRA_ANP_2024.xlsx,BRA ANP royalties,,
+country sources/BRA/valores-consolidados-2025_brazil.xlsx,resource_profits_manual_sources/government/BRA_ANP_2025.xlsx,BRA ANP royalties,,
+country sources/DZA/IMF_DZA_2018.pdf,resource_profits_manual_sources/imf/DZA_IMF4_2018.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/DZA/IMF_DZA_2021.pdf,resource_profits_manual_sources/imf/DZA_IMF4_2021.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/DZA/IMF_DZA_2022.pdf,resource_profits_manual_sources/imf/DZA_IMF4_2022.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/DZA/IMF_DZA_2023.pdf,resource_profits_manual_sources/imf/DZA_IMF4_2023.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/DZA/IMF_DZA_2025.pdf,resource_profits_manual_sources/imf/DZA_IMF4_2025.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/EGY/EGY_Article4_2014.pdf,resource_profits_manual_sources/imf/EGY_IMF4_2014.pdf,Article4 pattern,,
+country sources/EGY/EGY_Article4_2017.pdf,resource_profits_manual_sources/imf/EGY_IMF4_2017.pdf,Article4 pattern,,
+country sources/EGY/EGY_Article4_2021.pdf,resource_profits_manual_sources/imf/EGY_IMF4_2021.pdf,Article4 pattern,,
+country sources/EGY/EGY_Article4_2025.pdf,resource_profits_manual_sources/imf/EGY_IMF4_2025.pdf,Article4 pattern,,
+country sources/EGY/EGY_SelectedIssues_2018.pdf,resource_profits_manual_sources/imf/EGY_IMFSI_2018.pdf,SelectedIssues pattern,,
+country sources/EGY/EGY_SelectedIssues_2025.pdf,resource_profits_manual_sources/imf/EGY_IMFSI_2025.pdf,SelectedIssues pattern,,
+country sources/IND/1776589856_PP_ContributionToExchequer.xlsx,resource_profits_manual_sources/government/IND_PPAC_Exchequer_2026.xlsx,override,,PPAC table: petroleum sector contribution to exchequer 2014-15 to 9M 2025-26; posted 2026-04-19
+country sources/IND/1776590120_PP_SGST_UTGST.xlsx,resource_profits_manual_sources/government/IND_PPAC_SGST_UTGST_2026.xlsx,override,,PPAC table: SGST/UTGST on petroleum 2017-18 to 9M 2025-26; posted 2026-04-19
+country sources/IRN/EIA_Iran_2024.pdf,resource_profits_manual_sources/government/IRN_EIA_2024.pdf,IRN,,
+country sources/IRN/IMF_Iran_2018.pdf,resource_profits_manual_sources/imf/IRN_IMF4_2018.pdf,IMF_<name>_year,,assumed Article IV staff report; verified Article IV via PDF title 2026-07-21
+country sources/IRN/Oil-and-Gas-3_stzatistical_yearbook_iran_2016_2017.pdf,resource_profits_manual_sources/government/IRN_StatYearbook_2016_2017.pdf,IRN,,
+country sources/KWT/002-article-A001-en.pdf,resource_profits_manual_sources/imf/KWT_IMF4_2024.pdf,override,,PDF title: Kuwait 2024 Article IV Consultation staff report
+country sources/KWT/1kwtea2019001.pdf,resource_profits_manual_sources/imf/KWT_IMF4_2019.pdf,IMF eLibrary code,,eLibrary code 1kwtea2019001.pdf; verified Article IV via PDF title 2026-07-21
+country sources/KWT/1kwtea2020001.pdf,resource_profits_manual_sources/imf/KWT_IMF4_2020.pdf,IMF eLibrary code,,eLibrary code 1kwtea2020001.pdf; verified Article IV via PDF title 2026-07-21
+country sources/KWT/1kwtea2022001.pdf,resource_profits_manual_sources/imf/KWT_IMF4_2021.pdf,IMF eLibrary code,,2021 Article IV (published 2022); year = consultation year
+country sources/KWT/1kwtea2023001.pdf,resource_profits_manual_sources/imf/KWT_IMF4_2023.pdf,IMF eLibrary code,,eLibrary code 1kwtea2023001.pdf; verified Article IV via PDF title 2026-07-21
+country sources/KWT/1kwtea2026001-source-pdf.pdf,resource_profits_manual_sources/imf/KWT_IMF4_2025.pdf,IMF eLibrary code,,2025 Article IV (CR 26/052); year = consultation year
+country sources/KWT/cr1715.pdf,resource_profits_manual_sources/imf/KWT_IMF4_2016.pdf,IMF CR code,,2016 Article IV (published as CR 17/15); year = consultation year
+country sources/KWT/cr1821.pdf,resource_profits_manual_sources/imf/KWT_IMF4_2017.pdf,IMF CR code,,2017 Article IV (CR 18/21); year = consultation year
+country sources/LBY/Libya_2022.pdf,resource_profits_manual_sources/government/LBY_MoF_RevExp_2022.pdf,Libya_year,,Libya MoF Revenue & Expenditure Statement (verified: not an IMF doc)
+country sources/LBY/Libya_2023.pdf,resource_profits_manual_sources/government/LBY_MoF_RevExp_2023.pdf,Libya_year,,Libya MoF Revenue & Expenditure Statement (verified: not an IMF doc)
+country sources/LBY/Libya_2024.pdf,resource_profits_manual_sources/government/LBY_MoF_RevExp_2024.pdf,Libya_year,,Libya MoF Revenue & Expenditure Statement (verified: not an IMF doc)
+country sources/LBY/Libya_2025.pdf,resource_profits_manual_sources/government/LBY_MoF_RevExp_2025.pdf,Libya_year,,Libya MoF Revenue & Expenditure Statement (verified: not an IMF doc)
+country sources/LSO/2018-2019 Budget Estimates Book-638618162922154644_lesotho.pdf,resource_profits_manual_sources/government/LSO_Budget_2018.pdf,LSO budget,,fiscal start year; collisions -> _v2 at execution
+country sources/LSO/2019-2020 Budget Estimates Book-638618162346654769_lesotho.pdf,resource_profits_manual_sources/government/LSO_Budget_2019.pdf,LSO budget,,fiscal start year; collisions -> _v2 at execution
+country sources/LSO/2019-2020-Budget-Book-1_lesotho.pdf,resource_profits_manual_sources/government/LSO_Budget_2019_v2.pdf,LSO budget,,fiscal start year; collisions -> _v2 at execution; collision -> _v suffix
+country sources/LSO/2020-2021 Budget Estimates Book-638618161780733219_lesotho.pdf,resource_profits_manual_sources/government/LSO_Budget_2020.pdf,LSO budget,,fiscal start year; collisions -> _v2 at execution
+country sources/LSO/2021-2022 Draft Budget Estimates Book-638618161219331167_lesotho.pdf,resource_profits_manual_sources/government/LSO_Budget_2021.pdf,LSO budget,,fiscal start year; collisions -> _v2 at execution
+country sources/LSO/2022-2023-Budget-Speech-Wednesday-02-03-2022_lesotho.pdf,resource_profits_manual_sources/government/LSO_BudgetSpeech_2022.pdf,LSO speech,,
+country sources/LSO/2022-23 Budget Book-638618160566234809_lesotho.pdf,resource_profits_manual_sources/government/LSO_Budget_2022.pdf,LSO budget,,fiscal start year; collisions -> _v2 at execution
+country sources/LSO/Budget book 2024_25 Final-638618149122303845_lesotho.pdf,resource_profits_manual_sources/government/LSO_Budget_2024.pdf,LSO budget,,fiscal start year; collisions -> _v2 at execution
+country sources/LSO/Budget Estimates Book 2025-2026-639074574413934799-1_lesotho.pdf,resource_profits_manual_sources/government/LSO_Budget_2025.pdf,LSO budget,,fiscal start year; collisions -> _v2 at execution
+country sources/LSO/Budget Estimates Book 2025-2026-639074574413934799_lesotho.pdf,resource_profits_manual_sources/government/LSO_Budget_2025_v2.pdf,LSO budget,,fiscal start year; collisions -> _v2 at execution; collision -> _v suffix
+country sources/LSO/Budget-Speech_2020_2021-Final_lesotho.pdf,resource_profits_manual_sources/government/LSO_BudgetSpeech_2020.pdf,LSO speech,,
+country sources/LSO/Final-Budget-Estimates-2021-22-002_lesotho.pdf,resource_profits_manual_sources/government/LSO_Budget_2021_v2.pdf,LSO budget,,fiscal start year; collisions -> _v2 at execution; collision -> _v suffix
+country sources/MEX/Consulta_20260513-134851930_mexico.xlsx,resource_profits_manual_sources/government/MEX_Banxico_IngresosPresupuestales_2026.xlsx,override,,Banco de Mexico budget-revenue query; consulted 2026-05-13
+country sources/MOZ/a2234766z20-f.htm,resource_profits_manual_sources/company/BRA_Vale_20F_2017.htm,override,,Vale S.A. 20-F FY2017 (verified in document)
+country sources/MOZ/a2238479z20-f.htm,resource_profits_manual_sources/company/BRA_Vale_20F_2018.htm,override,,Vale S.A. 20-F FY2018 (verified in document)
+country sources/MOZ/a2240808z20-f.htm,resource_profits_manual_sources/company/BRA_Vale_20F_2019.htm,override,,Vale S.A. 20-F FY2019 (verified in document)
+country sources/MOZ/a2243060z20-f.htm,resource_profits_manual_sources/company/BRA_Vale_20F_2020.htm,override,,Vale S.A. 20-F FY2020 (verified in document)
+country sources/MOZ/Conflict Minerals Declaration Sasol Ltd 2020.pdf,resource_profits_manual_sources/company/ZAF_Sasol_FormSD_2019.pdf,override,,SEC Form SD declaration; covers CY2019 (filed 2020)
+country sources/MOZ/Conflict Minerals Disclosure.pdf,resource_profits_manual_sources/company/ZAF_Sasol_FormSD_2023.pdf,override,,SEC Form SD; covers CY2023 (filed May 2024)
+country sources/MOZ/FORM 20-F.htm,resource_profits_manual_sources/company/BRA_Vale_20F_2024.htm,override,,Vale S.A. 20-F FY2024 (verified in document)
+country sources/MOZ/Form SD- Sasol’s Conflict Minerals Disclosure.pdf,resource_profits_manual_sources/company/ZAF_Sasol_FormSD_2024.pdf,override,,SEC Form SD; covers CY2024 (filed May 2025)
+country sources/MOZ/Form_SD_30 May 2017 LM.pdf,resource_profits_manual_sources/company/ZAF_Sasol_FormSD_2016.pdf,override,,SEC Form SD; covers CY2016 (filed May 2017)
+country sources/MOZ/LNDOCS01-#851260-Sasol_-_Form_SD_31 May 2019_FINAL.pdf,resource_profits_manual_sources/company/ZAF_Sasol_FormSD_2018.pdf,override,,SEC Form SD; covers CY2018 (filed May 2019)
+country sources/MOZ/sasol_report.pdf,resource_profits_manual_sources/company/ZAF_Sasol_FormSD_2017.pdf,override,,SEC Form SD conflict minerals; covers CY2017 (filed May 2018)
+country sources/MOZ/vale-20211231x20f.htm,resource_profits_manual_sources/company/BRA_Vale_20F_2021.htm,override,,Vale S.A. 20-F FY2021
+country sources/MOZ/valeform20f_2022.htm,resource_profits_manual_sources/company/BRA_Vale_20F_2022.htm,override,,Vale S.A. 20-F FY2022 (verified in document)
+country sources/MOZ/valeform20f_2025.htm,resource_profits_manual_sources/company/BRA_Vale_20F_2025.htm,override,,Vale S.A. 20-F FY2025 (verified in document)
+country sources/MYS/revenue2016_report2017.pdf,resource_profits_manual_sources/government/MYS_RevenueEstimates_2016.pdf,MYS revenue,,published in budget report 2017
+country sources/MYS/revenue2017_report2018.pdf,resource_profits_manual_sources/government/MYS_RevenueEstimates_2017.pdf,MYS revenue,,published in budget report 2018
+country sources/MYS/revenue2018_report2019.pdf,resource_profits_manual_sources/government/MYS_RevenueEstimates_2018.pdf,MYS revenue,,published in budget report 2019
+country sources/MYS/revenue2019_report2020.pdf,resource_profits_manual_sources/government/MYS_RevenueEstimates_2019.pdf,MYS revenue,,published in budget report 2020
+country sources/MYS/revenue2020_report2021.pdf,resource_profits_manual_sources/government/MYS_RevenueEstimates_2020.pdf,MYS revenue,,published in budget report 2021
+country sources/MYS/revenue2021_report2022.pdf,resource_profits_manual_sources/government/MYS_RevenueEstimates_2021.pdf,MYS revenue,,published in budget report 2022
+country sources/MYS/revenue2022_report2023.pdf,resource_profits_manual_sources/government/MYS_RevenueEstimates_2022.pdf,MYS revenue,,published in budget report 2023
+country sources/MYS/revenue2023_report2024.pdf,resource_profits_manual_sources/government/MYS_RevenueEstimates_2023.pdf,MYS revenue,,published in budget report 2024
+country sources/MYS/revenue2024_report2025.pdf,resource_profits_manual_sources/government/MYS_RevenueEstimates_2024.pdf,MYS revenue,,published in budget report 2025
+country sources/MYS/revenue2025_report2026.pdf,resource_profits_manual_sources/government/MYS_RevenueEstimates_2025.pdf,MYS revenue,,published in budget report 2026
+country sources/OMN/1684910280849State’s General Budget 2015.pdf,resource_profits_manual_sources/government/OMN_Budget_2015.pdf,OMN budget,,orig: 1684910280849State’s General Budget 2015.pdf
+country sources/OMN/1687427393620Schedule State General Budget for the Financial year 2019.pdf,resource_profits_manual_sources/government/OMN_Budget_2019.pdf,OMN budget,,orig: 1687427393620Schedule State General Budget for the Financial year 2019.pdf
+country sources/OMN/1687430163923A Guide to State’s General Budget for Fiscal Year 2021.pdf,resource_profits_manual_sources/government/OMN_BudgetGuide_2021.pdf,OMN budget,,orig: 1687430163923A Guide to State’s General Budget for Fiscal Year 2021.pdf
+country sources/OMN/1687431387850Tables The State General Budget For The Financial Year 2020.pdf,resource_profits_manual_sources/government/OMN_Budget_2020.pdf,OMN budget,,orig: 1687431387850Tables The State General Budget For The Financial Year 2020.pdf
+country sources/OMN/1687431452122Tables The State General Budget For The Financial Year 2020.pdf,resource_profits_manual_sources/government/OMN_Budget_2020_v2.pdf,OMN budget,,orig: 1687431452122Tables The State General Budget For The Financial Year 2020.pdf; collision -> _v suffix
+country sources/OMN/1687762894958StateGeneralBudget2017.pdf,resource_profits_manual_sources/government/OMN_Budget_2017.pdf,OMN budget,,orig: 1687762894958StateGeneralBudget2017.pdf
+country sources/OMN/1695188859184Schedules of the States General Budget for Fisical Year 2023.pdf,resource_profits_manual_sources/government/OMN_Budget_2023.pdf,OMN budget,,orig: 1695188859184Schedules of the States General Budget for Fisical Year 2023.pdf
+country sources/OMN/1695190729466Schedules of the State’s General Budget for Fiscal Year 2022.pdf,resource_profits_manual_sources/government/OMN_Budget_2022.pdf,OMN budget,,orig: 1695190729466Schedules of the State’s General Budget for Fiscal Year 2022.pdf
+country sources/OMN/1735817058411State’s General Budget for Fiscal Year 2025_Tables_English.pdf,resource_profits_manual_sources/government/OMN_Budget_2025.pdf,OMN budget,,orig: 1735817058411State’s General Budget for Fiscal Year 2025_Tables_English.pdf
+country sources/OMN/1735817583853stategeneralbudget2025english.pdf,resource_profits_manual_sources/government/OMN_Budget_2025_v2.pdf,OMN budget,,orig: 1735817583853stategeneralbudget2025english.pdf; collision -> _v suffix
+country sources/OMN/1753684591805A Guide to the States General Budget for the Fiscal Year 2024.pdf,resource_profits_manual_sources/government/OMN_BudgetGuide_2024.pdf,OMN budget,,orig: 1753684591805A Guide to the States General Budget for the Fiscal Year 2024.pdf
+country sources/OMN/1768378039247A Guide to the States General Budget for the Fiscal Year 2026.pdf,resource_profits_manual_sources/government/OMN_BudgetGuide_2026.pdf,OMN budget,,orig: 1768378039247A Guide to the States General Budget for the Fiscal Year 2026.pdf
+country sources/PER/cdro_A18_peru.xlsx,resource_profits_manual_sources/government/PER_IngresosTributarios_CuadroA18.xlsx,override,,Annual tax revenue table (Cuadro A18) 2000-; undated panel download
+country sources/POL/20160608_Sprawozdanie_operatywne_IV_2016.xls,resource_profits_manual_sources/government/POL_MiningOperations_2016.xls,POL industry report,,orig: 20160608_Sprawozdanie_operatywne_IV_2016.xls
+country sources/POL/20171031_Sprawozdanie_operatywne_09_2017.xls,resource_profits_manual_sources/government/POL_MiningOperations_2017.xls,POL industry report,,orig: 20171031_Sprawozdanie_operatywne_09_2017.xls
+country sources/POL/2018.12_informacja o odmetanowaniu i zagospodarowaniu metanu.pdf,resource_profits_manual_sources/government/POL_CoalMethane_2018.pdf,POL industry report,,orig: 2018.12_informacja o odmetanowaniu i zagospodarowaniu metanu.pdf
+country sources/POL/2018.12_o imporcie węgla kamiennego.pdf,resource_profits_manual_sources/government/POL_CoalImports_2018.pdf,POL industry report,,orig: 2018.12_o imporcie węgla kamiennego.pdf
+country sources/POL/2018.12_o obrocie węglem kamiennym.pdf,resource_profits_manual_sources/government/POL_CoalTrade_2018.pdf,POL industry report,,orig: 2018.12_o obrocie węglem kamiennym.pdf
+country sources/POL/2018.12_o środowiskowych skutkach działalności górnictwa węgla - errata.pdf,resource_profits_manual_sources/government/POL_CoalEnvironment_2018_korekta.pdf,POL industry report,,orig: 2018.12_o środowiskowych skutkach działalności górnictwa węgla - errata.pdf
+"country sources/POL/2018.12_zatrudnienie, wydajność, płace-korekta.pdf",resource_profits_manual_sources/government/POL_CoalEmployment_2018_korekta.pdf,POL industry report,,"orig: 2018.12_zatrudnienie, wydajność, płace-korekta.pdf"
+country sources/POL/2019.12_informacja o odmetanowaniu i zagospodarowaniu metanu.pdf,resource_profits_manual_sources/government/POL_CoalMethane_2019.pdf,POL industry report,,orig: 2019.12_informacja o odmetanowaniu i zagospodarowaniu metanu.pdf
+country sources/POL/2019.12_o imporcie węgla kamiennego.pdf,resource_profits_manual_sources/government/POL_CoalImports_2019.pdf,POL industry report,,orig: 2019.12_o imporcie węgla kamiennego.pdf
+country sources/POL/2019.12_o obrocie węglem kamiennym.pdf,resource_profits_manual_sources/government/POL_CoalTrade_2019.pdf,POL industry report,,orig: 2019.12_o obrocie węglem kamiennym.pdf
+"country sources/POL/2019.12_zatrudnienie, wydajność, płace-korekta.pdf",resource_profits_manual_sources/government/POL_CoalEmployment_2019_korekta.pdf,POL industry report,,"orig: 2019.12_zatrudnienie, wydajność, płace-korekta.pdf"
+country sources/POL/2020.12_informacja o odmetanowaniu i zagospodarowaniu metanu pochodzącego z kopalń węgla kamiennego.pdf,resource_profits_manual_sources/government/POL_CoalMethane_2020.pdf,POL industry report,,orig: 2020.12_informacja o odmetanowaniu i zagospodarowaniu metanu pochodzącego z kopalń węgla kamiennego.pdf
+country sources/POL/2020.12_o imporcie węgla kamiennego.pdf,resource_profits_manual_sources/government/POL_CoalImports_2020.pdf,POL industry report,,orig: 2020.12_o imporcie węgla kamiennego.pdf
+country sources/POL/2020.12_o obrocie węglem kamiennym.pdf,resource_profits_manual_sources/government/POL_CoalTrade_2020.pdf,POL industry report,,orig: 2020.12_o obrocie węglem kamiennym.pdf
+"country sources/POL/2020.12_zatrudnienie, wydajność, płace.pdf",resource_profits_manual_sources/government/POL_CoalEmployment_2020.pdf,POL industry report,,"orig: 2020.12_zatrudnienie, wydajność, płace.pdf"
+country sources/POL/2020.12_środowiskowe skutki działalności górnictwa węgla kamiennego w Polsce.pdf,resource_profits_manual_sources/government/POL_CoalEnvironment_2020.pdf,POL industry report,,orig: 2020.12_środowiskowe skutki działalności górnictwa węgla kamiennego w Polsce.pdf
+country sources/POL/2020_ informacja o zasobach węgla kamiennego.pdf,resource_profits_manual_sources/government/POL_CoalReserves_2020.pdf,POL industry report,,orig: 2020_ informacja o zasobach węgla kamiennego.pdf
+country sources/POL/2021 informacja o zasobach wegla kamiennego.pdf,resource_profits_manual_sources/government/POL_CoalReserves_2021.pdf,POL industry report,,orig: 2021 informacja o zasobach wegla kamiennego.pdf
+country sources/POL/2021.06_Wyniki techniczno-ekonomiczne działalności oraz inwestycje w górnictwie węgla kamiennego w Polsce.pdf,resource_profits_manual_sources/government/POL_CoalTechEcon_2021.pdf,POL industry report,,orig: 2021.06_Wyniki techniczno-ekonomiczne działalności oraz inwestycje w górnictwie węgla kamiennego w Polsce.pdf
+country sources/POL/2021.12_o imporcie węgla kamiennego (aktualizacja).pdf,resource_profits_manual_sources/government/POL_CoalImports_2021.pdf,POL industry report,,orig: 2021.12_o imporcie węgla kamiennego (aktualizacja).pdf
+country sources/POL/2021.12_podstawowe informacje o rynku i sektorze węgla brunatnego w Polsce.pdf,resource_profits_manual_sources/government/POL_Lignite_2021.pdf,POL industry report,,orig: 2021.12_podstawowe informacje o rynku i sektorze węgla brunatnego w Polsce.pdf
+country sources/POL/2021.12_sprawozdanie o mechanicznej przerobce wegla.pdf,resource_profits_manual_sources/government/POL_CoalProcessing_2021.pdf,POL industry report,,orig: 2021.12_sprawozdanie o mechanicznej przerobce wegla.pdf
+country sources/POL/2021.12_Wyniki_techniczno-ekonomiczne po weryfikacji.pdf,resource_profits_manual_sources/government/POL_CoalTechEcon_2021_korekta.pdf,POL industry report,,orig: 2021.12_Wyniki_techniczno-ekonomiczne po weryfikacji.pdf
+country sources/POL/2021.12_Zatrudnienie_wydajność_płace.pdf,resource_profits_manual_sources/government/POL_CoalEmployment_2021.pdf,POL industry report,,orig: 2021.12_Zatrudnienie_wydajność_płace.pdf
+country sources/POL/2021.12_Środowiskowe skutki działaności górnictwa.pdf,resource_profits_manual_sources/government/POL_CoalEnvironment_2021.pdf,POL industry report,,orig: 2021.12_Środowiskowe skutki działaności górnictwa.pdf
+country sources/POL/2022.11_Wyniki_techniczno-ekonomiczne.pdf,resource_profits_manual_sources/government/POL_CoalTechEcon_2022.pdf,POL industry report,,orig: 2022.11_Wyniki_techniczno-ekonomiczne.pdf
+country sources/POL/2022.12_informacja o odmetanowaniu i zagospodarowaniu metanu.pdf,resource_profits_manual_sources/government/POL_CoalMethane_2022.pdf,POL industry report,,orig: 2022.12_informacja o odmetanowaniu i zagospodarowaniu metanu.pdf
+country sources/POL/2022.12_o imporcie węgla kamiennego_aktualizacja.pdf,resource_profits_manual_sources/government/POL_CoalImports_2022.pdf,POL industry report,,orig: 2022.12_o imporcie węgla kamiennego_aktualizacja.pdf
+country sources/POL/2022.12_o obrocie węglem kamiennym.pdf,resource_profits_manual_sources/government/POL_CoalTrade_2022.pdf,POL industry report,,orig: 2022.12_o obrocie węglem kamiennym.pdf
+country sources/POL/2022.12_podstawowe informacje o rynku i sektorze węgla brunatnego w Polsce.pdf,resource_profits_manual_sources/government/POL_Lignite_2022.pdf,POL industry report,,orig: 2022.12_podstawowe informacje o rynku i sektorze węgla brunatnego w Polsce.pdf
+country sources/POL/2022.12_sprawozdanie o mechanicznej przerobce wegla.pdf,resource_profits_manual_sources/government/POL_CoalProcessing_2022.pdf,POL industry report,,orig: 2022.12_sprawozdanie o mechanicznej przerobce wegla.pdf
+country sources/POL/2022.12_Wyniki_techniczno-ekonomiczne.pdf,resource_profits_manual_sources/government/POL_CoalTechEcon_2022_v2.pdf,POL industry report,,orig: 2022.12_Wyniki_techniczno-ekonomiczne.pdf; collision -> _v suffix
+country sources/POL/2022.12_Zatrudnienie_wydajność_płace-korekta.pdf,resource_profits_manual_sources/government/POL_CoalEmployment_2022_korekta.pdf,POL industry report,,orig: 2022.12_Zatrudnienie_wydajność_płace-korekta.pdf
+country sources/POL/2022.12_Środowiskowe skutki działalności górnictwa węgla kamiennego w Polsce_korekta.pdf,resource_profits_manual_sources/government/POL_CoalEnvironment_2022_korekta.pdf,POL industry report,,orig: 2022.12_Środowiskowe skutki działalności górnictwa węgla kamiennego w Polsce_korekta.pdf
+country sources/POL/2023.12_podstawowe informacje o rynku i sektorze węgla brunatnego w Polsce.pdf,resource_profits_manual_sources/government/POL_Lignite_2023.pdf,POL industry report,,orig: 2023.12_podstawowe informacje o rynku i sektorze węgla brunatnego w Polsce.pdf
+country sources/POL/20230110_Sprawozdanie_operatywne_I-XI_2022.pdf,resource_profits_manual_sources/government/POL_MiningOperations_2022.pdf,POL industry report,,orig: 20230110_Sprawozdanie_operatywne_I-XI_2022.pdf
+country sources/POL/ang_SzPaP_2023_OST.PDF,resource_profits_manual_sources/company/POL_JSW_P2G_2023.pdf,override,,JSW Group consolidated report on payments to public administration FY2023 (English)
+country sources/POL/Consolidated report on payments KGHM Group SPS 2021.xhtml,resource_profits_manual_sources/company/POL_KGHM_P2G_2021.xhtml,POL KGHM xhtml,,orig: Consolidated report on payments KGHM Group SPS 2021.xhtml; FY per filename
+country sources/POL/Consolidated report on payments KGHM Group SPS 2023.xhtml,resource_profits_manual_sources/company/POL_KGHM_P2G_2023.xhtml,POL KGHM xhtml,,orig: Consolidated report on payments KGHM Group SPS 2023.xhtml; FY per filename
+country sources/POL/Consolidated report on payments KGHM Group SPS 2024.xhtml,resource_profits_manual_sources/company/POL_KGHM_P2G_2024.xhtml,POL KGHM xhtml,,orig: Consolidated report on payments KGHM Group SPS 2024.xhtml; FY per filename
+country sources/POL/ConsolidatedreportonpaymentsKGHMGroupSPS2022.xhtml,resource_profits_manual_sources/company/POL_KGHM_P2G_2022.xhtml,POL KGHM xhtml,,orig: ConsolidatedreportonpaymentsKGHMGroupSPS2022.xhtml; FY per filename
+country sources/POL/ConsolidatedreportonpaymentsKGHMGroupSPS2025.xhtml,resource_profits_manual_sources/company/POL_KGHM_P2G_2025.xhtml,POL KGHM xhtml,,orig: ConsolidatedreportonpaymentsKGHMGroupSPS2025.xhtml; FY per filename
+country sources/POL/Informacja o zasobach węgla kamiennego22.pdf,resource_profits_manual_sources/government/POL_CoalReserves_2022.pdf,POL industry report,,orig: Informacja o zasobach węgla kamiennego22.pdf
+country sources/POL/Informacja23.pdf,resource_profits_manual_sources/government/POL_CoalReserves_2023.pdf,POL industry report,,orig: Informacja23.pdf
+country sources/POL/Informacja24.pdf,resource_profits_manual_sources/government/POL_CoalReserves_2024.pdf,POL industry report,,orig: Informacja24.pdf
+country sources/POL/kghm_report_on_payments 2020.xhtml,resource_profits_manual_sources/company/POL_KGHM_P2G_2020.xhtml,POL KGHM xhtml,,orig: kghm_report_on_payments 2020.xhtml; FY per filename
+country sources/POL/S.12.2021_o odmetanowaniu i zagospodarowaniu metanu_korekta.pdf,resource_profits_manual_sources/government/POL_CoalMethane_2021_korekta.pdf,POL industry report,,orig: S.12.2021_o odmetanowaniu i zagospodarowaniu metanu_korekta.pdf
+country sources/POL/S.12.23_informacja o odmetanowaniu i zagospodarowaniu metanu.pdf,resource_profits_manual_sources/government/POL_CoalMethane_2023.pdf,POL industry report,,orig: S.12.23_informacja o odmetanowaniu i zagospodarowaniu metanu.pdf
+country sources/POL/S.12.23_mechaniczna_przeróbka_węgla.pdf,resource_profits_manual_sources/government/POL_CoalProcessing_2023.pdf,POL industry report,,orig: S.12.23_mechaniczna_przeróbka_węgla.pdf
+country sources/POL/S.12.23_o imporcie węgla kamiennego - korekta.pdf,resource_profits_manual_sources/government/POL_CoalImports_2023_korekta.pdf,POL industry report,,orig: S.12.23_o imporcie węgla kamiennego - korekta.pdf
+country sources/POL/S.12.23_o_obrocie_węglem_kamiennym-korekta.pdf,resource_profits_manual_sources/government/POL_CoalTrade_2023_korekta.pdf,POL industry report,,orig: S.12.23_o_obrocie_węglem_kamiennym-korekta.pdf
+country sources/POL/S.12.23_Wyniki_techniczno-ekonomiczne - korekta.pdf,resource_profits_manual_sources/government/POL_CoalTechEcon_2023_korekta.pdf,POL industry report,,orig: S.12.23_Wyniki_techniczno-ekonomiczne - korekta.pdf
+country sources/POL/S.12.23_Zatrudnienie_wydajność_płace.pdf,resource_profits_manual_sources/government/POL_CoalEmployment_2023.pdf,POL industry report,,orig: S.12.23_Zatrudnienie_wydajność_płace.pdf
+country sources/POL/S.12.23_Środowiskowe skutki działalności górnictwa węgla kamiennego w Polsce_KN.pdf,resource_profits_manual_sources/government/POL_CoalEnvironment_2023.pdf,POL industry report,,orig: S.12.23_Środowiskowe skutki działalności górnictwa węgla kamiennego w Polsce_KN.pdf
+country sources/POL/S.12.24 węgiel brunatny.pdf,resource_profits_manual_sources/government/POL_Lignite_2024.pdf,POL industry report,,orig: S.12.24 węgiel brunatny.pdf
+country sources/POL/S.12.24_informacja o odmetanowaniu i zagospodarowaniu metanu.pdf,resource_profits_manual_sources/government/POL_CoalMethane_2024.pdf,POL industry report,,orig: S.12.24_informacja o odmetanowaniu i zagospodarowaniu metanu.pdf
+country sources/POL/S.12.24_mechaniczna_przeróbka_węgla.pdf,resource_profits_manual_sources/government/POL_CoalProcessing_2024.pdf,POL industry report,,orig: S.12.24_mechaniczna_przeróbka_węgla.pdf
+country sources/POL/S.12.24_o imporcie węgla kamiennego - korekta 2.pdf,resource_profits_manual_sources/government/POL_CoalImports_2024_korekta.pdf,POL industry report,,orig: S.12.24_o imporcie węgla kamiennego - korekta 2.pdf
+country sources/POL/S.12.24_o_obrocie_węglem_kamiennym-korekta.pdf,resource_profits_manual_sources/government/POL_CoalTrade_2024_korekta.pdf,POL industry report,,orig: S.12.24_o_obrocie_węglem_kamiennym-korekta.pdf
+country sources/POL/S.12.24_Wyniki_techniczno-ekonomiczne - korekta.pdf,resource_profits_manual_sources/government/POL_CoalTechEcon_2024_korekta.pdf,POL industry report,,orig: S.12.24_Wyniki_techniczno-ekonomiczne - korekta.pdf
+country sources/POL/S.12.24_Wyniki_techniczno-ekonomiczne.pdf,resource_profits_manual_sources/government/POL_CoalTechEcon_2024.pdf,POL industry report,,orig: S.12.24_Wyniki_techniczno-ekonomiczne.pdf
+country sources/POL/S.12.24_Zatrudnienie_wydajność_płace.pdf,resource_profits_manual_sources/government/POL_CoalEmployment_2024.pdf,POL industry report,,orig: S.12.24_Zatrudnienie_wydajność_płace.pdf
+country sources/POL/S.12.24_Środowiskowe skutki działalności górnictwa węgla kamiennego w Polsce_KN.pdf,resource_profits_manual_sources/government/POL_CoalEnvironment_2024.pdf,POL industry report,,orig: S.12.24_Środowiskowe skutki działalności górnictwa węgla kamiennego w Polsce_KN.pdf
+country sources/POL/S.12.25 węgiel brunatny.pdf,resource_profits_manual_sources/government/POL_Lignite_2025.pdf,POL industry report,,orig: S.12.25 węgiel brunatny.pdf
+country sources/POL/S.12.25_mechaniczna_przeróbka_węgla.pdf,resource_profits_manual_sources/government/POL_CoalProcessing_2025.pdf,POL industry report,,orig: S.12.25_mechaniczna_przeróbka_węgla.pdf
+country sources/POL/S.12.25_o imporcie węgla kamiennego_korekta.pdf,resource_profits_manual_sources/government/POL_CoalImports_2025_korekta.pdf,POL industry report,,orig: S.12.25_o imporcie węgla kamiennego_korekta.pdf
+country sources/POL/S.12.25_o_obrocie_węglem_kamiennym.pdf,resource_profits_manual_sources/government/POL_CoalTrade_2025.pdf,POL industry report,,orig: S.12.25_o_obrocie_węglem_kamiennym.pdf
+country sources/POL/S.12.25_Wyniki_techniczno-ekonomiczne.pdf,resource_profits_manual_sources/government/POL_CoalTechEcon_2025.pdf,POL industry report,,orig: S.12.25_Wyniki_techniczno-ekonomiczne.pdf
+country sources/POL/S.12.25_Zatrudnienie_wydajność_płace KOREKTA.pdf,resource_profits_manual_sources/government/POL_CoalEmployment_2025_korekta.pdf,POL industry report,,orig: S.12.25_Zatrudnienie_wydajność_płace KOREKTA.pdf
+country sources/POL/S.12.25_Środowiskowe skutki działalności górnictwa węgla kamiennego w Polsce.pdf,resource_profits_manual_sources/government/POL_CoalEnvironment_2025.pdf,POL industry report,,orig: S.12.25_Środowiskowe skutki działalności górnictwa węgla kamiennego w Polsce.pdf
+country sources/QAT/1qatea2019001.pdf,resource_profits_manual_sources/imf/QAT_IMF4_2019.pdf,IMF eLibrary code,,eLibrary code 1qatea2019001.pdf; verified Article IV via PDF title 2026-07-21
+country sources/QAT/1qatea2022001.pdf,resource_profits_manual_sources/imf/QAT_IMF4_2022.pdf,IMF eLibrary code,,eLibrary code 1qatea2022001.pdf; verified Article IV via PDF title 2026-07-21
+country sources/QAT/1qatea2024001.pdf,resource_profits_manual_sources/imf/QAT_IMF4_2023.pdf,IMF eLibrary code,,2023 Article IV (CR 24/43); year = consultation year
+country sources/QAT/1qatea2025001-print-pdf.pdf,resource_profits_manual_sources/imf/QAT_IMF4_2024.pdf,IMF eLibrary code,,2024 Article IV (published 2025); year = consultation year
+country sources/QAT/cr1788.pdf,resource_profits_manual_sources/imf/QAT_IMF4_2016.pdf,IMF CR code,,2016 Article IV (CR 17/88); year = consultation year
+country sources/QAT/cr18135.pdf,resource_profits_manual_sources/imf/QAT_IMF4_2018.pdf,IMF CR code,,Country Report 18/135; verified Article IV via PDF title 2026-07-21
+country sources/SOM/Somalia FGR (English) - FINAL Small_usetable3.pdf,resource_profits_manual_sources/government/SOM_FGR_2024.pdf,override,,Somalia Fiscal Governance Report; PDF created 2024-03
+country sources/SSD/FY_2023_24_Annual_Budget_Execution_Report.pdf,resource_profits_manual_sources/government/SSD_BudgetExecution_2023_24.pdf,SSD,,
+country sources/SSD/imf_article4_2016.pdf,resource_profits_manual_sources/imf/SSD_IMF4_2016.pdf,Article4 pattern,,
+country sources/SSD/imf_article4_2019.pdf,resource_profits_manual_sources/imf/SSD_IMF4_2019.pdf,Article4 pattern,,
+country sources/SSD/imf_article4_2022.pdf,resource_profits_manual_sources/imf/SSD_IMF4_2022.pdf,Article4 pattern,,
+country sources/SSD/imf_article4_2023.pdf,resource_profits_manual_sources/imf/SSD_IMF4_2023.pdf,Article4 pattern,,
+country sources/TCD/1tcdea2024001-print-pdf.pdf,resource_profits_manual_sources/imf/TCD_IMF4_2024.pdf,IMF eLibrary code,,eLibrary code 1tcdea2024001-print-pdf.pdf; verified Article IV via PDF title 2026-07-21
+country sources/TCD/ppea2023001.pdf,resource_profits_manual_sources/imf/IMF_PolicyPaper_CorporateTaxReform_2023.pdf,override,,IMF policy paper (not Chad-specific): International Corporate Tax Reform (2023)
+country sources/TUR/2020 MAPEG Yıllık Faaliyet Raporu 22.03.2021.pdf,resource_profits_manual_sources/government/TUR_MAPEG_2020.pdf,TUR MAPEG,,orig: 2020 MAPEG Yıllık Faaliyet Raporu 22.03.2021.pdf
+country sources/TUR/4yillaragoredevlethakkıbilgileri.png,resource_profits_manual_sources/government/TUR_MAPEG_RoyaltyByYear.png,override,,MAPEG state-royalty-by-year screenshot; undated
+country sources/TUR/MAPEG 2019 YILI FAALİYET RAPORU.pdf,resource_profits_manual_sources/government/TUR_MAPEG_2019.pdf,TUR MAPEG,,orig: MAPEG 2019 YILI FAALİYET RAPORU.pdf
+country sources/TUR/MAPEG 2021 Yılı İdare Faaliyet Raporu 180322.pdf,resource_profits_manual_sources/government/TUR_MAPEG_2021.pdf,TUR MAPEG,,orig: MAPEG 2021 Yılı İdare Faaliyet Raporu 180322.pdf
+country sources/TUR/MAPEG 2022 Yılı İdare Faaliyet Raporu 28.02.2023 16_50.pdf,resource_profits_manual_sources/government/TUR_MAPEG_2022.pdf,TUR MAPEG,,orig: MAPEG 2022 Yılı İdare Faaliyet Raporu 28.02.2023 16_50.pdf
+country sources/USA/fiscal_year_revenue.csv,resource_profits_manual_sources/government/USA_ONRR_FiscalYearRevenue.csv,override,,ONRR fiscal-year revenue panel (2004-); undated download
+country sources/VNM/VNM_Article4_2016.pdf,resource_profits_manual_sources/imf/VNM_IMF4_2016.pdf,Article4 pattern,,
+country sources/VNM/VNM_Article4_2017.pdf,resource_profits_manual_sources/imf/VNM_IMF4_2017.pdf,Article4 pattern,,
+country sources/VNM/VNM_Article4_2018.pdf,resource_profits_manual_sources/imf/VNM_IMF4_2018.pdf,Article4 pattern,,
+country sources/VNM/VNM_Article4_2019.pdf,resource_profits_manual_sources/imf/VNM_IMF4_2019.pdf,Article4 pattern,,
+country sources/VNM/VNM_Article4_2020.pdf,resource_profits_manual_sources/imf/VNM_IMF4_2020.pdf,Article4 pattern,,
+country sources/VNM/VNM_Article4_2022.pdf,resource_profits_manual_sources/imf/VNM_IMF4_2022.pdf,Article4 pattern,,
+country sources/VNM/VNM_Article4_2023.pdf,resource_profits_manual_sources/imf/VNM_IMF4_2023.pdf,Article4 pattern,,
+country sources/VNM/VNM_Article4_2024.pdf,resource_profits_manual_sources/imf/VNM_IMF4_2024.pdf,Article4 pattern,,
+country sources/VNM/VNM_Article4_2025.pdf,resource_profits_manual_sources/imf/VNM_IMF4_2025.pdf,Article4 pattern,,
+country sources/VNM/VNM_SelectedIssues_2017.pdf,resource_profits_manual_sources/imf/VNM_IMFSI_2017.pdf,SelectedIssues pattern,,
+country sources/VNM/VNM_SelectedIssues_2018.pdf,resource_profits_manual_sources/imf/VNM_IMFSI_2018.pdf,SelectedIssues pattern,,
+country sources/VNM/VNM_SelectedIssues_2024.pdf,resource_profits_manual_sources/imf/VNM_IMFSI_2024.pdf,SelectedIssues pattern,,
+country sources/VNM/VNM_SelectedIssues_2025.pdf,resource_profits_manual_sources/imf/VNM_IMFSI_2025.pdf,SelectedIssues pattern,,
+country sources/general/xom-20201231_files,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2020_files,companion _files dir,,
+country sources/general/xom-20211231_files,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2021_files,companion _files dir,,
+country sources/general/xom-20221231_files,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2022_files,companion _files dir,,
+country sources/general/xom-20231231_files,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2023_files,companion _files dir,,
+country sources/general/xom-20241231_files,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2024_files,companion _files dir,,
+country sources/general/xom-20251231_files,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2025_files,companion _files dir,,
+country sources/general/xom10k2015_files,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2015_files,companion _files dir,,
+country sources/general/xom10k2016_files,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2016_files,companion _files dir,,
+country sources/general/xom10k2017_files,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2017_files,companion _files dir,,
+country sources/general/xom10k2018_files,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2018_files,companion _files dir,,
+country sources/general/xom10k2019_files,resource_profits_manual_sources/company/USA_ExxonMobil_10K_2019_files,companion _files dir,,
+country sources/MOZ/a2234766z20-f_files,resource_profits_manual_sources/company/BRA_Vale_20F_2017_files,companion _files dir,,
+country sources/MOZ/a2238479z20-f_files,resource_profits_manual_sources/company/BRA_Vale_20F_2018_files,companion _files dir,,
+country sources/MOZ/a2240808z20-f_files,resource_profits_manual_sources/company/BRA_Vale_20F_2019_files,companion _files dir,,
+country sources/MOZ/a2243060z20-f_files,resource_profits_manual_sources/company/BRA_Vale_20F_2020_files,companion _files dir,,
+country sources/MOZ/FORM 20-F_files,resource_profits_manual_sources/company/BRA_Vale_20F_2024_files,companion _files dir,,
+country sources/MOZ/vale-20211231x20f_files,resource_profits_manual_sources/company/BRA_Vale_20F_2021_files,companion _files dir,,
+country sources/MOZ/valeform20f_2022_files,resource_profits_manual_sources/company/BRA_Vale_20F_2022_files,companion _files dir,,
+country sources/MOZ/valeform20f_2025_files,resource_profits_manual_sources/company/BRA_Vale_20F_2025_files,companion _files dir,,
+imf-download/1abwea2023002.pdf,resource_profits_manual_sources/imf/ABW_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Kingdom of the Netherlands—Aruba: 2023 Article IV Consultation Discussions-Press Release; 
+imf-download/1agoea2026001-source-pdf.pdf,resource_profits_manual_sources/imf/AGO_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Angola: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the Exe
+imf-download/1areea2023001.pdf,(deleted),elibrary batch 2026-07-21,,byte-identical to existing ARE_IMF4_2022.pdf
+imf-download/1argea2026001.pdf,resource_profits_manual_sources/imf/ARG_IMF4_2026.pdf,elibrary batch 2026-07-21,,"title: Argentina: 2026 Article IV Consultation, Second Review Under the Extended Arrangement Unde"
+imf-download/1atgea2023001.pdf,resource_profits_manual_sources/imf/ATG_IMF4_2022.pdf,elibrary batch 2026-07-21,,title: Antigua and Barbuda: 2022 Article IV Consultation-Press Release and Staff Report; IMF Coun
+imf-download/1atgea2026001-source-pdf.pdf,resource_profits_manual_sources/imf/ATG_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Antigua and Barbuda: 2026 Article IV Consultation-Press Release; Staff Report; and Stateme
+imf-download/1autea2026002.pdf,resource_profits_manual_sources/imf/AUT_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Austria: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the Al
+imf-download/1azeea2026001.pdf,resource_profits_manual_sources/imf/AZE_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: The Republic of Azerbaijan : Staff Report for the 2026 Article IV Consultation; IMF Countr
+imf-download/1bdiea2026001.pdf,resource_profits_manual_sources/imf/BDI_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Burundi: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the Ex
+imf-download/1belea2023004.pdf,resource_profits_manual_sources/imf/BEL_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Belgium: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the Ex
+imf-download/1bgdea2023003.pdf,resource_profits_manual_sources/imf/BGD_IMF4_2023.pdf,elibrary batch 2026-07-21,,"title: Bangladesh: 2023 Article IV Consultation, First Reviews Under the Extended Credit Facility"
+imf-download/1bgdea2023004.pdf,resource_profits_manual_sources/imf/BGD_IMFSI_2023.pdf,elibrary batch 2026-07-21,,"title: Bangladesh: Selected Issues; IMF Country Report No. 23/410; November 21, 2023"
+imf-download/1bihea2023001.pdf,resource_profits_manual_sources/imf/BIH_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Bosnia and Herzegovina: 2023 Article IV Consultation-Press Release; Staff Report; and Stat
+imf-download/1blzea2023001.pdf,resource_profits_manual_sources/imf/BLZ_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Belize: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the Exe
+imf-download/1braea2023001.pdf,resource_profits_manual_sources/imf/BRA_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Brazil: 2023 Article IV Consultation-Press Release; Staff Report; Staff Supplement; and St
+imf-download/1brbea2023002.pdf,resource_profits_manual_sources/imf/BRB_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Barbados: 2023 Article IV Consultation and Second Reviews Under the Arrangement Under the 
+imf-download/1brbea2026001.pdf,resource_profits_manual_sources/imf/BRB_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Barbados: 2026 Article IV Consultation and Request for a Stand-By Arrangement-Press Releas
+imf-download/1brnea2023001.pdf,resource_profits_manual_sources/imf/BRN_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Brunei Darussalam: 2023 Article IV Consultation-Press Release; Staff Report; and Statement
+imf-download/1bwaea2023002.pdf,resource_profits_manual_sources/imf/BWA_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Botswana: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the E
+imf-download/1canea2023001.pdf,resource_profits_manual_sources/imf/CAN_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Canada: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country No. 23/2
+imf-download/1cheea2023001.pdf,resource_profits_manual_sources/imf/CHE_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Switzerland: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by th
+imf-download/1chlea2026001.pdf,resource_profits_manual_sources/imf/CHL_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Chile: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the Exec
+imf-download/1cpvea2023002.pdf,resource_profits_manual_sources/imf/CPV_IMF4_2023.pdf,elibrary batch 2026-07-21,,"title: Cabo Verde: 2023 Article IV Consultation, Second Review Under the Extended Credit Facility"
+imf-download/1criea2023005.pdf,resource_profits_manual_sources/imf/CRI_IMF4_2023.pdf,elibrary batch 2026-07-21,,"title: Costa Rica: 2023 Article IV Consultation, Fifth Review Under the Extended Arrangement Unde"
+imf-download/1criea2026001.pdf,resource_profits_manual_sources/imf/CRI_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Costa Rica: Report for the 2026 Article IV Consultation and Review under the Flexible Cred
+imf-download/1cuwea2023001.pdf,resource_profits_manual_sources/imf/CUW_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Kingdom of the Netherlands-Curaçao and Sint Maarten: 2023 Article IV Consultation Discussi
+imf-download/1cypea2023001.pdf,resource_profits_manual_sources/imf/CYP_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Cyprus: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country Report N
+imf-download/1cypea2026001.pdf,resource_profits_manual_sources/imf/CYP_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Cyprus: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the Exe
+imf-download/1deuea2023001.pdf,resource_profits_manual_sources/imf/DEU_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Germany: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the Ex
+imf-download/1dmaea2023001.pdf,resource_profits_manual_sources/imf/DMA_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Dominica: 2023 Article IV Consultation-Press Release; and Staff Report for Dominica; IMF C
+imf-download/1dmaea2026001.pdf,resource_profits_manual_sources/imf/DMA_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Dominica: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the E
+imf-download/1dnkea2023001.pdf,resource_profits_manual_sources/imf/DNK_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Denmark: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country Report 
+imf-download/1domea2023001.pdf,resource_profits_manual_sources/imf/DOM_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Dominican Republic: 2023 Article IV Consultation-Press Release; Staff Report; and Statemen
+imf-download/1espea2026001.pdf,resource_profits_manual_sources/imf/ESP_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Spain: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the Exec
+imf-download/1estea2023001.pdf,resource_profits_manual_sources/imf/EST_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Republic of Estonia: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Cou
+imf-download/1eurea2023001.pdf,resource_profits_manual_sources/imf/EUROAREA_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Euro Area Policies: 2023 Article IV Consultation-Press Release; Staff Report; and Statemen
+imf-download/1fjiea2023001.pdf,resource_profits_manual_sources/imf/FJI_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Republic of Fiji: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Countr
+imf-download/1fjiea2026001.pdf,resource_profits_manual_sources/imf/FJI_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Republic of Fiji: 2026 Article IV Consultation-Press Release; Staff Report; and Statement 
+imf-download/1gbrea2023001.pdf,resource_profits_manual_sources/imf/GBR_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: United Kingdom: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by
+imf-download/1geoea2026001.pdf,resource_profits_manual_sources/imf/GEO_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Georgia: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the Ex
+imf-download/1gmbea2026001.pdf,resource_profits_manual_sources/imf/GMB_IMF4_2026.pdf,elibrary batch 2026-07-21,,"title: The Gambia: 2026 Article IV Consultation, Fifth Review Under the Extended Credit Facility "
+imf-download/1grcea2026001.pdf,resource_profits_manual_sources/imf/GRC_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Greece: 2026 Article IV Consultation - Press Release; Staff Report; and Statement by the E
+imf-download/1grdea2023001.pdf,resource_profits_manual_sources/imf/GRD_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Grenada: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country Report 
+imf-download/1gtmea2023002.pdf,resource_profits_manual_sources/imf/GTM_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Guatemala: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the 
+imf-download/1guyea2023001.pdf,resource_profits_manual_sources/imf/GUY_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Guyana: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country Report N
+imf-download/1hkgea2023001.pdf,resource_profits_manual_sources/imf/HKG_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: People’s Republic of China—Hong Kong Special Administrative Region: 2023 Article IV Consul
+imf-download/1hkgea2026001.pdf,resource_profits_manual_sources/imf/HKG_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: People's Republic of China-Hong Kong Special Administrative Region: 2026 Article IV Consul
+imf-download/1hndea2023001.pdf,resource_profits_manual_sources/imf/HND_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Honduras: 2023 Article IV Consultation and Requests for an Arrangement Under the Extended 
+imf-download/1hrvea2023002.pdf,resource_profits_manual_sources/imf/HRV_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Republic of Croatia: 2023 Article IV Consultation-Press Release; Staff Report; and Staff S
+imf-download/1idnea2023002.pdf,resource_profits_manual_sources/imf/IDN_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Indonesia: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the 
+imf-download/1indea2023001.pdf,resource_profits_manual_sources/imf/IND_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: India: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the Exec
+imf-download/1irlea2023001.pdf,resource_profits_manual_sources/imf/IRL_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Ireland: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country Report 
+imf-download/1irlea2026001.pdf,resource_profits_manual_sources/imf/IRL_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Ireland: 2026 Article IV Consultation-Press Release; and Staff Report; IMF Country Report 
+imf-download/1islea2023001.pdf,resource_profits_manual_sources/imf/ISL_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Iceland: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the Ex
+imf-download/1isrea2023001.pdf,resource_profits_manual_sources/imf/ISR_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Israel: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the Exe
+imf-download/1isrea2026001.pdf,resource_profits_manual_sources/imf/ISR_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Israel: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the Alt
+imf-download/1itaea2023001.pdf,resource_profits_manual_sources/imf/ITA_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Italy: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the Exec
+imf-download/1kgzea2026001.pdf,resource_profits_manual_sources/imf/KGZ_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Kyrgyz Republic: 2026 Article IV Consultation-Press Release; Staff Report; and Statement b
+imf-download/1kirea2023002.pdf,resource_profits_manual_sources/imf/KIR_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Kiribati: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country Report
+imf-download/1kirea2026001.pdf,resource_profits_manual_sources/imf/KIR_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Kiribati: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the E
+imf-download/1korea2023001.pdf,resource_profits_manual_sources/imf/KOR_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Republic of Korea: 2023 Article IV Consultation-Press Release; Staff Report; and Statement
+imf-download/1kwtea2023001.pdf,(deleted),elibrary batch 2026-07-21,,byte-identical to existing KWT_IMF4_2023.pdf
+imf-download/1laoea2023001.pdf,resource_profits_manual_sources/imf/LAO_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Lao People's Democratic Republic: 2023 Article IV Consultation-Press Release; Staff Report
+imf-download/1lbnea2023002.pdf,resource_profits_manual_sources/imf/LBN_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Lebanon: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the Ex
+imf-download/1lbyea2023001.pdf,resource_profits_manual_sources/imf/LBY_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Libya: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the Exec
+imf-download/1lsoea2023001.pdf,resource_profits_manual_sources/imf/LSO_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Kingdom of Lesotho: 2023 Article IV Consultation-Press Release; and Staff Report; ; IMF Co
+imf-download/1ltuea2023002.pdf,resource_profits_manual_sources/imf/LTU_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Republic of Lithuania: 2023 Article IV Consultation-Press Release; Staff Report; and State
+imf-download/1luxea2023001.pdf,resource_profits_manual_sources/imf/LUX_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Luxembourg: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the
+imf-download/1luxea2026001.pdf,resource_profits_manual_sources/imf/LUX_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Luxembourg: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the
+imf-download/1lvaea2023001.pdf,resource_profits_manual_sources/imf/LVA_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Republic of Latvia: 2023 Article IV Consultation-Press Release; Staff Report; and Statemen
+imf-download/1mdaea2023004.pdf,resource_profits_manual_sources/imf/MDA_IMF4_2023.pdf,elibrary batch 2026-07-21,,"title: Republic of Moldova: Staff Report for 2023 Article IV Consultation, Fourth Reviews Under t"
+imf-download/1mdvea2023001.pdf,resource_profits_manual_sources/imf/MDV_IMF4_2021.pdf,elibrary batch 2026-07-21,,title: Maldives: 2021 Article IV Consultation-Press Release; Staff Report; and Statement by the E
+imf-download/1mdvea2023002.pdf,resource_profits_manual_sources/imf/MDV_IMF4_2022.pdf,elibrary batch 2026-07-21,,title: Maldives: 2022 Article IV Consultation-Press Release; Staff Report; and Statement by the E
+imf-download/1mexea2023003.pdf,resource_profits_manual_sources/imf/MEX_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Mexico: 2023 Article IV Consultation-Press Release and Staff Report; IMF Country Report No
+imf-download/1mhlea2023001.pdf,resource_profits_manual_sources/imf/MHL_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Republic of the Marshall Islands: 2023 Article IV Consultation-Press Release; Staff Report
+imf-download/1mkdea2026001.pdf,resource_profits_manual_sources/imf/MKD_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Republic of North Macedonia: 2026 Article IV Consultation-Press Release; Staff Report; and
+imf-download/1mliea2023001.pdf,resource_profits_manual_sources/imf/MLI_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Mali: 2023 Article IV Consultation-Press Release; Staff Report; Staff Supplement; and Stat
+imf-download/1mngea2023002.pdf,resource_profits_manual_sources/imf/MNG_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Mongolia: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country Report
+imf-download/1musea2026001.pdf,resource_profits_manual_sources/imf/MUS_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Mauritius: 2026 Article IV Consultation-Press Release; Staff Report; Staff Supplement; and
+imf-download/1mysea2023001.pdf,resource_profits_manual_sources/imf/MYS_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Malaysia: 2023 Article IV Consultation-Press Release and Staff Report; IMF Country Report 
+imf-download/1namea2026001.pdf,resource_profits_manual_sources/imf/NAM_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Namibia: 2026 Article IV Consultation-Press Release; and Staff Report; IMF Country Report 
+imf-download/1ngaea2026001.pdf,resource_profits_manual_sources/imf/NGA_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Nigeria: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the Ex
+imf-download/1norea2023001.pdf,resource_profits_manual_sources/imf/NOR_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Norway: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country Report N
+imf-download/1nplea2023001.pdf,resource_profits_manual_sources/imf/NPL_IMF4_2023.pdf,elibrary batch 2026-07-21,,"title: Nepal: Staff Report for the 2023 Article IV Consultation, First and Second Reviews Under t"
+imf-download/1nplea2026002.pdf,resource_profits_manual_sources/imf/NPL_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Nepal: 2026 Article IV Consultation and Seventh Review under the Extended Credit Facility 
+imf-download/1nurea2023001.pdf,resource_profits_manual_sources/imf/NRU_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Republic of Nauru: 2023 Article IV Consultation-Press Release; Staff Report; and Statement
+imf-download/1nzlea2023001.pdf,resource_profits_manual_sources/imf/NZL_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: New Zealand: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by th
+imf-download/1perea2026001.pdf,resource_profits_manual_sources/imf/PER_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Peru: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the Execu
+imf-download/1phlea2023002.pdf,resource_profits_manual_sources/imf/PHL_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Philippines: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by th
+imf-download/1phlea2023003.pdf,resource_profits_manual_sources/imf/PHL_IMFSI_2023.pdf,elibrary batch 2026-07-21,,"title: Philippines: Selected Issues; IMF Country Report No. 23/415; November 10, 2023"
+imf-download/1plwea2023001.pdf,resource_profits_manual_sources/imf/PLW_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Republic of Palau: 2023 Article IV Consultation-Press Release; Staff Report; and Statement
+imf-download/1polea2023001.pdf,resource_profits_manual_sources/imf/POL_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Republic of Poland: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Coun
+imf-download/1prtea2023001.pdf,resource_profits_manual_sources/imf/PRT_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Portugal: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country Report
+imf-download/1prtea2026001.pdf,resource_profits_manual_sources/imf/PRT_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Portugal: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the E
+imf-download/1rouea2023001.pdf,resource_profits_manual_sources/imf/ROU_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Romania: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country Report 
+imf-download/1rwaea2023003.pdf,resource_profits_manual_sources/imf/RWA_IMF4_2023.pdf,elibrary batch 2026-07-21,,"title: Rwanda: 2023 Article IV Consultation, Second Reviews Under the Policy Coordination Instrum"
+imf-download/1sauea2023001.pdf,resource_profits_manual_sources/imf/SAU_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Saudi Arabia: 2023 Article IV Consultation-Press Release; Staff Report; and Informational 
+imf-download/1sgpea2023001.pdf,resource_profits_manual_sources/imf/SGP_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Singapore: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the 
+imf-download/1sgpea2026001.pdf,resource_profits_manual_sources/imf/SGP_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Singapore: 2026 Article IV Consultation-Press Release; Staff Report; and Statement by the 
+imf-download/1slbea2023001.pdf,resource_profits_manual_sources/imf/SLB_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Solomon Islands: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country
+imf-download/1slbea2026001.pdf,resource_profits_manual_sources/imf/SLB_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Solomon Islands: 2026 Article IV Consultation-Press Release; and Staff Report; IMF Country
+imf-download/1smrea2023001.pdf,resource_profits_manual_sources/imf/SMR_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Republic of San Marino: 2023 Article IV Consultation-Press Release; Staff Report; and Stat
+imf-download/1srbea2023001.pdf,resource_profits_manual_sources/imf/SRB_IMF4_2023.pdf,elibrary batch 2026-07-21,,"title: Republic of Serbia: 2023 Article IV Consultation, First Review Under the Stand-By Arrangem"
+imf-download/1swzea2023001.pdf,resource_profits_manual_sources/imf/SWZ_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Kingdom of Eswatini: 2023 Article IV Consultation-Press Release; Staff Report; and Stateme
+imf-download/1sycea2026001.pdf,resource_profits_manual_sources/imf/SYC_IMF4_2026.pdf,elibrary batch 2026-07-21,,"title: Seychelles: 2026 Article IV Consultation, Fifth and Sixth Reviews Under the Arrangement Un"
+imf-download/1tonea2023001.pdf,resource_profits_manual_sources/imf/TON_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Tonga: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Country Report No
+imf-download/1ttoea2023001.pdf,resource_profits_manual_sources/imf/TTO_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Trinidad and Tobago: 2023 Article IV Consultation-Press Release; and Staff Report; IMF Cou
+imf-download/1ttoea2026001.pdf,resource_profits_manual_sources/imf/TTO_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Trinidad and Tobago: 2026 Article IV Consultation-Press Release; Staff Report; and Stateme
+imf-download/1tuvea2023001.pdf,resource_profits_manual_sources/imf/TUV_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Tuvalu: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the Exe
+imf-download/1uryea2023001.pdf,resource_profits_manual_sources/imf/URY_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: Uruguay: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by the Ex
+imf-download/1usaea2023001.pdf,resource_profits_manual_sources/imf/USA_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: United States: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by 
+imf-download/1uzbea2026001.pdf,resource_profits_manual_sources/imf/UZB_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: Republic of Uzbekistan: 2026 Article IV Consultation-Press Release; and Staff Report; IMF 
+imf-download/1vctea2026001.pdf,resource_profits_manual_sources/imf/VCT_IMF4_2026.pdf,elibrary batch 2026-07-21,,title: St. Vincent and the Grenadines: 2026 Article IV Consultation-Press Release; Staff Report; 
+imf-download/1zafea2023001.pdf,resource_profits_manual_sources/imf/ZAF_IMF4_2023.pdf,elibrary batch 2026-07-21,,title: South Africa: 2023 Article IV Consultation-Press Release; Staff Report; and Statement by t
+imf-download/1zmbea2023002.pdf,resource_profits_manual_sources/imf/ZMB_IMF4_2023.pdf,elibrary batch 2026-07-21,,"title: Zambia: 2023 Article IV Consultation, First Review Under the Extended Credit Facility Arra"
+imf-download/ppea2023059.pdf,resource_profits_manual_sources/imf/IMF_PolicyPaper_QuotaReview_2023.pdf,elibrary batch 2026-07-21,,IMF Policy Paper: Sixteenth General Review of Quotas
+imf-download/tarea2026047.pdf,resource_profits_manual_sources/imf/LBN_IMFTA_2026.pdf,elibrary batch 2026-07-21,,Lebanon Technical Assistance Report: Governance and Corruption Diagnostic

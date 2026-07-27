@@ -53,11 +53,11 @@ Confidence: H = direct official source; M = proxy / version mismatch; L = weak.
 | Nurses_per_1000, ln_Nurses | World Bank SH.MED.NUMW.P3 (+pop) | API | ✅ API · H |
 | Physicians_per_1000, ln_physician | World Bank SH.MED.PHYS.ZS (+pop) | API | ✅ API · H |
 | ln_Health_expenditure_gdp | World Bank SH.XPD.GHED.GD.ZS | API | ✅ API · H |
-| ln_who_gvt_health_expenditure | WHO GHED | in-repo `WHO health expenditure.xlsx` | ✅ in-repo · H |
+| ln_who_gvt_health_expenditure | WHO GHED | in-repo `macro_variables/who_health_expenditure_2026-02.xlsx` | ✅ in-repo · H |
 | ln_month_wage | ILO | in-repo ILO wage file | ✅ in-repo · H |
 | ln_cit_revenue, ln_resource_revenue(_gdp), ln_resource_taxes, ln_total_taxes_revenue | UNU-WIDER GRD | in-repo `UNUWIDERGRD_2025.xlsx` | ✅ in-repo · H |
-| Total FSI | TJN FSI | in-repo `portal_fsi_results.csv` | ✅ in-repo · H |
-| cthi | TJN CTHI | in-repo `portal_cthi_data.csv` | ✅ in-repo · H |
+| Total FSI | TJN FSI | in-repo `country_info/tjn_portal_fsi_2026-03.csv` | ✅ in-repo · H |
+| cthi | TJN CTHI | in-repo `country_info/tjn_portal_cthi_2026-06.csv` | ✅ in-repo · H |
 | cit, ln_cit | OECD/TaxFoundation | in-repo CIT data | ✅ in-repo · H |
 | etr_real, ln_etr_real | CbCR-weighted | derive from pipeline ETRs | ✅ derive · M |
 | ln_n_companies_orb | Orbis | in-repo Orbis (#MNCs >750M) | ✅ in-repo · M |

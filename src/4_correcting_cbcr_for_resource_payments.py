@@ -730,6 +730,26 @@ def main():
          "resource_tax_deduction_usd"]
         + flex_cols
     )
+
+    # ── Diagnostic (2026-07-21): corrections whose (parent, partner, year) cell has
+    # no CbCR line are silently lost in the left merge below. Make that loss
+    # visible: write the unmatched cells + $ volume so mis-attributed HQ shares
+    # (payments assigned to HQs with no line in the source country) are auditable.
+    _cells = cbcr[["iso_parent", "iso_partner", "year"]].drop_duplicates()
+    _chk = agg.merge(_cells, on=["iso_parent", "iso_partner", "year"], how="left", indicator=True)
+    _unm = _chk[_chk["_merge"] == "left_only"].drop(columns="_merge")
+    _diag_path = f"{data_intermediate_extractive}resource_correction_unmatched_cells.csv"
+    _bkt = ["pre_profit_payments_usd", "post_profit_payments_usd", "equity_income_usd"]
+    if len(_unm):
+        _tot = _unm[_bkt].sum().sum()
+        _dom = _unm[_unm.iso_parent == _unm.iso_partner][_bkt].sum().sum()
+        print(f"  [diag] {len(_unm):,} correction cells have NO CbCR line and are dropped: "
+              f"${_tot/1e9:,.1f}B total (${_dom/1e9:,.1f}B domestic non-reporter, "
+              f"${(_tot-_dom)/1e9:,.1f}B foreign) → {_diag_path}")
+        _unm.sort_values(_bkt[0], ascending=False).to_csv(_diag_path, index=False)
+    else:
+        print("  [diag] every correction cell matched a CbCR line")
+
     df = _allocate_payments_to_cbcr_cells(cbcr, agg, payment_cols)
 
     # Drop the reported-profit ETR columns from the resource-corrected outputs.

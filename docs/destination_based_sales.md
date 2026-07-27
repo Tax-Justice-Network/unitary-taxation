@@ -73,10 +73,10 @@ the bilateral factor has none — ownership presence already encodes nexus.
 
 | Input | File | Status |
 |---|---|---|
-| AAMNE MNE-split (F/D_MNE/D_OTH) | `data/raw/AAMNE_MNE_XVEM.csv` | present |
-| WTO digitally-delivered services | `data/raw/DDS_bulk_download.csv` | present (fallback for part 2) |
-| **BaTIS** (EBOPS bilateral) | `data/raw/OECD-WTO_BATIS_data_BPM6-1/…December2025_bulk.csv` | present (active) |
-| **AAMNE bilateral output** (host × investing country) | `data/raw/aamne-bilateral-output.csv` | present (active) |
+| AAMNE MNE-split (F/D_MNE/D_OTH) | `data/raw/destination_based_sales/oecd_aamne_mne_xvem_2026-06.csv` | present |
+| WTO digitally-delivered services | `data/raw/destination_based_sales/wto_dds_imports_2026-06.csv` | present (fallback for part 2) |
+| **BaTIS** (EBOPS bilateral) | `data/raw/destination_based_sales/oecd_wto_batis_data_bpm6/…December2025_bulk.csv` | present (active) |
+| **AAMNE bilateral output** (host × investing country) | `data/raw/destination_based_sales/oecd_aamne_bilateral_output_2026-07.csv` | present (active) |
 
 Both gated blocks print loud fallback/skip messages until the files arrive; the loaders
 (`_load_batis_dds_imports`, Part D) are column-tolerant and raise with the found columns
@@ -102,7 +102,7 @@ measure. Imports enter the headline key only through (a) the separate **BaTIS le
 (digitally-deliverable **services** imports) and (b) the thin local distribution margin on
 imported goods.
 
-**The data actually carries imports.** `AAMNE_MNE_XVEM.csv` has columns
+**The data actually carries imports.** `destination/oecd_aamne_mne_xvem_2026-06.csv` has columns
 `GO, GVA, EXGR, IMGR` — the gross-imports variable `IMGR` is present but **unused**. So a
 true apparent-consumption/absorption measure `GO − EXGR + IMGR` is constructible from the
 same file (77 AAMNE economies). The current omission is a construction choice inherited from

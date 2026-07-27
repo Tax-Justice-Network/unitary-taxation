@@ -30,7 +30,8 @@ BASE = Path(__file__).resolve().parent.parent.parent
 RAW = BASE / "data" / "raw"
 # Resource / extractive raw inputs are grouped under raw/resources/ (the WB rents,
 # EIA, BGS, EITI, UNU-WIDER GRD, manual resource tables, orbis extractive extracts,
-# and the per-country source documents under "resources/country sources/").
+# and the manual provenance documents under "resources/resource_profits_manual_sources/"
+# — subfolders imf/, government/, company/, all files named ISO3_Doc_YEAR.ext).
 RESOURCES = RAW / "resources"
 INTERMEDIATE = BASE / "data" / "intermediate"
 EXT_INT = INTERMEDIATE / "extractive"

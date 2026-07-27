@@ -9,7 +9,7 @@ human-readable overview.
 
 ## Where the values + links live
 
-The machine-readable file is **`data/raw/manual_imputation_values.csv`**
+The machine-readable file is **`data/raw/macro_variables/manual_imputation_values.csv`**
 (`iso_partner, year, variable, value, mode, source_url, note`). `1_clean.py`
 reads it via `load_manual_imputation_values()` and applies it with
 `apply_manual_values()`.
@@ -76,7 +76,7 @@ the CSV; `MTQ`/`BVT` CITs are derived in code and not shown here):
 | XKV/XKX Kosovo | ✓ | ✓ | | ✓ |
 | YEM Yemen | | | | ✓ |
 
-The exact per-year values and URLs are in `data/raw/manual_imputation_values.csv`.
+The exact per-year values and URLs are in `data/raw/macro_variables/manual_imputation_values.csv`.
 To add or revise a value or source, edit that CSV (and this doc). **Editing a
 value changes the cleaned dataset** (unlike the old sources-only file, the CSV is
 now consumed by `1_clean.py`).

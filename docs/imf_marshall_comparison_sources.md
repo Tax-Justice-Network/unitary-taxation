@@ -16,7 +16,7 @@ average = deflated sum ÷ 6.
 - **HEADLINE data**: the IMF's own **"Total IMF Credit Outstanding"** table
   (<https://www.imf.org/external/np/fin/tad/balmov2.aspx?type=TOTAL>),
   hand-downloaded (the page blocks scripts) to
-  `data/raw/debt_data/balmov2.txt` — snapshot **as of 2026-07-16**, 84
+  `data/raw/context/debt_data/balmov2.txt` — snapshot **as of 2026-07-16**, 84
   borrowing members, total **SDR 122.7bn**. SDR-denominated; converted at
   **1.3626 USD/SDR** (market rate of the snapshot date via open.er-api.com;
   the official IMF rate page is also bot-blocked, market proxy agrees to
@@ -33,7 +33,7 @@ average = deflated sum ÷ 6.
   (`/v2/sources/6/.../series/...`) still serves both `DT.DOD.DIMF.CD` and the
   archived `DT.DOD.DSDR.CD` (*SDR allocations*); their difference = credit
   outstanding. Cached (2019–2025, fetched 2026-07-17) in
-  `data/raw/imf_credit_outstanding_wb.csv`; delete the file and re-run 9t to
+  `data/raw/context/wb_imf_credit_outstanding_2026-07.csv`; delete the file and re-run 9t to
   refresh. Verification: CHN/IND/BRA net to ~0; ARG end-2024 nets to $40.6bn
   (its EFF) vs $58.0bn in the 2026 TAD snapshot (the 2025-26 program
   augmentations) — timing differences only. The table carries
@@ -47,7 +47,7 @@ average = deflated sum ÷ 6.
   borrowers with credit > $10M and positive gains.
 - **Two population-consistent headline framings** (numerator and denominator
   over the *same* set of countries):
-  - **G77 collective** (the "Global South" bloc, `data/raw/g77_members.csv`):
+  - **G77 collective** (the "Global South" bloc, `data/raw/country_info/un_g77_members.csv`):
     the G77 gains **≈$151bn/yr** and owes the IMF **≈$150bn** → **≈1.0 year**
     of the bloc's gains would clear its entire IMF debt. Robust to variants:
     0.99 incl. China, 1.13 excl. China, 0.93 excl. the hub members.
@@ -58,7 +58,7 @@ average = deflated sum ÷ 6.
   $18bn, Brazil $18bn) barely borrow from the IMF, so including them (G77
   bloc) shrinks the ratio to ~1 year. Both are correct; pick per framing.
   Allocations-inclusive footnote: total liability $382bn, 2.2 years.
-- **"Global South" = Group of 77** (`data/raw/g77_members.csv`, 134 members,
+- **"Global South" = Group of 77** (`data/raw/country_info/un_g77_members.csv`, 134 members,
   source <https://www.g77.org/doc/members.html>, retrieved 2026-07-17; China
   is a full member). Preferred over WB income groups because it is an explicit
   political bloc rather than an income threshold. NB it includes high-income
@@ -93,7 +93,7 @@ average = deflated sum ÷ 6.
   (grants 11,820.7 / loans 1,505.1) also do not exactly match their own
   column sums (11,610.7 / 1,535.1 incl. the German $200M grants→loans
   conversion); the 9t aggregate uses the column sums for transparency.
-- **Data file**: `data/raw/marshall_plan_aid.csv` (nominal $M of the time,
+- **Data file**: `data/raw/context/crs_marshall_plan_aid.csv` (nominal $M of the time,
   with per-row `confidence`, `source_url`, `note`). ISO mapping: FRG→DEU,
   Italy incl. Trieste→ITA, Belgium-Luxembourg→`BEL+LUX` (compared against
   the two countries' combined UT estimate; aid was reported jointly),
@@ -101,7 +101,7 @@ average = deflated sum ÷ 6.
   per footnote). The `Regional` row (EPU $361.4M + freight $33.5M +
   technical assistance $12.1M) has no iso3 and enters aggregates only.
 - **Inflation adjustment**: US **CPI-U** annual averages (BLS series
-  `CUUR0000SA0`), hand-curated in `data/raw/us_cpi_annual.csv`. Factor =
+  `CUUR0000SA0`), hand-curated in `data/raw/macro_variables/bls_us_cpi_annual.csv`. Factor =
   CPI(2025)/CPI(1950) = 321.943/24.1 ≈ **13.36** — 1950 is the mid-period
   anchor of the 1948–52 disbursements (per-year per-country disbursements
   are not available in the source). 2025's annual average is an 11-month
@@ -113,7 +113,7 @@ average = deflated sum ÷ 6.
   deflator, so the CPI-adjusted plan is an index mismatch — a **deliberate,
   conservative** one. With the GDP deflator (BEA/FRED `A191RD3A086NBEA`,
   1950 = 12.195, 2025 = 128.979, factor ≈ **10.58**, now a column in
-  `us_cpi_annual.csv`) the plan is only ≈ **$141bn**, and the group's
+  `macro_variables/bls_us_cpi_annual.csv`) the plan is only ≈ **$141bn**, and the group's
   six-year gain equals **2.95** Marshall Plans (vs the CPI headline 2.34;
   one plan every 2.0 vs 2.6 years). Carried in the table as
   `aid_total_2025bn_gdpdef` / `marshall_plans_per_6yr_gdpdef` and in the

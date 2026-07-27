@@ -1,0 +1,27 @@
+# Hand-curated FOREIGN HQ-country shares for distributing a source country's
+# foreign resource take (1 - domestic_share) in 1_8_resource_payments_by_hq_source.py.
+# Used for source countries where neither EITI bilateral nor operator P2G data exist
+# and the generic global Orbis HQ-share table would send the correction to HQ countries
+# with no actual presence in the source country (e.g. South Sudan -> USA/GBR instead of
+# the actual CNPC/Petronas/ONGC consortia).
+# Shares are weights WITHIN the foreign slice only (renormalised in code; the domestic
+# slice is governed by domestic_share in resource_country_parameters.csv / manual table).
+# Blank year = applies to all years 2016-2022. Documented in
+# docs/extractive/manual_resource_data_sources.md ("Manual foreign HQ shares").
+source_iso3,commodity,year,hq_iso3,share,confidence,source_note
+SSD,oil_gas,,CHN,0.50,medium,"DPOC (blocks 3/7; ~80% of output): CNPC 41% + Sinopec 6%; GPOC (1/2/4): CNPC 40%. Production-weighted. EIA South Sudan Country Analysis Brief; IMF CR 19/153 oil-sector annex"
+SSD,oil_gas,,MYS,0.35,medium,"Petronas: DPOC 40%, GPOC 30%, SPOC 67.9%. Same sources"
+SSD,oil_gas,,IND,0.10,medium,"ONGC Videsh: GPOC 25%, SPOC 24.1%. Same sources"
+SSD,oil_gas,,EGY,0.05,low,"Tri-Ocean Energy (Egypt): DPOC 5%. Same sources"
+SDN,oil_gas,,CHN,0.55,low-med,"CNPC-led GNPOC/PetroEnergy consortia dominate post-2011 Sudanese blocks. EIA Sudan Country Analysis Brief"
+SDN,oil_gas,,MYS,0.30,low-med,"Petronas share of GNPOC (30%) and other blocks. EIA Sudan brief"
+SDN,oil_gas,,IND,0.15,low-med,"ONGC Videsh (25% GNPOC). EIA Sudan brief"
+GNQ,oil_gas,,USA,0.75,low-med,"ExxonMobil (Zafiro, to 2021 sale), Marathon (Alba + EG LNG), Noble/Chevron (Alen/Aseng), Kosmos. EIA Equatorial Guinea brief; World Oil 2024 (Exxon exit)"
+GNQ,oil_gas,,GBR,0.20,low-med,"Trident Energy (Zafiro operator from 2021), Tullow non-op. EIA GNQ brief"
+GNQ,oil_gas,,FRA,0.05,low,"TotalEnergies marketing/minor upstream. EIA GNQ brief"
+BWA,minerals,,GBR,0.90,medium,"Debswana diamonds = 50/50 GoB / De Beers; De Beers 85% Anglo American plc (GBR-HQ, listed London). Anglo American AR; resource_country_parameters.csv note"
+BWA,minerals,,USA,0.05,low,"Khoemacau copper — Cupric Canyon Capital (US PE) in window (sold to MMG 2024)"
+BWA,minerals,,ZAF,0.05,low,"Minergy / SA-linked coal & base-metal juniors"
+BRN,oil_gas,,GBR,0.85,medium,"Brunei Shell Petroleum = 50/50 Brunei government / Shell plc; BSP produces ~90% of oil & gas. Shell AR"
+BRN,oil_gas,,FRA,0.10,low-med,"TotalEnergies EP Borneo (Maharaja Lela Jamalulalam). TotalEnergies factbook"
+BRN,oil_gas,,MYS,0.05,low,"Petronas offshore block participation"
