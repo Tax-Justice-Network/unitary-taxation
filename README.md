@@ -69,6 +69,12 @@ docstring):
 
 `src/_run_pipeline.py` orchestrates steps 5–7 across the three scenarios.
 
+## License
+
+Code: [MIT](LICENSE). Author-curated data: [CC BY 4.0](LICENSE-DATA.md);
+third-party data remain under their providers' own terms (see
+`data/guides/README.md`). Bundled Work Sans fonts: SIL OFL 1.1.
+
 ## Questions
 
 Our work is always in progress. If you have any questions, concerns, or
