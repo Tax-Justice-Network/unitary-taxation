@@ -7,7 +7,7 @@
 <p align="center">Estimates of the effect of unitary taxation — the change in each country's taxable profits and tax revenue under formulary apportionment — from OECD country-by-country reporting data, with two methodological innovations: a <b>correction for the extractive (natural-resource) sector</b> and a <b>destination-based measure of sales</b> (apportioning sales to the market where customers are).</p>
 
 <p align="center">
-  <a href="https://taxjustice.net/reports/a-500-billion-dollar-decision-for-the-world-the-revenue-impacts-of-global-unitary-taxation/"><b>📄 Main paper</b></a> &nbsp;·&nbsp; <a href="https://taxjustice.net/wp-content/uploads/2026/07/The-500-billion-dollar-decision-for-the-world-Methodology-note-Tax-Jutice-Network-2026.pdf"><b>📎 Methodology note</b></a> &nbsp;·&nbsp; <a href="https://taxjustice.net/wp-content/uploads/pay-where-you-play/"><b>🌍 Results explorer</b></a>
+  <a href="https://taxjustice.net/reports/a-500-billion-dollar-decision-for-the-world-the-revenue-impacts-of-global-unitary-taxation/"><b>📄 Main paper</b></a> &nbsp;·&nbsp; <a href="https://taxjustice.net/wp-content/uploads/2026/07/The-500-billion-dollar-decision-for-the-world-Methodology-note-Tax-Jutice-Network-2026.pdf"><b>📎 Methodology note</b></a> &nbsp;·&nbsp; <a href="https://taxjustice.net/wp-content/uploads/pay-where-you-play/"><b>🌍 Unitary Taxation Explorer</b></a>
 </p>
 
 <br />
