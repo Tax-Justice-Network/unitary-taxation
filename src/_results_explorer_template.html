@@ -51,7 +51,7 @@
   .wrap { max-width: 1060px; margin: 0 auto; padding: 0 22px; }
 
   /* ── slim counter banner ─────────────────────────────────────────── */
-  .band { background: var(--bg-band); color: var(--band-ink); }
+  .band { background: var(--bg-band); color: var(--band-ink); position: relative; }
   .band-inner { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 13px 0; }
   .band .num {
     font-size: clamp(24px, 3.4vw, 34px); font-weight: 700; color: var(--gold);
@@ -164,6 +164,11 @@
     line-height: 1.45; margin: 4px 0 14px; }
   .country-card h3 { margin: 0 0 1px; font-size: 17px; }
   .country-card .meta { color: var(--ink-soft); font-size: 12.5px; margin-bottom: 10px; }
+  .cc-note { margin-top: 10px; padding: 9px 11px; border-left: 3px solid var(--gold);
+             background: color-mix(in srgb, var(--gold) 12%, var(--bg));
+             color: var(--ink-soft); font-size: 12.5px; line-height: 1.5; border-radius: 0 8px 8px 0; }
+  .cc-note a { color: var(--blue); font-weight: 600; text-decoration: none; }
+  .cc-note a:hover { text-decoration: underline; }
   .cc-counter { font-size: 14px; margin: 8px 0 12px; }
   .cc-counter b { font-variant-numeric: tabular-nums; color: var(--gold-deep); font-weight: 700; }
   .cc-bars { display: grid; grid-template-columns: repeat(3, minmax(110px, 1fr)); gap: 10px; }
@@ -263,8 +268,15 @@
   <section>
     <h2>Change in yearly tax revenue <span class="total" id="chartTotal"></span></h2>
     <div class="toggles">
-      <span class="toggle" id="scaleToggle">
-        <button data-s="sample">Multinationals in OECD data</button><button data-s="global" class="on">All multinationals</button>
+      <span class="field" style="display:inline-flex;align-items:center;gap:6px">
+        <span class="toggle" id="scaleToggle">
+          <button data-s="sample" class="on">Multinationals in OECD data</button><button data-s="global">All multinationals</button>
+        </span><span class="info" tabindex="0" aria-label="About the multinationals covered by the OECD data">i<span class="tip">The OECD data cover only multinationals whose headquarters country
+          reports usable country-by-country statistics. Several headquarters countries are missing
+          entirely, and others cannot be used because they report only continent totals or domestic
+          vs&nbsp;rest-of-world (e.g. Ireland, Austria, Sweden and Korea in all years, the UK in most).
+          The covered groups account for about 75% of global multinational profit in recent years
+          (34% in 2016); “All multinationals” scales the estimates up to the full population.</span></span>
       </span>
       <span class="toggle" id="unitToggle">
         <button data-u="usd" class="on">US$ bn</button><button data-u="pct">% of multinationals' current tax</button>
@@ -349,7 +361,7 @@ const SCEN_LABEL = {
   floor:"Resource rights first, plus a guaranteed minimum royalty on production for low- and lower-middle-income producing countries (shown in gold)",
   floor_all:"Sensitivity — the guaranteed minimum royalty enforced for EVERY producing country, including high-income producers (shown in gold)"};
 const SCEN_SHORT = {ignore:"Ignored", excl:"Accounted for",
-  floor:"+ minimum royalty (developing)", floor_all:"+ minimum royalty (all countries)"};
+  floor:"+ minimum royalty (lower-income countries)", floor_all:"+ minimum royalty (all countries)"};
 const RATE_LABEL = {
   cit:"Headline — profit that arrives will be taxed at the statutory rate; profit that leaves is valued at its country's average effective rate (probably higher than the shifted profit actually faced)",
   etr:"Conservative — profit that arrives will be taxed at the country's average effective rate; profit that leaves is valued at that same average effective rate",
@@ -373,7 +385,7 @@ const HL = DATA.meta.headline;
 
 const state = { formula: HL.formula, custom: false, weights: {E:50,P:0,S:50,A:0},
                 measure: HL.measure, scen: HL.scen, rate: HL.rate,
-                grouping: "group", unit: "usd", scaled: true, filterGroup: null,
+                grouping: "group", unit: "usd", scaled: false, filterGroup: null,
                 sortK: "rev", sortDir: -1, search: "", country: null };
 const SCALE = DATA.meta.scale || null;   // sample → all-multinationals factor
 function scaleMul() { return (state.scaled && SCALE) ? SCALE : 1; }

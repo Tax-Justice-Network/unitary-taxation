@@ -70,8 +70,8 @@ MEASURES = [
 ETR = "domfor"
 THRESHOLD = "inf"
 # Public URLs for the paper and methodology note (leave empty until online).
-PAPER_URL = ""
-METHODOLOGY_URL = ""
+PAPER_URL = "https://taxjustice.net/reports/a-500-billion-dollar-decision-for-the-world-the-revenue-impacts-of-global-unitary-taxation/"
+METHODOLOGY_URL = "https://taxjustice.net/wp-content/uploads/2026/07/The-500-billion-dollar-decision-for-the-world-Methodology-note-Tax-Jutice-Network-2026.pdf"
 YEARS = _eh.AVG_YEARS
 NYRS = _eh.N_AVG_YEARS
 DEFL = config.deflator_to_base()
@@ -79,17 +79,15 @@ EXCL = set(config.DATA_QUALITY_EXCLUSIONS)   # presentation exclusions
 
 # Per-country story note shown on the country card (keyed by ISO3).
 ESWATINI_APP_NOTE = (
-    "Eswatini’s projected loss is driven by the exceptionally high profits reported there by "
-    "US-headquartered multinationals — in 2022, US$962 million, or 94% of all multinational "
-    "profits reported in Eswatini (about 76% on average over 2018–2022). The aggregate data do "
-    "not name individual companies, but the pattern is consistent with Coca-Cola’s large "
-    "concentrate operation in the country. Sharife (2015, 100Reporters) documented that Coca-Cola "
-    "established the operation mainly to supply the South African market and reportedly benefited "
-    "from financial secrecy and a 6% corporate tax rate; the Financial Times (Foley and Meyer, "
-    "2024) identified the Eswatini plant among the concentrate subsidiaries at the centre of "
-    "Coca-Cola’s transfer-pricing dispute with the US tax authorities. Under unitary taxation, "
-    "part of these profits is reallocated to the countries where Coca-Cola has employees and sales "
-    "to customers.")
+    "Eswatini’s projected loss is driven by the exceptionally high profits US-headquartered "
+    "multinationals report there — 94% of all multinational profit reported in Eswatini in 2022 — "
+    "a pattern consistent with Coca-Cola’s concentrate operation in the country. That operation "
+    "has been documented as benefiting from a corporate tax rate of about 6% and financial secrecy "
+    "(<a href='https://100r.org/2015/12/trade-secrets-coca-colas-hidden-formula-for-avoiding-taxes-4/'"
+    " target='_blank' rel='noopener'>Sharife 2015</a>) and lies at the centre of Coca-Cola’s "
+    "transfer-pricing dispute with the US tax authorities "
+    "(<a href='https://www.ft.com/content/cd05fb4b-8e67-4996-a5f3-bf1b8ccdf3af'"
+    " target='_blank' rel='noopener'>Financial Times, Foley and Meyer 2024</a>).")
 COUNTRY_NOTES = {"SWZ": ESWATINI_APP_NOTE}
 
 

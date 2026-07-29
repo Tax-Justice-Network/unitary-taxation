@@ -40,7 +40,9 @@ _C_RULE = "50805E"        # rules in the brand green
 
 
 def _esc(s):
-    """Escape LaTeX specials in cell text."""
+    """Escape LaTeX specials in cell text. The Greek capital delta (Δ) is emitted
+    as math mode — the brand text font (Work Sans) has no such glyph, so a literal
+    Δ renders as a missing-glyph box; $\\Delta$ pulls it from the math font."""
     s = str(s)
     out = []
     for ch in s:
@@ -48,19 +50,21 @@ def _esc(s):
             "\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$",
             "#": r"\#", "_": r"\_", "{": r"\{", "}": r"\}",
             "~": r"\textasciitilde{}", "^": r"\textasciicircum{}",
+            "Δ": r"$\Delta$",
         }.get(ch, ch))
     return "".join(out)
 
 
-def _fmt(v):
-    """One-decimal number formatting matching the Word builder (0 → '0.0', never
-    '-0.0'); pass through non-numbers as text."""
+def _fmt(v, decimals=1):
+    """Number formatting matching the Word builder (0 → '0.0'/'0', never '-0.0');
+    pass through non-numbers as text. `decimals=0` drops the decimal — used for
+    whole-million money columns, which don't need sub-million precision."""
     if isinstance(v, float):
         if pd.isna(v):
             return ""
-        if round(v, 1) == 0:
-            return "0.0"
-        return f"{v:,.1f}"
+        if round(v, decimals) == 0:
+            return "0" if decimals == 0 else "0.0"
+        return f"{v:,.{decimals}f}"
     return "" if v is None else str(v)
 
 
@@ -136,7 +140,8 @@ def header_spec_for(columns):
     return None
 
 
-def csv_to_latex(csv_path, tex_path=None, caption=None, label=None, title_super=None):
+def csv_to_latex(csv_path, tex_path=None, caption=None, label=None, title_super=None,
+                 int_millions=False):
     """Write a brand-coloured, portrait, page-breaking **longtable** (no landscape).
 
     The table carries NO caption/label — the consuming document supplies them via
@@ -161,6 +166,9 @@ def csv_to_latex(csv_path, tex_path=None, caption=None, label=None, title_super=
 
     headers = [str(c) for c in df.columns]
     ncol = len(headers)
+    # Percent columns keep one decimal; money (million) columns drop it when
+    # int_millions is set (sub-million precision is spurious for these figures).
+    pct_col = ["%" in h for h in headers]
     colspec = "@{}p{2.4cm}" + "r" * (ncol - 1) + "@{}"   # portrait, page-breaking
 
     lines = []
@@ -174,9 +182,10 @@ def csv_to_latex(csv_path, tex_path=None, caption=None, label=None, title_super=
         return "\\firstrowcolor{}\\firstrowfont{}" if first else "\\firstrowfont{}"
     def _wrap(t):
         # break a long spanning header onto two centred lines at the middle space
-        # (threshold keeps the four formula names on one line now the table is widened;
-        # only genuinely long group labels, e.g. the scenario headings, still wrap)
-        if len(t) <= 22 or " " not in t:
+        # (≤20 keeps the short formula names on one line but wraps "Double-weighted
+        # sales" and the longer scenario headings — the taller formula band also
+        # gives the bottom-anchored reference cell room for its heading + unit)
+        if len(t) <= 20 or " " not in t:
             return _esc(t)
         spaces = [i for i, ch in enumerate(t) if ch == " "]
         b = min(spaces, key=lambda i: abs(i - len(t) // 2))
@@ -219,36 +228,56 @@ def csv_to_latex(csv_path, tex_path=None, caption=None, label=None, title_super=
         for text, span in sub_row[len(lead):len(lead) + gspan]:
             row.append("\\firstrowfont{}" + ("" if text is None else _esc(text)))
         def _trail_cell(t):
-            # ≤3 lines (middle-split label + unit): a taller makecell than the
-            # three header rows overflows upward past the table edge.
-            if " " in t:
-                sp = [i for i, ch in enumerate(t) if ch == " "]
-                b = min(sp, key=lambda i: abs(i - len(t) // 2))
-                lab = _esc(t[:b]) + "\\\\" + _esc(t[b + 1:])
-            else:
-                lab = _esc(t)
-            return ("\\multirow{-3}{*}{\\firstrowfont{}\\makecell{%s\\\\(US\\$ m)}}"
-                    % lab)
+            # Heading kept as ONE label that wraps naturally to the column width
+            # (parbox), with the unit on the row beneath it; bottom-anchored across
+            # the 3 header rows, which are tall enough thanks to the wrapped
+            # formula band above.
+            return ("\\multirow{-3}{*}{\\firstrowfont{}"
+                    "\\parbox{2cm}{\\centering %s\\\\(US\\$ m)}}" % _esc(t))
         row += [_trail_cell(t) for t in trail]               # label + unit, bottom-anchored
         hdr.append(" & ".join(row) + " \\\\")
         hdr.append("\\hline")
     elif spec:
         super_row, sub_row = spec
-        top, first = [], True
+        # A column is single-level when its sub-cell is None (e.g. "Country",
+        # "Reported profit base"). Such columns are drawn as a bottom-anchored
+        # \multirow spanning BOTH header rows, so they sit centred with no empty
+        # cell beneath — the earlier layout left them stranded in the top row.
+        single, col = {}, 0
         for text, span in super_row:
-            body = _esc(text) if text else ""
+            if span == 1 and sub_row[col][0] is None:
+                single[col] = text
+            col += span
+        # ---- row 1: grouped supers (\multicolumn + \cline); single columns blank ----
+        cells, clines, col, first = [], [], 0, True
+        for text, span in super_row:
             if span > 1:
-                top.append("\\multicolumn{%d}{c|}{\\firstrowfont{}%s}" % (span, _wrap(text)))
+                # \multicolumn must open the cell — no \firstrowfont before it; the
+                # row colour comes from the leading single "Country" cell.
+                cells.append(("\\firstrowcolor{}" if first else "")
+                             + "\\multicolumn{%d}{c|}{\\firstrowfont{}%s}" % (span, _wrap(text)))
+                clines.append((col + 1, col + span))
+            elif col in single:
+                cells.append(_fr(first))                      # blank; label bottom-anchored below
             else:
-                top.append(_fr(first) + body)
+                cells.append(_fr(first) + _wrap(text))        # span-1 group (own sub beneath)
+                clines.append((col + 1, col + 1))
+            col += span
             first = False
-        hdr.append(" & ".join(top) + " \\\\")
-        hdr.append("\\hline")
-        subs, first = [], True
-        for text, span in sub_row:
-            subs.append(_fr(first) + ("" if text is None else _esc(text)))
+        hdr.append(" & ".join(cells) + " \\\\")
+        for a, b in clines:
+            hdr.append("\\cline{%d-%d}" % (a, b))
+        # ---- row 2: sub labels; single columns carry their label as a bottom-
+        #       anchored \multirow (=column width, so long labels wrap) up into row 1 ----
+        cells, first = [], True
+        for idx, (text, _sp) in enumerate(sub_row):
+            if idx in single:
+                cells.append(_fr(first) + "\\multirow{-2}{=}{\\firstrowfont{}%s}"
+                             % _esc(single[idx]))
+            else:
+                cells.append(_fr(first) + ("" if text is None else _esc(text)))
             first = False
-        hdr.append(" & ".join(subs) + " \\\\")
+        hdr.append(" & ".join(cells) + " \\\\")
         hdr.append("\\hline")
     else:
         cells, first = [], True
@@ -261,7 +290,7 @@ def csv_to_latex(csv_path, tex_path=None, caption=None, label=None, title_super=
     # ---- SOTJ xltabular: |L|Y…|, page-breaking; caption + notes supplied by caller.
     # Bleed 3.2cm into the left margin (matching the figures) so wide tables get room. ----
     if title_super and spec:                       # last column holds the long reference label
-        colspec = "|L{2.4cm}|" + "Y|" * (ncol - 2) + "R{2.5cm}|"
+        colspec = "|L{2.4cm}|" + "Y|" * (ncol - 2) + "R{2.2cm}|"
     else:
         colspec = "|L{2.4cm}|" + "Y|" * (ncol - 1)
     lines.append("\\setlength{\\LTleft}{-3.2cm}\\setlength{\\LTright}{0pt}")
@@ -277,8 +306,9 @@ def csv_to_latex(csv_path, tex_path=None, caption=None, label=None, title_super=
     for _, row in df.iterrows():
         is_grp = _is_group_row(row.iloc[0])
         cells = []
-        for v in row:
-            txt = _esc(_fmt(v))
+        for j, v in enumerate(row):
+            dec = 0 if (int_millions and not pct_col[j]) else 1
+            txt = _esc(_fmt(v, dec))
             # [1]/[2]/[3] flags → hyperlinks to the shared notes block
             # (regular weight/shape — not italic). The tie (~) keeps the flag
             # on the same line as its number instead of wrapping beneath it.
