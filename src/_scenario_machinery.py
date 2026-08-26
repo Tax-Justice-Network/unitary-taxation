@@ -805,6 +805,15 @@ def build_by_income(summary, gcol="wb_income_group"):
     `gcol` selects the grouping dimension — "wb_income_group" (default) or
     "region_tjn" for the geographic-region counterpart."""
     sub = summary[~summary["iso_partner"].isin(DATA_QUALITY_EXCLUSIONS)]
+    if gcol == "region_tjn":
+        # Coarser paper regions (Asia & Oceania; Latin America & Caribbean):
+        # merge BEFORE grouping so USD sums and % denominators aggregate
+        # correctly. Without this the figures pivot on the raw 7-region labels
+        # and the merged-order reindex silently drops 4 of them (the Appendix-B
+        # figures then show only Africa / Northern America / Europe).
+        from _exhibit_helpers import REGION_MERGE  # lazy: avoids circular import
+        sub = sub.copy()
+        sub["region_tjn"] = sub["region_tjn"].replace(REGION_MERGE)
     # Rate modes absent from the run (e.g. CIT-CIT, not in the MINIMAL grid)
     # have no columns — aggregate only what exists.
     _sum_cols = [c for c in SUM_MUSD_COLS + SUM_DENOM_COLS if c in sub.columns]

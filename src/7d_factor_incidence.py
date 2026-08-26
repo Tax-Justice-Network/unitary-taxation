@@ -47,6 +47,7 @@ except AttributeError:
 
 import config
 from config import output_dirs
+import _exhibit_helpers as _eh
 from _brand import apply_tjn_style, PALETTE, HATCH_CYCLE, DIVERGING_GAIN_LOSS
 
 apply_tjn_style()
@@ -79,9 +80,10 @@ IG_ORDER = ["low_income", "lower_middle_income", "upper_middle_income",
 IG_LAB = {"low_income": "Low income", "lower_middle_income": "Lower middle income",
           "upper_middle_income": "Upper middle income", "high_income": "High income",
           "tax_haven": "Tax havens"}   # display label
-# Parallel geographic grouping (region_tjn) for the region-breakdown matrix.
-REGION_ORDER = ["Africa", "Asia", "Latin America", "Caribbean/American isl.",
-                "Northern America", "Europe", "Oceania"]
+# Parallel geographic grouping (region_tjn) for the region-breakdown matrix,
+# using the paper's coarser merged regions (Asia & Oceania; Latin America &
+# Caribbean) — same grouping as the other Appendix-B figures.
+REGION_ORDER = list(_eh.REGION_ORDER)
 
 
 # %% MARK: 3. Build factor matrices
@@ -96,6 +98,8 @@ def build_matrices(group_col="wb_income_group", group_order=IG_ORDER):
             continue
         d = pd.read_csv(fs[0], low_memory=False)
         d = d[d.year.isin(YEARS)].copy()
+        if group_col == "region_tjn":   # coarser merged paper regions
+            d[group_col] = d[group_col].replace(_eh.REGION_MERGE)
         f_defl = d.year.map(DEFL)
         # Δ tax revenue (net, ETR-CIT valuation; MUSD -> deflated).
         d["v"] = pd.to_numeric(d.revenue_gain_from_ut, errors="coerce") * f_defl

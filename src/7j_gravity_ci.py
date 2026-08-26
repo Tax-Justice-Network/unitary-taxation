@@ -51,6 +51,7 @@ try:
 except AttributeError:
     pass
 
+import config
 from config import output_dirs
 from _brand import apply_tjn_style, POSITIVE, NEGATIVE
 import _exhibit_helpers as _eh
@@ -60,8 +61,12 @@ apply_tjn_style()
 
 # %% MARK: 2. Config and constants
 YEARS = list(range(2016, 2023))
+AVG_YEARS = [2016, 2017, 2018, 2019, 2021, 2022]   # paper window: 2020 excluded
 DEFAULT_SPEC = "employees_payroll__etrdef_average__etrmax_inf__loss_cit_gain_etr"
-GRAVITY_BASELINE_TOPIC = "unitary_taxation_disaggregated"
+# The bootstrap runs on the HEADLINE dataset (excl_resource, gravity sample), so
+# the point estimate must come from the same topic — reading the uncorrected
+# `disaggregated` topic put the point outside its own bootstrap CI.
+GRAVITY_BASELINE_TOPIC = "unitary_taxation_excl_resource"
 _SPEC_LABEL = {"employees_payroll": "employees + payroll", "average": "average ETR",
                "sales_employees_destmnedds": "employees + destination sales",
                "domfor": "domestic/foreign ETR"}
@@ -105,6 +110,12 @@ def _ci_table(merged, spec):
     grpmap = df["wb_income_group"].to_dict()
     order_iso = pd.Index(sorted(d.index, key=lambda i: _eh.cname(i).lower()))
     out = _eh.finalise(d, order_iso, grpmap)
+    # Group-heading rows: keep only the (additive) net-gain sum — summed standard
+    # errors, quantile bounds and 0/1 flags are not meaningful aggregates.
+    is_grp = out.iloc[:, 0].astype(str).str.strip().str.isupper()
+    for col in ("std. error (USD bn)", "CI 2.5% (USD bn)",
+                "CI 97.5% (USD bn)", "distinguishable from zero"):
+        out.loc[is_grp, col] = np.nan
     td = _eh.tabledir("gravity")
     csv = os.path.join(td, "tableC_gravity_confidence_intervals__gravity.csv")
     out.to_csv(csv, index=False)
@@ -168,14 +179,27 @@ def main():
         & (df["rate_mode"] == rate)
         & (df["year"].isin(YEARS))
     ]
+    # Point estimate on the PAPER basis: deflated yearly average, 2020 excluded.
+    defl = config.deflator_to_base()
+    df["_v25"] = df["revenue_gain_from_ut"] * df["year"].map(defl)
     point = (
         df.groupby(["iso_partner", "partner_jurisdiction", "wb_income_group"],
-                   as_index=False, dropna=False)["revenue_gain_from_ut"]
-        .sum()
-        .rename(columns={"revenue_gain_from_ut": "point_net_gain_musd"})
+                   as_index=False, dropna=False)
+        .agg(point_net_gain_musd=("_v25", lambda s: s[df.loc[s.index, "year"]
+                                                      .isin(AVG_YEARS)].sum() / len(AVG_YEARS)),
+             point_sum_nominal=("revenue_gain_from_ut", "sum"))
     )
 
     merged = point.merge(se, on="iso_partner", how="left")
+    # The bootstrap draws are NOMINAL SUMS over all years (2016–2022 incl 2020,
+    # collapsed at capture). Rescale SE/CI to the paper basis with the per-country
+    # factor point_avg/point_sum from the same summary (global median fallback
+    # where the nominal sum is tiny or sign-flipping).
+    f = merged["point_net_gain_musd"] / merged["point_sum_nominal"]
+    f_glob = f[(merged["point_sum_nominal"].abs() > 50) & (f > 0)].median()
+    f = f.where((merged["point_sum_nominal"].abs() > 50) & (f > 0), f_glob)
+    for c in ("boot_se", "ci_lo_2.5", "ci_hi_97.5"):
+        merged[c] = merged[c] * f
     merged["ci_excludes_zero"] = (
         (merged["ci_lo_2.5"] > 0) | (merged["ci_hi_97.5"] < 0)
     )

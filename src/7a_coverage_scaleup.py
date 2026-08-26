@@ -401,7 +401,7 @@ def fig_global_range(mode="net"):
     ]  # blank handle: 2nd line
     _l += [
         "Range from conservative to optimistic assumptions about how",
-        "the shifted profits are currently taxed and will be taxed (see Box 4)",
+        "the shifted profits are currently taxed and will be taxed (see Box 3)",
     ]
     ax.legend(
         _h,

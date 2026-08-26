@@ -69,9 +69,11 @@ MEASURES = [
 ]
 ETR = "domfor"
 THRESHOLD = "inf"
-# Public URLs for the paper and methodology note (leave empty until online).
+# Public URLs for the paper, methodology note and replication package
+# (leave empty until online).
 PAPER_URL = "https://taxjustice.net/reports/a-500-billion-dollar-decision-for-the-world-the-revenue-impacts-of-global-unitary-taxation/"
 METHODOLOGY_URL = "https://taxjustice.net/wp-content/uploads/2026/07/The-500-billion-dollar-decision-for-the-world-Methodology-note-Tax-Jutice-Network-2026.pdf"
+GITHUB_URL = "https://github.com/Tax-Justice-Network/unitary-taxation"
 YEARS = _eh.AVG_YEARS
 NYRS = _eh.N_AVG_YEARS
 DEFL = config.deflator_to_base()
@@ -88,7 +90,39 @@ ESWATINI_APP_NOTE = (
     "transfer-pricing dispute with the US tax authorities "
     "(<a href='https://www.ft.com/content/cd05fb4b-8e67-4996-a5f3-bf1b8ccdf3af'"
     " target='_blank' rel='noopener'>Financial Times, Foley and Meyer 2024</a>).")
-COUNTRY_NOTES = {"SWZ": ESWATINI_APP_NOTE}
+# Headquarters-bias cards (Japan, Denmark, Saudi Arabia): why they lose under
+# unitary taxation. Break-even ranges are from the report's Table 5, Panel B
+# (pooled 2016-2022 excl. 2020, across the four modelled formulas) — re-check
+# these hard-coded numbers if the break-even table is regenerated.
+JAPAN_APP_NOTE = (
+    "Japan’s projected loss reflects a ‘headquarters bias’: Japanese multinationals book a "
+    "larger share of their global profits at home than the real activity located there "
+    "justifies. This is not about undertaxation — domestic profits already face an effective "
+    "rate of about 30.5% — but reflects the concentration of research, intangible assets and "
+    "other high-value functions at parent companies. Research is partly captured by formulas "
+    "that include payroll: under a payroll-based formula, Japan’s losses shrink considerably "
+    "(try it in the formula builder above). Profits attributable to intangibles, however, are "
+    "deliberately not captured by any formula based on real activity. To preserve current "
+    "revenues, Japan would need an effective rate between 36.3% and 42.6%, depending on the "
+    "formula.")
+DENMARK_APP_NOTE = (
+    "Denmark’s projected loss reflects a ‘headquarters bias’: Danish multinationals pay only "
+    "about 15% on the profits they book at home, well below the statutory 22% — most "
+    "prominently through the tonnage-tax regime, under which qualifying shipping activities "
+    "are taxed by fleet tonnage rather than actual profits. Maersk illustrates the mechanism: "
+    "in 2022 it booked US$29.0 billion of its US$30.2 billion profit under the tonnage regime, "
+    "at an effective tax rate of about 3%. To preserve current revenues, Denmark would need an "
+    "effective rate between 25.3% and 38.8%, depending on the formula.")
+SAUDI_APP_NOTE = (
+    "Saudi Arabia’s projected loss reflects a ‘headquarters bias’: Saudi-headquartered "
+    "multinationals book an unusually large share of their global profits at home, while the "
+    "domestic, all-multinational and statutory tax rates all coincide at 20%. The estimate may "
+    "be sensitive to the treatment of a small number of exceptionally large groups and is "
+    "affected by the imperfect removal of resource-related taxation, so the aggregate data do "
+    "not permit a more precise attribution. Break-even rates to preserve current revenues are "
+    "comparatively modest: between 22.7% and 26.0%, depending on the formula.")
+COUNTRY_NOTES = {"SWZ": ESWATINI_APP_NOTE, "JPN": JAPAN_APP_NOTE,
+                 "DNK": DENMARK_APP_NOTE, "SAU": SAUDI_APP_NOTE}
 
 
 def _summary(scenario):
@@ -261,7 +295,8 @@ def main():
             "rates": [[k] for k in RATES],   # display order = insertion order
             # Public links (fill in when the paper / methodology note are online;
             # empty strings render as plain text instead of a link).
-            "links": {"paper": PAPER_URL, "methodology": METHODOLOGY_URL},
+            "links": {"paper": PAPER_URL, "methodology": METHODOLOGY_URL,
+                      "github": GITHUB_URL},
             "generated": pd.Timestamp.today().strftime("%Y-%m-%d"),
         },
         "countries": countries,

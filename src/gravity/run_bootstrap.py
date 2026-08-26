@@ -62,9 +62,16 @@ _sub = "_reported" if REPORTED not in ("0", "false", "False", "") else ""
 if SRC not in sys.path:
     sys.path.insert(0, SRC)
 from config import output_dirs  # noqa: E402
+# Script 5 nests its outputs under a subfolder named after RUN_DATASET, so the
+# estimate glob must follow BOOT_DATASET (it was hardcoded to "disaggregated"
+# before the boot dataset moved to the headline excl_resource — every draw was
+# then silently skipped as "not found").
 EST_GLOB = str(output_dirs(f"{TOPIC}{_sub}")[0]
-               / "disaggregated" / f"country_estimates__{SPEC}.csv")
+               / DATASET / f"country_estimates__{SPEC}.csv")
 METRIC = os.environ.get("BOOT_METRIC", "revenue_gain_from_ut")
+# Crash-resilient persistence: every completed draw is appended here, so an
+# interrupted run loses at most the in-flight seed (resume with BOOT_SEED0).
+PARTIAL = str(output_dirs(f"{TOPIC}{_sub}")[0] / "boot_draws_partial.csv")
 
 
 def run(script, cwd, extra_env):
@@ -93,17 +100,19 @@ for s in range(SEED0, SEED0 + N_BOOT):
         "REPORTED_ONLY": REPORTED,
     })
     f = glob.glob(EST_GLOB)
-    if not f:
-        print(f"  seed {s}: estimate file not found, skipping")
-        continue
-    d = pd.read_csv(f[0])[["iso_partner", METRIC]]
-    d = d.groupby("iso_partner", as_index=False)[METRIC].sum()
-    d["seed"] = s
-    draws.append(d)
-    # Keep disk flat: the metric for this seed is now captured in `draws`, so drop
-    # the seed's per-draw datasets. With the per-draw script-4 step each seed writes
-    # several ~40MB files (disaggregated + excl_resource + floored + allrows + incl);
-    # 100 draws would otherwise fill C:. (The gravity_boot estimate folder overwrites
+    ok = bool(f)
+    if ok:
+        d = pd.read_csv(f[0])[["iso_partner", METRIC]]
+        d = d.groupby("iso_partner", as_index=False)[METRIC].sum()
+        d["seed"] = s
+        draws.append(d)
+        # persist immediately (crash/interrupt loses at most the in-flight seed)
+        d.to_csv(PARTIAL, mode="a", index=False,
+                 header=not os.path.exists(PARTIAL))
+    # Keep disk flat REGARDLESS of success: drop the seed's per-draw datasets.
+    # With the per-draw script-4 step each seed writes several ~40MB files
+    # (disaggregated + excl_resource + floored + allrows + incl); 100 draws
+    # would otherwise fill C:. (The gravity_boot estimate folder overwrites
     # per seed — same topic/spec — so it does not accumulate.)
     _final = os.path.join(ROOT, "data", "final")
     for _f in (f"cbcr_main_disaggregated__boot{s}.csv",
@@ -119,6 +128,9 @@ for s in range(SEED0, SEED0 + N_BOOT):
         os.remove(os.path.join(GR, f"gravity_imputed_activity__boot{s}.csv"))
     except OSError:
         pass
+    if not ok:
+        print(f"  seed {s}: estimate file not found, skipping", flush=True)
+        continue
     print(f"  seed {s} done ({len(draws)}/{N_BOOT})", flush=True)
 
 # %%

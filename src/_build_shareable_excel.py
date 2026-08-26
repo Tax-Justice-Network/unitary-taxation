@@ -260,13 +260,32 @@ def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
     wb.save(OUT)
     print(f"wrote {OUT}")
+    # Final-folder copy. The user hand-edited the explanations ("Read me")
+    # sheet of the FINAL file — NEVER overwrite it. If the final file exists,
+    # splice: replace only the data sheets, keep every other sheet as-is.
     try:
         import shutil
+        from openpyxl import load_workbook
         FINAL_DIR.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(OUT, FINAL_DIR / "Unitary_taxation_results.xlsx")
-        print(f"copied to {FINAL_DIR / 'Unitary_taxation_results.xlsx'}")
+        final_path = FINAL_DIR / "Unitary_taxation_results.xlsx"
+        if final_path.exists():
+            fin = load_workbook(final_path)
+            data_sheets = [t for t, *_ in SHEETS]
+            for t in data_sheets:
+                if t in fin.sheetnames:
+                    fin.remove(fin[t])
+            keep_first = fin.sheetnames[:]           # user's sheets stay in front
+            for title, csv_name, heading, blurb, super_header, ref_name in SHEETS:
+                _write_sheet(fin, title, csv_name, heading, blurb,
+                             super_header, ref_name)
+            fin.save(final_path)
+            print(f"updated data sheets in {final_path} "
+                  f"(preserved: {', '.join(keep_first)})")
+        else:
+            shutil.copy2(OUT, final_path)
+            print(f"copied to {final_path}")
     except Exception as e:
-        print(f"[warn] could not copy to final folder: {e}")
+        print(f"[warn] could not update final folder: {e}")
 
 
 if __name__ == "__main__":

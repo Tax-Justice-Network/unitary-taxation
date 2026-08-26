@@ -249,8 +249,7 @@ def main():
 
     order = ["low_income", "lower_middle_income", "upper_middle_income",
              "high_income", "tax_haven"]
-    region_order = ["Africa", "Asia", "Latin America", "Caribbean/American isl.",
-                    "Northern America", "Europe", "Oceania"]
+    import _exhibit_helpers as _ehm   # merged paper regions (match the figB reader)
     _val_cols = ["revenue_gain_from_ut", "overstated_revenue_musd",
                  "revenue_gain_loss_consolidated_musd"]
     for sample in SAMPLES:
@@ -261,7 +260,9 @@ def main():
         print(f"\n[sample={sample}]", end="")
         byg = hs.groupby("wb_income_group")[_val_cols].sum().reindex(order) / 1e3  # $B
         # region-breakdown counterpart
-        byr = hs.groupby("region_tjn")[_val_cols].sum().reindex(region_order) / 1e3
+        byr = (hs.assign(region_tjn=hs["region_tjn"].replace(_ehm.REGION_MERGE))
+                 .groupby("region_tjn")[_val_cols].sum()
+                 .reindex(_ehm.REGION_ORDER) / 1e3)
         byr.to_csv(os.path.join(
             tables_dir, f"loss_consolidation_by_region__{sample}__{scen}.csv"))
         tot_over = hs["overstated_revenue_musd"].sum() / 1e3

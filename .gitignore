@@ -6,3 +6,4 @@ data/intermediate/gravity/
 output/*
 !output/README.md
 *.log
+.vscode/
