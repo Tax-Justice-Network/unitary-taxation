@@ -218,7 +218,7 @@ INCOME_GROUP_LABELS = {
     "lower_middle_income": "Lower-mid",
     "upper_middle_income": "Upper-mid",
     "high_income": "High",
-    "tax_haven": "Inv. hub",
+    "tax_haven": "Tax havens",
 }
 
 

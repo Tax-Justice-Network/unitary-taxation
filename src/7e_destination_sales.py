@@ -100,7 +100,7 @@ INCOME_LABEL = {
     "low": "Low",
     "middle": "Middle",
     "high": "High",
-    "hub": "Inv. hubs",
+    "hub": "Tax havens",
     "global": "Global",
 }
 
